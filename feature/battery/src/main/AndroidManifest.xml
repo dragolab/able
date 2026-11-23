@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permissions used here are declared by :app: POST_NOTIFICATIONS, FOREGROUND_SERVICE,
+         FOREGROUND_SERVICE_SPECIAL_USE, PACKAGE_USAGE_STATS, RECEIVE_BOOT_COMPLETED. -->
+    <application>
+        <service
+            android:name=".monitor.BatteryMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-started battery session monitoring with an ongoing status notification" />
+        </service>
+
+        <!-- BOOT_COMPLETED is a protected broadcast that only the system can send. -->
+        <receiver
+            android:name=".monitor.BatteryMonitorBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

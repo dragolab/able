@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- System toggles additions: NFC advanced mode (SYS-001). Prefix tools_toggles_. -->
+<resources>
+    <string name="tools_toggles_nfc_direct_advanced">Changed directly (advanced mode)</string>
+    <string name="tools_toggles_nfc_direct_shizuku">Changed directly through Shizuku</string>
+    <string name="tools_toggles_nfc_copy_adb">Copy ADB command for advanced mode</string>
+    <string name="tools_toggles_nfc_help_title">NFC advanced mode</string>
+    <string name="tools_toggles_nfc_help_text">Android has no public way for apps to switch NFC, so by default Able, its NFC tile and widget open Android\'s NFC settings.\n\nAdvanced mode switches NFC directly. Grant \"Write secure settings\" once from a computer with ADB:\n\n%1$s\n\nThe same permission lets Able switch USB/wireless debugging and Private DNS. Shizuku, when connected, also switches NFC directly. To undo, run the same command with \"revoke\" instead of \"grant\", or uninstall Able.\n\nAdvanced mode follows the open-source \"NFC Quick Settings\" app by Paul Colby.</string>
+</resources>

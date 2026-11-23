@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Narrow package visibility for apps that expose a launcher activity. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <!-- TV hardware compatibility (NFR-TV-001, ADR-008) -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
+        android:required="false" />
+
+    <!-- Application permissions requested in-context (SET-002, NFR-SEC-002) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Haptic confirmation when locking from the home-screen widget (UX-003, LOCK-001). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- Granted only through ADB by the user (NFC advanced mode, SYS-001/003/004); never requested at runtime. -->
+    <uses-permission xmlns:tools="http://schemas.android.com/tools" android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <application
+        android:name=".AbleApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true"
+        android:localeConfig="@xml/locales_config"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Material.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- TV Leanback Launcher (NFR-TV-001) -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Screen lock and double tap to lock (LOCK-001, LOCK-002). See xml/able_accessibility_service.xml. -->
+        <service
+            android:name=".AbleAccessibilityService"
+            android:exported="true"
+            android:label="@string/accessibility_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/able_accessibility_service" />
+        </service>
+
+        <!-- Transparent "double tap to lock" home-screen widget (LOCK-001). -->
+        <receiver
+            android:name=".lock.LockTapWidgetProvider"
+            android:exported="true"
+            android:label="@string/lock_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_lock_tap_info" />
+        </receiver>
+
+        <!-- Receives taps from the lock widget's own PendingIntent only. -->
+        <receiver
+            android:name=".lock.LockTapReceiver"
+            android:exported="false" />
+
+        <!--
+            App lock prompt (APPLOCK-001): transparent host for the system BiometricPrompt, started
+            only by the Accessibility service. Own task, not in recents, not over the keyguard.
+        -->
+        <activity
+            android:name=".applock.AppLockActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.dragolabs.able.applock"
+            android:showWhenLocked="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- Secure file sharing provider for .ablebackup (CFG-001, NFR-SEC-003) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Shizuku Client Binder Provider -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <!-- Quick Settings Tiles -->
+        <service
+            android:name=".tile.NfcTileService"
+            android:label="@string/tile_nfc_label"
+            android:icon="@drawable/ic_tile_nfc"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.AutoBrightnessTileService"
+            android:label="@string/tile_autobrightness_label"
+            android:icon="@drawable/ic_tile_brightness"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.UsbAdbTileService"
+            android:label="@string/tile_usb_adb_label"
+            android:icon="@drawable/ic_tile_adb"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.WirelessAdbTileService"
+            android:label="@string/tile_wireless_adb_label"
+            android:icon="@drawable/ic_tile_wireless_adb"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.PrivateDnsTileService"
+            android:label="@string/tile_private_dns_label"
+            android:icon="@drawable/ic_tile_dns"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.TorchTileService"
+            android:label="@string/tile_torch_label"
+            android:icon="@drawable/ic_tile_torch"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.ScreenLockTileService"
+            android:label="@string/tile_lock_label"
+            android:icon="@drawable/ic_tile_lock"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.CustomTile1Service"
+            android:label="@string/tile_custom1_label"
+            android:icon="@drawable/ic_tile_custom"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.CustomTile2Service"
+            android:label="@string/tile_custom2_label"
+            android:icon="@drawable/ic_tile_custom"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.CustomTile3Service"
+            android:label="@string/tile_custom3_label"
+            android:icon="@drawable/ic_tile_custom"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.CustomTile4Service"
+            android:label="@string/tile_custom4_label"
+            android:icon="@drawable/ic_tile_custom"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Tiles & widgets configuration (CUST-001): unassigned slots and tile long-press open it. -->
+        <activity
+            android:name=".actions.ui.TilesWidgetsActivity"
+            android:exported="true"
+            android:label="@string/tiles_screen_title"
+            android:theme="@android:style/Theme.Material.NoActionBar">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
+
+        <!-- Glance AppWidgets (MON-004, CUST-002) -->
+        <receiver
+            android:name=".widget.AbleBatteryWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_battery_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_battery_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AbleQuickActionsWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_quick_actions_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_actions_info" />
+        </receiver>
+
+        <!-- Customizable multi-action widget and its builder (CUST-002, ADR-024) -->
+        <receiver
+            android:name=".widget.AbleCustomActionsWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_custom_actions_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_custom_actions_info" />
+        </receiver>
+
+        <activity
+            android:name=".widget.CustomWidgetConfigActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:label="@string/tiles_widget_config_title"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Material.NoActionBar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Double tap to lock (LOCK-001): Accessibility service and home-screen widget. -->
+<resources>
+    <string name="lock_accessibility_service_summary">Screen lock, app lock and button shortcuts</string>
+    <string name="lock_accessibility_service_description">Optional. Each feature below works only after you turn it on in Able; all are off by default.\n\n• Screen lock: turns off and locks the screen from the Screen lock tool, the Quick Settings tile, the home-screen widget, or a double tap on the lock screen, status bar or empty home-screen space. To know when the lock screen, notification shade or PIN pad is showing, it reads the window structure (view IDs) of the system interface; on the lock screen it replays your own swipes so unlocking keeps working. For the home-screen double tap (Precise mode) it places an invisible overlay over your home app\'s home pages only (not the status bar, navigation bar or back-gesture edges), reads the home app\'s layout to tell icons and widgets from empty space, and passes every other touch back to the home app: taps are sent to the icon or widget, swipes and long presses are replayed when you lift your finger.\n• App lock: notices which app comes to the foreground (its package name only) and, for apps you chose, shows Android\'s own fingerprint, face or screen lock prompt.\n• Button shortcuts: watches volume key presses to recognise the gestures you set up and runs the action you chose. Other keys are passed on untouched.\n\nIt does not read what you type or the content of other apps, and it stores or sends nothing; settings stay on this device. You can turn it off here at any time.</string>
+    <string name="lock_widget_label">Double tap to lock</string>
+    <string name="lock_widget_description">Invisible area: place it on empty home-screen space and double tap it to turn off the screen.</string>
+    <string name="lock_widget_preview_text">Double tap to lock\n(invisible area)</string>
+    <string name="lock_widget_content_description">Double tap to turn off the screen</string>
+    <string name="lock_widget_service_off">Turn on the Able screen lock service first. Tap the area again to open setup.</string>
+</resources>

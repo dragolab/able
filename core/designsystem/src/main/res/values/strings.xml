@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Able</string>
+
+    <!-- Primary destinations (SHELL-001) -->
+    <string name="nav_home">Home</string>
+    <string name="nav_battery">Battery</string>
+    <string name="nav_apps">Apps</string>
+    <string name="nav_tools">Tools</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Shared actions -->
+    <string name="ds_cancel">Cancel</string>
+    <string name="ds_confirm">Confirm</string>
+    <string name="ds_save">Save</string>
+    <string name="ds_delete">Delete</string>
+    <string name="ds_edit">Edit</string>
+    <string name="ds_reset">Reset</string>
+    <string name="ds_close">Close</string>
+    <string name="ds_share">Share</string>
+    <string name="ds_copy">Copy</string>
+    <string name="ds_retry">Retry</string>
+    <string name="ds_open">Open</string>
+    <string name="ds_not_now">Not now</string>
+    <string name="ds_open_settings">Open settings</string>
+    <string name="ds_open_android_settings">Open Android settings</string>
+    <string name="ds_navigate_back">Navigate back</string>
+    <string name="ds_search">Search</string>
+    <string name="ds_clear_search">Clear search</string>
+
+    <!-- Shared states -->
+    <string name="ds_loading">Loading</string>
+    <string name="ds_unavailable">Unavailable</string>
+    <string name="ds_unsupported_title">Not available on this device</string>
+    <string name="ds_not_enough_data">Not enough data yet</string>
+    <string name="ds_experimental">Experimental · device-dependent</string>
+    <string name="ds_estimate">Estimate</string>
+    <string name="ds_on">On</string>
+    <string name="ds_off">Off</string>
+    <string name="ds_granted">Granted</string>
+    <string name="ds_not_granted">Not granted</string>
+    <string name="ds_copied">Copied to clipboard</string>
+    <string name="ds_no_handler">No app on this device can open this.</string>
+    <string name="ds_operation_failed">Android rejected the operation.</string>
+    <string name="ds_operation_unverified">Android did not confirm the change.</string>
+
+    <!-- Battery profiles (BAT-001) -->
+    <string name="profile_normale">Normal</string>
+    <string name="profile_notte">Night</string>
+    <string name="profile_risparmio">Power saver</string>
+    <string name="profile_emergenza">Emergency</string>
+    <string name="profile_pausa_app">App pause</string>
+
+    <!-- Capability status (SET-002) -->
+    <string name="capability_available">Available</string>
+    <string name="capability_unsupported">Hardware unsupported</string>
+    <string name="capability_permission_needed">Permission required</string>
+    <string name="capability_shizuku_needed">Shizuku connection required</string>
+    <string name="capability_shizuku">Shizuku</string>
+    <string name="capability_accessibility">Accessibility service</string>
+    <string name="capability_usage_access">Usage access</string>
+    <string name="capability_notifications">Notifications</string>
+    <string name="capability_write_settings">Modify system settings</string>
+    <string name="capability_secure_settings">Write secure settings</string>
+    <string name="capability_location">Precise location</string>
+    <string name="shizuku_state_ready">Connected</string>
+    <string name="shizuku_state_waiting">Running · permission needed</string>
+    <string name="shizuku_state_denied">Permission denied</string>
+    <string name="shizuku_state_unavailable">Not running</string>
+
+    <!-- Safety alerts (HOME-003) -->
+    <string name="alert_shizuku_disconnected_title">Shizuku disconnected</string>
+    <string name="alert_shizuku_disconnected_msg">Privileged battery and toggle actions cannot run until Shizuku is reconnected.</string>
+    <string name="alert_shizuku_permission_title">Shizuku is waiting for permission</string>
+    <string name="alert_shizuku_permission_msg">Shizuku is running but Able has not been authorized yet.</string>
+    <string name="alert_permission_revoked_title">Permission revoked</string>
+    <string name="alert_permission_revoked_msg">A permission required by an enabled feature has been turned off in Android Settings.</string>
+    <string name="alert_action_failed_title">An action failed</string>
+    <string name="alert_action_failed_msg">%1$s</string>
+    <string name="alert_authorize">Authorize</string>
+    <string name="alert_open_shizuku">Open Shizuku</string>
+    <string name="alert_details">Details</string>
+    <string name="ds_help_about">About %1$s</string>
+    <string name="ds_got_it">Got it</string>
+    <string name="ds_expanded">Expanded</string>
+    <string name="ds_collapsed">Collapsed</string>
+</resources>

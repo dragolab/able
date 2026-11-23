@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Screen lock tool: double tap to turn off the screen (LOCK-001, LOCK-002). -->
+<resources>
+    <string name="lock_hero_title">Double tap to turn off the screen</string>
+    <string name="lock_hero_service_on">Accessibility service on</string>
+    <string name="lock_hero_service_off">Accessibility service off</string>
+    <string name="lock_hero_active_none">No place chosen yet. Follow the steps below.</string>
+    <string name="lock_hero_active_prefix">Active on: %1$s</string>
+    <string name="lock_place_lock_screen">lock screen</string>
+    <string name="lock_place_home">home screen</string>
+    <string name="lock_place_status_bar">status bar</string>
+    <string name="lock_place_separator">" · "</string>
+
+    <string name="lock_step_done">Done</string>
+    <string name="lock_step_todo">To do</string>
+
+    <string name="lock_step1_title">1. Turn on the Accessibility service</string>
+    <string name="lock_step1_body">Android lets apps without device-admin rights turn off the screen only through an Accessibility service. In Accessibility settings open \"Able screen lock\" and turn it on.</string>
+    <string name="lock_step1_privacy">It reads only the window structure of the system interface to know when the lock screen is showing. Nothing is stored or sent.</string>
+    <string name="lock_help_service_title">Able Accessibility service</string>
+    <string name="lock_help_service_text">What it does: sends Android\'s \"lock screen\" action when you ask for it (tool, tile, widget or double tap).\n\nWhat it reads: only the window structure (view IDs) of the system interface (SystemUI), to know whether the lock screen, notification shade or PIN pad is showing. It does not read what you type or the content of other apps, and it stores or sends nothing.\n\nRisk: Accessibility services are powerful; Android shows a warning when you turn one on. With the lock-screen option, Able places an invisible area over the upper part of the lock screen and replays your swipes so unlocking keeps working.\n\nHow to turn it off: Android Settings › Accessibility › Able screen lock, or the button on this screen.</string>
+
+    <string name="lock_step2_title">2. Choose where to double tap</string>
+    <string name="lock_step2_needs_service">Turn on the Accessibility service first.</string>
+
+    <string name="lock_option_lock_screen_title">Lock screen</string>
+    <string name="lock_option_lock_screen_summary">Double tap empty space in the upper part of the lock screen.</string>
+    <string name="lock_recognition_unknown">Lock the phone and wake it to check that the lock screen is recognised.</string>
+    <string name="lock_recognition_ok">The lock screen was recognised the last time it was shown.</string>
+    <string name="lock_recognition_failed">The lock screen was not recognised last time: double tap may not work there on this device or Android version.</string>
+    <string name="lock_help_lock_screen_title">Double tap on the lock screen</string>
+    <string name="lock_help_lock_screen_text">While the lock screen is showing, Able places an invisible area over its upper two thirds (clock and notifications). Two taps on empty space turn off the screen. Taps on buttons and notifications are passed on, and swipes are replayed so you can still unlock or open the shade.\n\nThe area is disabled automatically when the notification shade, PIN, pattern or password screen is visible, or when Able cannot recognise the lock screen. It never covers the fingerprint sensor or the bottom shortcuts.\n\nLimits: long presses and some animations on the lock screen may feel different. Recognition depends on the system interface and may stop working after an update.\n\nHow to turn it off: switch this option off, or turn off the Accessibility service.</string>
+
+    <string name="lock_option_home_title">Home screen widget (recommended)</string>
+    <string name="lock_home_none">No widget placed yet.</string>
+    <plurals name="lock_home_count">
+        <item quantity="one">%1$d widget placed.</item>
+        <item quantity="other">%1$d widgets placed.</item>
+    </plurals>
+    <string name="lock_home_add">Add widget to home screen</string>
+    <string name="lock_home_manual">Your launcher does not let apps add widgets. Long-press empty home space › Widgets › Able › \"Double tap to lock\".</string>
+    <string name="lock_home_requested">Confirm in the dialog, then resize the widget over empty home space.</string>
+    <string name="lock_home_request_failed">The launcher did not accept the request. Add the widget manually from the widget list.</string>
+    <string name="lock_help_home_title">Double tap on the home screen</string>
+    <string name="lock_help_home_text">Android does not tell apps where you tap on the launcher\'s home screen, so the reliable way is an invisible, resizable widget: place it on empty home space (for example a whole empty page or the area between your icons) and double tap it to turn off the screen. It works with every launcher that supports widgets.\n\nThe widget does nothing else and reads nothing. If the Accessibility service is off, a tap on it opens this screen.\n\nHow to remove it: long-press the area and drag it to \"Remove\".</string>
+
+    <string name="lock_option_status_bar_title">Status bar</string>
+    <string name="lock_option_status_bar_summary">Double tap the status bar while using the phone. Off by default.</string>
+    <string name="lock_help_status_bar_title">Double tap on the status bar</string>
+    <string name="lock_help_status_bar_text">While the phone is unlocked, Able places an invisible strip over the status bar. Two taps turn off the screen; a swipe down still opens the notification shade.\n\nThe strip is disabled in fullscreen apps and while the shade is open. Status-bar icons are not tappable through it.\n\nHow to turn it off: switch this option off.</string>
+
+    <string name="lock_settings_title">Gesture settings</string>
+    <string name="lock_timeout_label">Maximum time between taps: %1$d ms</string>
+    <string name="lock_help_timeout_title">Time between taps</string>
+    <string name="lock_help_timeout_text">Two taps count as a double tap only if the second arrives within this time. Increase it if double taps are missed; decrease it if single taps lock the screen by mistake. Use the practice area to try it without locking.</string>
+    <string name="lock_haptic_title">Vibrate before locking</string>
+    <string name="lock_haptic_summary">A short vibration confirms the double tap.</string>
+    <string name="lock_practice_idle">Practice area: double tap here to try the timing</string>
+    <string name="lock_practice_hit">Double tap recognised</string>
+    <string name="lock_practice_cd">Practice area for the double tap timing. It does not lock the screen.</string>
+
+    <string name="lock_test_title">Test</string>
+    <string name="lock_test_body">Turn off the screen now to check that locking works on this device. Then try the double tap in each place you turned on.</string>
+
+    <string name="lock_alternatives_title">Other ways to lock</string>
+    <string name="lock_alternatives_body">The Quick Settings tile locks with one tap from the notification shade and uses the same Accessibility service.</string>
+
+    <string name="lock_limits_title">Depends on your device</string>
+    <string name="lock_limits_body">Recognising the lock screen depends on the system interface (SystemUI), and the home-screen options on your launcher. They may stop working after an Android or launcher update; Able then stops intercepting touches rather than blocking the screen. Android can also block Accessibility services from apps outside the Play Store or on managed devices (for example with Advanced Protection or work policies); then none of these options work.</string>
+
+    <!-- Experimental home-screen double tap without a widget. -->
+    <string name="lock_place_home_tap">home screen (double tap)</string>
+    <string name="lock_option_home_tap_title">Home screen without widget</string>
+    <string name="lock_option_home_tap_summary">Double tap empty home-screen space.</string>
+    <string name="lock_home_tap_status_off">Off. The widget above is the reliable option.</string>
+    <string name="lock_home_tap_status_ok">Light mode: watching when touches start while the home screen is in front.</string>
+    <string name="lock_home_tap_status_unknown">Go to the home screen to start it.</string>
+    <string name="lock_home_tap_status_no_launcher">No default home app found: choose one in Android settings.</string>
+    <string name="lock_home_tap_status_failed">Android refused the invisible watcher on this device. Use the widget.</string>
+    <string name="lock_help_home_tap_title">Double tap on the home screen without a widget</string>
+    <string name="lock_help_home_tap_text">Precise mode (recommended): while your home app shows its home pages, Able places an invisible Accessibility overlay over the screen, except the status bar, the side edges used for the back gesture and the navigation bar at the bottom, so system navigation never goes through Able. The overlay receives your touches on the home screen only and passes them back to the launcher: a tap on an icon, folder, widget or the search bar is sent to it straight away; a single tap on empty space is passed back once the double-tap time has expired; swipes, long presses and drags are replayed to the launcher when you lift your finger, so pages, the app drawer and the notification pull-down still work, slightly later than usual. Two taps on empty space (no icon or widget under your finger) within the time set below turn off the screen. The overlay is removed as soon as you open an app, the app drawer, recents, a folder, a menu, the keyboard or the notification shade. Limits: moving icons and widgets feels different, because the drag is replayed only after you lift your finger; it works only with launchers whose layout Able recognises (Pixel Launcher and other Launcher3-based home apps); with TalkBack on it intercepts nothing.\n\nLight mode: Able never holds your touches; a 1×1 pixel watcher only learns when a touch starts, not where, so it guesses \"empty space\" from what the launcher reports. Two quick swipes or taps next to an icon can be misread, and some double taps are missed.\n\nNothing you touch is stored or sent. Both run only while the home screen is in front and the phone is unlocked. To turn it off: switch this option off.</string>
+    <string name="lock_home_mode_precise_title">Precise (recommended)</string>
+    <string name="lock_home_mode_precise_summary">Recognises where you tap. Touches on the home pages pass through Able and are handed back to the launcher; swipes and long presses happen when you lift your finger.</string>
+    <string name="lock_home_mode_light_title">Light</string>
+    <string name="lock_home_mode_light_summary">Never holds a touch, but only knows when a touch starts, not where. Can miss double taps or misread swipes.</string>
+    <string name="lock_home_tap_status_precise_ok">Precise mode active on the home pages. Touches elsewhere are not intercepted.</string>
+    <string name="lock_home_tap_status_not_recognized">Precise mode does not recognise this home app\'s layout, so it intercepts nothing. Switch to Light mode.</string>
+    <string name="lock_home_tap_status_precise_unknown">Precise mode: go to the home screen to start it.</string>
+</resources>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strumento Blocco app (APPLOCK-001..APPLOCK-003). -->
+<resources>
+    <string name="applock_hero_title">Chiedi impronta, volto o PIN prima di aprire le app</string>
+    <string name="applock_status_off">Disattivato</string>
+    <string name="applock_status_on">Attivo</string>
+    <string name="applock_status_blocked">In attesa di configurazione</string>
+    <string name="applock_hero_none">Nessuna app scelta.</string>
+    <plurals name="applock_hero_count">
+        <item quantity="one">%1$d app bloccata.</item>
+        <item quantity="other">%1$d app bloccate.</item>
+    </plurals>
+
+    <string name="applock_requirements_title">Cosa serve</string>
+    <string name="applock_service_on">Servizio di Accessibilità attivo</string>
+    <string name="applock_service_off">Servizio di Accessibilità disattivato</string>
+    <string name="applock_open_accessibility">Apri le impostazioni di Accessibilità</string>
+    <string name="applock_help_service_title">Perché il servizio di Accessibilità</string>
+    <string name="applock_help_service_text">Per sapere quando un\'app bloccata passa in primo piano, il servizio di Accessibilità di Able legge il nome del pacchetto dell\'app la cui finestra si è appena aperta. Non legge il contenuto dell\'app né ciò che digiti, e non salva né invia nulla.\n\nÈ lo stesso servizio usato da Blocco schermo e Scorciatoie tasti; ogni funzione agisce solo quando la attivi.\n\nCome disattivarlo: Impostazioni Android › Accessibilità › Able.</string>
+    <string name="applock_secure_off">Nessun blocco schermo impostato</string>
+    <string name="applock_secure_biometric">Blocco schermo e impronta/volto pronti</string>
+    <string name="applock_secure_credential">Blocco schermo pronto (PIN, sequenza o password)</string>
+    <string name="applock_open_security">Imposta un blocco schermo</string>
+    <string name="applock_help_auth_title">Come sblocchi</string>
+    <string name="applock_help_auth_text">Able mostra la richiesta di sblocco di Android: impronta o volto (se registrati e abbastanza sicuri per Android), oppure il PIN, la sequenza o la password del dispositivo. Able non li vede né li salva e non ha un PIN proprio.\n\nIl dispositivo deve avere un blocco schermo. Senza, Android non può verificarti, quindi il Blocco app resta disattivato invece di chiuderti fuori.</string>
+    <string name="applock_needs_secure_lock">Imposta prima un blocco schermo (PIN, sequenza o password).</string>
+
+    <string name="applock_settings_title">Impostazioni</string>
+    <string name="applock_enable_title">Blocco app</string>
+    <string name="applock_enable_summary">Chiedi lo sblocco quando si apre un\'app scelta. Disattivato all\'inizio.</string>
+    <string name="applock_lock_able_title">Blocca anche Able</string>
+    <string name="applock_lock_able_summary">Chiedi lo sblocco prima di aprire Able, così nessuno può disattivare il Blocco app.</string>
+    <string name="applock_grace_title">Resta sbloccata dopo averla lasciata</string>
+    <string name="applock_grace_immediately">Blocca di nuovo subito</string>
+    <plurals name="applock_grace_minutes">
+        <item quantity="one">Per %1$d minuto</item>
+        <item quantity="other">Per %1$d minuti</item>
+    </plurals>
+    <string name="applock_help_grace_title">Quando le app si bloccano di nuovo</string>
+    <string name="applock_help_grace_text">Dopo lo sblocco l\'app resta aperta finché la usi. Quando la lasci (schermata Home, app recenti o un\'altra app) si blocca di nuovo subito o dopo il tempo scelto qui. Le brevi finestre sopra l\'app, come le richieste di autorizzazione o il menu di condivisione, non contano come uscita.\n\nSpegnere lo schermo blocca sempre di nuovo tutte le app.</string>
+
+    <string name="applock_apps_title">App da bloccare</string>
+    <string name="applock_search_placeholder">Cerca app</string>
+    <string name="applock_apps_empty">Nessuna app corrisponde.</string>
+    <string name="applock_help_apps_title">Scegliere le app</string>
+    <string name="applock_help_apps_text">Sono elencate solo le app con un\'icona nel launcher. L\'app della schermata Home non si può bloccare, e Able si controlla con \"Blocca anche Able\".\n\nSuggerimento: bloccare le Impostazioni di Android protegge anche le impostazioni di Accessibilità, così il Blocco app non si può disattivare senza sbloccare.\n\nLe chiamate non vengono mai interrotte: durante una chiamata o mentre il telefono squilla non si blocca nulla.</string>
+
+    <string name="applock_limits_title">Cosa il Blocco app non può fare</string>
+    <string name="applock_limits_body">Funziona a livello di app, non dentro Android: l\'app si apre prima e Able la copre subito dopo che la sua finestra compare, quindi su dispositivi lenti si può intravedere. Android non permette ad Able di nascondere il contenuto delle altre app nelle app recenti (FLAG_SECURE può impostarlo solo ogni app per sé) né le loro notifiche. Non è attivo mentre il telefono è bloccato; dopo lo sblocco, un\'app bloccata in primo piano chiede di nuovo. Se il servizio di Accessibilità è disattivato o Android lo blocca (per esempio su dispositivi gestiti), le app non vengono bloccate.</string>
+</resources>

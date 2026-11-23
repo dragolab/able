@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strumento RAM (memory). Prefisso memory_. Nessuna promessa di "pulizia RAM" o "boost". -->
+<resources>
+    <string name="memory_title">RAM</string>
+    <string name="memory_refresh">Aggiorna</string>
+
+    <!-- Hero -->
+    <string name="memory_hero_title">Memoria (RAM)</string>
+    <string name="memory_percent">%1$d%%</string>
+    <string name="memory_ring_in_use">in uso</string>
+    <string name="memory_used_value">%1$s in uso</string>
+    <string name="memory_of_total">di %1$s</string>
+    <string name="memory_available_value">%1$s disponibili</string>
+    <string name="memory_chart_description">%1$s di %2$s in uso, %3$d%%. %4$s disponibili.</string>
+    <string name="memory_threshold">Android libera memoria chiudendo le app in background quando restano meno di %1$s disponibili.</string>
+    <string name="memory_swap_value">Swap (memoria compressa): %1$s di %2$s in uso</string>
+    <string name="memory_swap_none">Nessuno swap configurato</string>
+    <string name="memory_swap_unknown">L\'uso dello swap non è leggibile su questo dispositivo</string>
+    <string name="memory_low_memory">Android segnala memoria scarsa</string>
+    <string name="memory_summary_unavailable">Android non ha fornito l\'uso della memoria.</string>
+    <string name="memory_hero_help_title">Informazioni sull\'uso della memoria</string>
+    <string name="memory_hero_help_text">Android tiene in memoria le app usate di recente perché si aprano più velocemente: la RAM inutilizzata è RAM sprecata. \"In uso\" è il totale meno ciò che Android indica come disponibile, che include già le cache che può recuperare subito. Lo swap è memoria compressa (zram) che contiene le pagine spostate fuori dalla RAM.</string>
+
+    <!-- Testi onesti -->
+    <string name="memory_honest_title">Android gestisce la memoria da solo</string>
+    <string name="memory_honest_message">Liberare RAM non fa risparmiare batteria di per sé e non rende il telefono più veloce. Le app arrestate possono riavviarsi da sole e un\'app forzata all\'arresto non riceve notifiche né esegue sveglie finché non la riapri.</string>
+
+    <!-- Senza Shizuku -->
+    <string name="memory_no_shizuku_title">Per le app in esecuzione serve Shizuku</string>
+    <string name="memory_no_shizuku_message">Android permette a un\'app di vedere solo i propri processi. Con Shizuku connesso, Able può elencare le app in esecuzione con la loro memoria e arrestare quelle che scegli. Senza Shizuku, la schermata \"Servizi in esecuzione\" di Android (Opzioni sviluppatore) mostra le stesse informazioni.</string>
+    <string name="memory_running_services">Servizi in esecuzione</string>
+
+    <!-- Elenco -->
+    <string name="memory_section_apps">App in esecuzione</string>
+    <string name="memory_apps_help_title">Informazioni sulle app in esecuzione</string>
+    <string name="memory_apps_help_text">L\'elenco proviene dalla tabella dei processi di Android (ps) tramite Shizuku. La memoria è la memoria residente (RSS) sommata sui processi dell\'app; le pagine condivise con altre app sono contate per ciascuna, quindi il totale può superare la RAM in uso.\n\nForza arresto termina tutti i processi dell\'app e la mantiene arrestata finché tu o un\'altra app non la aprite: si fermano anche notifiche, sveglie e attività in background.\n\nArresta processi in background chiede ad Android di terminare solo i processi che può chiudere in sicurezza; quelli in primo piano e visibili continuano.\n\nAble, Shizuku, l\'interfaccia di sistema, il launcher, il telefono, la tastiera attuale e le app di sistema persistenti sono protetti e non vengono mai arrestati. Ogni arresto è registrato nella cronologia delle azioni.</string>
+    <string name="memory_search">Cerca app in esecuzione</string>
+    <string name="memory_filter_user">App utente</string>
+    <string name="memory_filter_system">App di sistema</string>
+    <string name="memory_filter_all">Tutte</string>
+    <string name="memory_clear_selection">Annulla selezione</string>
+    <string name="memory_loading_apps">Lettura delle app in esecuzione…</string>
+    <string name="memory_load_failed">Impossibile leggere le app in esecuzione tramite Shizuku.</string>
+    <string name="memory_empty">Nessuna app in esecuzione corrispondente</string>
+    <plurals name="memory_apps_count">
+        <item quantity="one">%1$d app in esecuzione</item>
+        <item quantity="many">%1$d app in esecuzione</item>
+        <item quantity="other">%1$d app in esecuzione</item>
+    </plurals>
+    <string name="memory_app_size">%1$s</string>
+    <plurals name="memory_processes">
+        <item quantity="one">%1$d processo</item>
+        <item quantity="many">%1$d processi</item>
+        <item quantity="other">%1$d processi</item>
+    </plurals>
+    <string name="memory_app_user">Utente %1$d</string>
+    <string name="memory_protected">Protetta</string>
+    <string name="memory_actions_for">Azioni per %1$s</string>
+
+    <!-- Importanza dei processi -->
+    <string name="memory_state_foreground">In uso</string>
+    <string name="memory_state_visible">Visibile o percepibile</string>
+    <string name="memory_state_service">Esegue un servizio</string>
+    <string name="memory_state_home">Schermata Home</string>
+    <string name="memory_state_recent">App precedente</string>
+    <string name="memory_state_cached">In cache</string>
+    <string name="memory_state_persistent">Persistente</string>
+    <string name="memory_state_other">In background</string>
+
+    <!-- Motivi di protezione -->
+    <string name="memory_protect_self">Protetta: è Able</string>
+    <string name="memory_protect_shizuku">Protetta: Able ha bisogno di Shizuku</string>
+    <string name="memory_protect_core">Protetta: componente di base di Android</string>
+    <string name="memory_protect_launcher">Protetta: launcher attuale</string>
+    <string name="memory_protect_phone">Protetta: telefono e chiamate</string>
+    <string name="memory_protect_keyboard">Protetta: tastiera attuale</string>
+    <string name="memory_protect_persistent">Protetta: app di sistema persistente (Android la riavvia)</string>
+
+    <!-- Azioni -->
+    <string name="memory_action_force_stop">Forza arresto</string>
+    <string name="memory_action_kill">Arresta processi in background</string>
+    <string name="memory_action_app_info">Info app</string>
+    <plurals name="memory_stop_selected">
+        <item quantity="one">Arresta %1$d app</item>
+        <item quantity="many">Arresta %1$d app</item>
+        <item quantity="other">Arresta %1$d app</item>
+    </plurals>
+    <string name="memory_confirm_force_stop_title">Forzare l\'arresto di %1$s?</string>
+    <string name="memory_confirm_kill_title">Arrestare i processi in background di %1$s?</string>
+    <plurals name="memory_confirm_bulk_title">
+        <item quantity="one">Forzare l\'arresto di %1$d app?</item>
+        <item quantity="many">Forzare l\'arresto di %1$d app?</item>
+        <item quantity="other">Forzare l\'arresto di %1$d app?</item>
+    </plurals>
+    <string name="memory_confirm_force_stop_message">Il lavoro non salvato può andare perso. Finché non viene riaperta, l\'app non mostrerà notifiche, non eseguirà sveglie e non sincronizzerà. Android può riavviare alcune app da solo. Di per sé non fa risparmiare batteria.</string>
+    <string name="memory_confirm_kill_message">Android termina solo i processi che può chiudere in sicurezza; l\'app può ripartire quando ne ha bisogno. Le notifiche non vengono bloccate.</string>
+
+    <!-- Risultati (verificati sulla tabella dei processi) -->
+    <string name="memory_result_stopped">%1$s arrestata: nessun processo rimasto.</string>
+    <string name="memory_result_partial">%1$s: alcuni processi arrestati, Android ne ha mantenuti altri.</string>
+    <string name="memory_result_still_running">%1$s è ancora in esecuzione (Android l\'ha mantenuta o riavviata).</string>
+    <string name="memory_result_failed">Android ha rifiutato la richiesta per %1$s.</string>
+    <string name="memory_result_bulk">Arrestate: %1$d · ancora attive: %2$d · non riuscite: %3$d</string>
+</resources>

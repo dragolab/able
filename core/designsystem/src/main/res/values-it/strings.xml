@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Destinazioni principali (SHELL-001) -->
+    <string name="nav_home">Home</string>
+    <string name="nav_battery">Batteria</string>
+    <string name="nav_apps">App</string>
+    <string name="nav_tools">Strumenti</string>
+    <string name="nav_settings">Impostazioni</string>
+
+    <!-- Azioni condivise -->
+    <string name="ds_cancel">Annulla</string>
+    <string name="ds_confirm">Conferma</string>
+    <string name="ds_save">Salva</string>
+    <string name="ds_delete">Elimina</string>
+    <string name="ds_edit">Modifica</string>
+    <string name="ds_reset">Ripristina</string>
+    <string name="ds_close">Chiudi</string>
+    <string name="ds_share">Condividi</string>
+    <string name="ds_copy">Copia</string>
+    <string name="ds_retry">Riprova</string>
+    <string name="ds_open">Apri</string>
+    <string name="ds_not_now">Non ora</string>
+    <string name="ds_open_settings">Apri impostazioni</string>
+    <string name="ds_open_android_settings">Apri impostazioni Android</string>
+    <string name="ds_navigate_back">Torna indietro</string>
+    <string name="ds_search">Cerca</string>
+    <string name="ds_clear_search">Cancella ricerca</string>
+
+    <!-- Stati condivisi -->
+    <string name="ds_loading">Caricamento</string>
+    <string name="ds_unavailable">Non disponibile</string>
+    <string name="ds_unsupported_title">Non disponibile su questo dispositivo</string>
+    <string name="ds_not_enough_data">Dati non ancora sufficienti</string>
+    <string name="ds_experimental">Sperimentale · dipende dal dispositivo</string>
+    <string name="ds_estimate">Stima</string>
+    <string name="ds_on">Attivo</string>
+    <string name="ds_off">Disattivo</string>
+    <string name="ds_granted">Concesso</string>
+    <string name="ds_not_granted">Non concesso</string>
+    <string name="ds_copied">Copiato negli appunti</string>
+    <string name="ds_no_handler">Nessuna app sul dispositivo può aprire questo contenuto.</string>
+    <string name="ds_operation_failed">Android ha rifiutato l\'operazione.</string>
+    <string name="ds_operation_unverified">Android non ha confermato la modifica.</string>
+
+    <!-- Profili batteria (BAT-001) -->
+    <string name="profile_normale">Normale</string>
+    <string name="profile_notte">Notte</string>
+    <string name="profile_risparmio">Risparmio</string>
+    <string name="profile_emergenza">Emergenza</string>
+    <string name="profile_pausa_app">Pausa app</string>
+
+    <!-- Stato funzionalità (SET-002) -->
+    <string name="capability_available">Disponibile</string>
+    <string name="capability_unsupported">Hardware non supportato</string>
+    <string name="capability_permission_needed">Permesso richiesto</string>
+    <string name="capability_shizuku_needed">Richiede la connessione a Shizuku</string>
+    <string name="capability_shizuku">Shizuku</string>
+    <string name="capability_accessibility">Servizio di accessibilità</string>
+    <string name="capability_usage_access">Accesso ai dati di utilizzo</string>
+    <string name="capability_notifications">Notifiche</string>
+    <string name="capability_write_settings">Modifica impostazioni di sistema</string>
+    <string name="capability_secure_settings">Scrittura impostazioni sicure</string>
+    <string name="capability_location">Posizione precisa</string>
+    <string name="shizuku_state_ready">Connesso</string>
+    <string name="shizuku_state_waiting">Attivo · serve l\'autorizzazione</string>
+    <string name="shizuku_state_denied">Autorizzazione negata</string>
+    <string name="shizuku_state_unavailable">Non attivo</string>
+
+    <!-- Avvisi di sicurezza (HOME-003) -->
+    <string name="alert_shizuku_disconnected_title">Shizuku disconnesso</string>
+    <string name="alert_shizuku_disconnected_msg">Le azioni privilegiate su batteria e interruttori non possono essere eseguite finché Shizuku non è di nuovo connesso.</string>
+    <string name="alert_shizuku_permission_title">Shizuku attende l\'autorizzazione</string>
+    <string name="alert_shizuku_permission_msg">Shizuku è attivo ma Able non è ancora stato autorizzato.</string>
+    <string name="alert_permission_revoked_title">Permesso revocato</string>
+    <string name="alert_permission_revoked_msg">Un permesso richiesto da una funzione attiva è stato disattivato nelle impostazioni Android.</string>
+    <string name="alert_action_failed_title">Un\'azione non è riuscita</string>
+    <string name="alert_action_failed_msg">%1$s</string>
+    <string name="alert_authorize">Autorizza</string>
+    <string name="alert_open_shizuku">Apri Shizuku</string>
+    <string name="alert_details">Dettagli</string>
+    <string name="ds_help_about">Informazioni su %1$s</string>
+    <string name="ds_got_it">Ho capito</string>
+    <string name="ds_expanded">Espanso</string>
+    <string name="ds_collapsed">Compresso</string>
+</resources>

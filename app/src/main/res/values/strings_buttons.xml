@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Button shortcuts (BTN-002): results shown when a gesture cannot run its action. -->
+<resources>
+    <string name="buttons_result_app_missing">Button shortcut: the app is no longer installed or cannot be opened.</string>
+    <string name="buttons_result_action_missing">Button shortcut: this action is no longer available.</string>
+    <string name="buttons_result_unlock_first">Button shortcut: unlock the phone first for this action.</string>
+    <string name="buttons_result_unsupported">Button shortcut: this action is not supported on this device.</string>
+    <string name="buttons_result_no_app">Button shortcut: no app can open this.</string>
+    <string name="buttons_result_denied">Button shortcut: Android did not allow Able to open this.</string>
+    <string name="buttons_result_failed">Button shortcut: the action could not be started.</string>
+</resources>

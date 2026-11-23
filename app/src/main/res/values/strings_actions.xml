@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Action Catalog (ADR-024, CUST-001, CUST-002) -->
+    <string name="action_category_connectivity">Connectivity</string>
+    <string name="action_category_battery">Battery</string>
+    <string name="action_category_tools">Tools</string>
+    <string name="action_category_shortcuts">Shortcuts</string>
+    <string name="action_category_system">System</string>
+
+    <string name="action_torch_title">Torch</string>
+    <string name="action_torch_desc">Turns the flashlight on or off.</string>
+    <string name="action_nfc_title">NFC</string>
+    <string name="action_nfc_desc">Turns NFC on or off directly when \"Write secure settings\" is granted through ADB or Shizuku is connected; otherwise opens the NFC settings.</string>
+    <string name="action_auto_brightness_title">Auto brightness</string>
+    <string name="action_auto_brightness_desc">Switches between automatic and manual brightness.</string>
+    <string name="action_usb_debugging_title">USB debugging</string>
+    <string name="action_usb_debugging_desc">Turns USB debugging on or off; otherwise opens Developer options.</string>
+    <string name="action_wireless_debugging_title">Wireless debugging</string>
+    <string name="action_wireless_debugging_desc">Shows whether wireless debugging is on and opens the Wireless debugging screen.</string>
+    <string name="action_private_dns_title">Private DNS</string>
+    <string name="action_private_dns_desc">Switches Private DNS between Off and Automatic; otherwise opens the DNS tool.</string>
+    <string name="action_screen_lock_title">Lock screen</string>
+    <string name="action_screen_lock_desc">Locks the screen through the Able screen lock service.</string>
+    <string name="action_ringer_title">Ringer mode</string>
+    <string name="action_ringer_desc">Cycles Sound, Vibrate and Silent. Silent needs Do Not Disturb access.</string>
+    <string name="action_gps_save_title">Save GPS</string>
+    <string name="action_gps_save_desc">Opens the GPS tool to save your current position.</string>
+    <string name="action_battery_profile_title">Battery profile</string>
+    <string name="action_battery_profile_desc">Opens Battery to review and switch your Able profile.</string>
+    <string name="action_hotspot_title">Hotspot</string>
+    <string name="action_hotspot_desc">Opens the hotspot tool.</string>
+    <string name="action_storage_title">Storage</string>
+    <string name="action_storage_desc">Opens the storage review.</string>
+    <string name="action_activities_title">Activity launcher</string>
+    <string name="action_activities_desc">Opens the activity launcher.</string>
+    <string name="action_shortcuts_title">Shortcut maker</string>
+    <string name="action_shortcuts_desc">Opens the shortcut maker.</string>
+    <string name="action_toggles_title">System toggles</string>
+    <string name="action_toggles_desc">Opens NFC, brightness, debugging and DNS controls.</string>
+    <string name="action_level_title">Level</string>
+    <string name="action_level_desc">Opens the bubble level.</string>
+    <string name="action_ruler_title">Ruler</string>
+    <string name="action_ruler_desc">Opens the on-screen ruler.</string>
+    <string name="action_compass_title">Compass</string>
+    <string name="action_compass_desc">Opens the compass.</string>
+    <string name="action_open_able_title">Open Able</string>
+    <string name="action_open_able_desc">Opens Able Home.</string>
+
+    <!-- Action states, read back from Android -->
+    <string name="action_state_on">On</string>
+    <string name="action_state_off">Off</string>
+    <string name="action_state_automatic">Automatic</string>
+    <string name="action_state_manual">Manual</string>
+    <string name="action_state_custom_dns">Custom</string>
+    <string name="action_state_unsupported">Not supported</string>
+    <string name="action_state_opens_settings">Opens settings</string>
+    <string name="action_state_opens_able">Opens Able</string>
+    <string name="action_state_setup_needed">Setup needed</string>
+    <string name="action_state_lock_ready">Ready</string>
+    <string name="action_state_ringer_normal">Sound</string>
+    <string name="action_state_ringer_vibrate">Vibrate</string>
+    <string name="action_state_ringer_silent">Silent</string>
+
+    <!-- Action results -->
+    <string name="action_result_applied">%1$s: %2$s</string>
+    <string name="action_result_done">%1$s: done</string>
+    <string name="action_result_rejected">%1$s: Android rejected the change.</string>
+    <string name="action_result_unverified">%1$s: Android did not confirm the change.</string>
+    <string name="action_result_unsupported">%1$s is not supported on this device.</string>
+    <string name="action_result_needs_screen">%1$s needs a setting first. Tap again to open it.</string>
+
+    <!-- Access needed by privileged actions (ADR-023) -->
+    <string name="action_privilege_secure">Needs ADB or Shizuku</string>
+    <string name="action_privilege_secure_help">This action changes a protected system setting. With Shizuku running, or after granting WRITE_SECURE_SETTINGS through ADB, it runs directly from the tile or widget. Without that access it opens the matching Android settings screen instead. NFC can be switched only through Shizuku. Able reads the setting back and tells you if Android did not apply it.</string>
+    <string name="action_privilege_write_settings">Needs “Modify system settings”</string>
+    <string name="action_privilege_write_settings_help">Android asks you to allow Able to modify system settings. Until you allow it, the tile or widget opens that permission screen. You can revoke the permission at any time in Android settings.</string>
+    <string name="action_privilege_accessibility">Needs the Able screen lock service</string>
+    <string name="action_privilege_accessibility_help">Locking uses the optional Able screen lock service, which does not read screen content. Until you enable it, the tile or widget opens the screen lock setup.</string>
+    <string name="action_privilege_notification_policy">Silent needs Do Not Disturb access</string>
+    <string name="action_privilege_notification_policy_help">Sound and Vibrate work without extra access. Switching to Silent, or leaving it while Do Not Disturb is on, needs Do Not Disturb access; without it the cycle skips Silent and Android may reject the change.</string>
+
+    <!-- Tiles and widgets configuration (CUST-001, CUST-002) -->
+    <string name="tiles_screen_title">Tiles &amp; widgets</string>
+    <string name="tiles_screen_intro">Assign Able actions to Quick Settings tiles and home-screen widgets. Actions that need extra access open the right screen until access is granted.</string>
+    <string name="tiles_help_title">How tiles and widgets work</string>
+    <string name="tiles_help_text">Custom tile slots and the custom widget run the action you assign and show its real state, read back from Android. If an action needs access Able does not have, the tile or widget opens the screen where you can grant it or change the setting yourself. Nothing runs automatically.</string>
+    <string name="tiles_section_custom">Custom tiles</string>
+    <string name="tiles_section_builtin">Built-in tiles</string>
+    <string name="tiles_section_widgets">Widgets</string>
+    <string name="tiles_section_placed">Your custom widgets</string>
+    <string name="tiles_slot_title">Slot %1$d</string>
+    <string name="tiles_slot_label">Able slot %1$d</string>
+    <string name="tiles_slot_setup">Tap to set up</string>
+    <string name="tiles_slot_unassigned">Not assigned. Tap to choose an action for slot %1$d.</string>
+    <string name="tiles_add_tile">Add tile</string>
+    <string name="tiles_add_widget">Add widget</string>
+    <string name="tiles_clear">Clear</string>
+    <string name="tiles_pick_for_slot">Action for slot %1$d</string>
+    <string name="tiles_pick_for_widget_slot">Action for widget slot %1$d</string>
+    <string name="tiles_slot_assigned">%1$s assigned to slot %2$d.</string>
+    <string name="tiles_slot_cleared">Slot %1$d cleared.</string>
+    <string name="tiles_save_failed">Could not save the change.</string>
+    <string name="tiles_not_supported">Not supported on this device</string>
+    <string name="tiles_tile_added">Tile added to Quick Settings.</string>
+    <string name="tiles_tile_already">This tile is already in Quick Settings.</string>
+    <string name="tiles_tile_not_added">Tile not added.</string>
+    <string name="tiles_tile_error">Android could not add the tile here. Add it from the Quick Settings editor.</string>
+    <string name="tiles_widget_pin_requested">Confirm on the home screen to add the widget.</string>
+    <string name="tiles_widget_pin_unsupported">Your launcher does not let apps add widgets. Add it from the launcher’s widget list.</string>
+    <string name="tiles_placed_widget">Widget %1$d · %2$s</string>
+    <string name="tiles_placed_empty">No custom widgets on the home screen yet.</string>
+    <string name="tiles_widget_not_configured">Not set up</string>
+    <string name="tiles_privileged_note">Some actions run directly only with extra access. Without it they open the matching settings screen.</string>
+
+    <!-- Widget builder -->
+    <string name="tiles_widget_config_title">Custom widget</string>
+    <string name="tiles_widget_config_intro">Choose a layout, then tap a slot to assign an action.</string>
+    <string name="tiles_widget_format">Layout</string>
+    <string name="tiles_format_2x1">2 × 1</string>
+    <string name="tiles_format_4x1">4 × 1</string>
+    <string name="tiles_format_4x2">4 × 2</string>
+    <string name="tiles_format_slots">%1$d actions</string>
+    <string name="tiles_widget_slots">Actions</string>
+    <string name="tiles_widget_empty_slot">Add</string>
+    <string name="tiles_widget_save">Save</string>
+    <string name="tiles_widget_need_action">Assign at least one action to save the widget.</string>
+    <string name="tiles_widget_setup">Tap to choose actions</string>
+
+    <string name="widget_custom_actions_name">Able custom actions</string>
+    <string name="widget_custom_actions_description">Up to 8 Able actions of your choice in a 2×1, 4×1 or 4×2 grid.</string>
+</resources>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strumento Spazio di archiviazione (STO-001, STO-002, STO-003). Prefisso storage_. -->
+<resources>
+    <!-- Sections -->
+    <string name="storage_section_overview">Panoramica</string>
+    <string name="storage_section_cleanup">Pulizia</string>
+    <string name="storage_section_review">Rivedi file</string>
+
+    <!-- Overview (STO-003) -->
+    <string name="storage_internal_title">Memoria interna</string>
+    <string name="storage_used_value">%1$s usati</string>
+    <string name="storage_of_total">su %1$s</string>
+    <string name="storage_free_value">%1$s liberi</string>
+    <string name="storage_ring_used_label">usato</string>
+    <string name="storage_percent">%1$d%%</string>
+    <string name="storage_percent_below_one">&lt;1%</string>
+    <string name="storage_chart_description">Usati %1$s su %2$s, %3$d%%. %4$s liberi.</string>
+    <string name="storage_overview_failed">Android non ha indicato lo spazio di archiviazione.</string>
+    <string name="storage_breakdown_title">Cosa occupa lo spazio</string>
+    <string name="storage_breakdown_description">Spazio per categoria</string>
+    <string name="storage_legend_value">%1$s · %2$s</string>
+    <string name="storage_kind_apps">App</string>
+    <string name="storage_kind_images">Immagini</string>
+    <string name="storage_kind_video">Video</string>
+    <string name="storage_kind_audio">Audio</string>
+    <string name="storage_kind_documents">Documenti</string>
+    <string name="storage_kind_downloads">Altri download</string>
+    <string name="storage_kind_other">Sistema e altro</string>
+    <string name="storage_kind_free">Libero</string>
+    <string name="storage_other_includes_unmeasured">Include ciò che Able non può ancora misurare</string>
+    <string name="storage_needs_usage_access">Serve l\'accesso all\'utilizzo</string>
+    <string name="storage_needs_media_access">Serve l\'accesso ai media</string>
+    <string name="storage_media_visible_only">Documenti e download includono solo i file che Android mostra ad Able.</string>
+    <string name="storage_usage_title">Scopri quanto spazio usano le app</string>
+    <string name="storage_usage_rationale">L\'accesso all\'utilizzo permette ad Able di leggere da Android dimensione e cache di ogni app. Per questa schermata Able non legge la tua attività nelle app.</string>
+    <string name="storage_usage_action">Consenti accesso all\'utilizzo</string>
+    <string name="storage_media_title">Misura foto, video e audio</string>
+    <string name="storage_media_rationale">L\'accesso ai media permette ad Able di sommare la dimensione dei tuoi file multimediali.</string>
+
+    <!-- Largest apps -->
+    <string name="storage_largest_apps">App più grandi</string>
+    <string name="storage_app_meta">Totale %1$s · cache %2$s</string>
+    <string name="storage_app_info">Info app per %1$s</string>
+    <string name="storage_apps_empty">Android non ha indicato dimensioni delle app.</string>
+
+    <!-- System-wide cache cleanup (STO-002) -->
+    <string name="storage_system_cache_title">Cache delle app</string>
+    <string name="storage_system_cache_body">Chiede ad Android di eliminare i file in cache di tutte le app. Le app li ricreano quando servono, quindi potrebbero aprirsi un po\' più lentamente la prima volta.</string>
+    <string name="storage_trim_action">Svuota tutte le cache</string>
+    <string name="storage_trim_help_title">Svuota tutte le cache</string>
+    <string name="storage_trim_help_text">Able chiede ad Android (tramite Shizuku) di liberare quanta più cache possibile per ogni app. File, account e impostazioni non vengono toccati. È Android a decidere cosa eliminare, quindi il risultato può essere piccolo o nullo. Able misura lo spazio libero prima e dopo e mostra solo quanto è stato davvero liberato. Non c\'è nulla da annullare: le app ricreano la cache.</string>
+    <string name="storage_trim_confirm_title">Svuotare la cache di tutte le app?</string>
+    <string name="storage_trim_confirm_message">Android elimina i file temporanei di tutte le app. I tuoi dati restano. Le app potrebbero caricarsi un po\' più lentamente la prima volta.</string>
+    <string name="storage_trim_done">Android ha liberato %1$s di cache (misurati).</string>
+    <string name="storage_freed_none">0 byte liberati. Android non aveva altro da svuotare.</string>
+    <string name="storage_trim_unmeasured">Android ha accettato la richiesta, ma non è stato possibile misurare lo spazio libero.</string>
+    <string name="storage_trim_failed">Android ha rifiutato la pulizia della cache.</string>
+    <string name="storage_apps_clear_action">Svuota cache di %1$d app (%2$s)</string>
+    <string name="storage_apps_select_hint">Seleziona le app per svuotare solo la loro cache.</string>
+    <string name="storage_apps_help_title">Svuotare la cache di un\'app</string>
+    <string name="storage_apps_help_text">Elimina solo i file temporanei delle app selezionate, come il pulsante \"Svuota cache\" in Info app di Android. Dati, accessi e impostazioni restano. Dopo, Able rilegge la cache di ogni app e indica la differenza misurata.</string>
+    <string name="storage_apps_confirm_title">Svuotare la cache di %1$d app?</string>
+    <string name="storage_apps_confirm_message">Circa %1$s di cache. Dati, accessi e impostazioni restano.</string>
+    <string name="storage_apps_done">Cache svuotata per %1$d app: liberati %2$s (misurati).</string>
+    <string name="storage_apps_done_none">Cache svuotata per %1$d app: 0 byte liberati (misurati).</string>
+    <string name="storage_apps_partial">Svuotate %1$d app su %2$d, liberati %3$s. Android ha rifiutato le altre.</string>
+    <string name="storage_apps_failed">Android ha rifiutato di svuotare queste cache.</string>
+    <string name="storage_select_app">Seleziona %1$s</string>
+    <string name="storage_shizuku_needed_title">La pulizia di sistema richiede Shizuku</string>
+    <string name="storage_shizuku_needed_message">Android permette solo agli strumenti di sistema di svuotare la cache di altre app. Con Shizuku, Able può chiederlo ad Android. Senza, usa le impostazioni di archiviazione di Android o Info app di ogni app.</string>
+    <string name="storage_shizuku_help_title">Perché Shizuku?</string>
+    <string name="storage_shizuku_help_text">Le app normali non possono eliminare la cache di altre app. Shizuku esegue i comandi del gestore pacchetti di Android con i permessi della shell, dopo che lo avvii e autorizzi Able. Senza Shizuku, apri le impostazioni di archiviazione di Android o Info app di un\'app e tocca \"Svuota cache\".</string>
+    <string name="storage_shizuku_allow">Autorizza Shizuku</string>
+    <string name="storage_open_storage_settings">Apri impostazioni archiviazione di Android</string>
+    <string name="storage_able_cache_body">Cancella solo i file temporanei creati da Able. Funziona senza Shizuku.</string>
+
+    <!-- Review files (STO-001) -->
+    <string name="storage_delete_help_title">Eliminare file</string>
+    <string name="storage_delete_help_text">Seleziona i file per rivederli. Per i media, Android mostra la sua conferma prima di eliminare qualcosa; per una cartella, Able chiede prima. I file eliminati non si possono recuperare. Dopo, Able verifica quali file sono davvero spariti.</string>
+</resources>

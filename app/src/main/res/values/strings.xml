@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- app_name and navigation labels live in :core:designsystem -->
+    <string name="accessibility_service_label">Able gestures and app lock</string>
+    <string name="accessibility_service_description">Optional service used only when you ask Able to lock the screen. It does not read screen content.</string>
+
+    <!-- Quick Settings tiles -->
+    <string name="tile_nfc_label">NFC</string>
+    <string name="tile_autobrightness_label">Auto brightness</string>
+    <string name="tile_usb_adb_label">USB debugging</string>
+    <string name="tile_wireless_adb_label">Wireless debugging</string>
+    <string name="tile_private_dns_label">Private DNS</string>
+    <string name="tile_torch_label">Torch</string>
+    <string name="tile_lock_label">Screen lock</string>
+    <string name="tile_custom1_label">Able slot 1</string>
+    <string name="tile_custom2_label">Able slot 2</string>
+    <string name="tile_custom3_label">Able slot 3</string>
+    <string name="tile_custom4_label">Able slot 4</string>
+
+    <!-- Widgets (Glance) -->
+    <string name="widget_battery_name">Able battery and profile</string>
+    <string name="widget_battery_description">Battery level, charging state and selected Able profile. Refreshes on battery events and infrequently otherwise.</string>
+    <string name="widget_quick_actions_name">Able quick actions</string>
+    <string name="widget_quick_actions_description">Torch, NFC, GPS save and screen lock shortcuts.</string>
+    <string name="widget_battery_unavailable">Battery status unavailable</string>
+    <string name="widget_battery_charging">Charging</string>
+    <string name="widget_battery_discharging">On battery</string>
+    <string name="widget_battery_profile">Profile: %1$s</string>
+    <string name="widget_updated_at">Updated %1$s</string>
+</resources>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Status -->
+    <string name="hotspot_status">Hotspot status</string>
+    <string name="hotspot_state_on">On</string>
+    <string name="hotspot_state_off">Off</string>
+    <string name="hotspot_state_enabling">Turning on</string>
+    <string name="hotspot_state_disabling">Turning off</string>
+    <string name="hotspot_state_failed">Failed</string>
+    <string name="hotspot_state_unknown">Unknown</string>
+    <string name="hotspot_state_unknown_message">This device does not share the hotspot state with apps. Connect Shizuku or check it in Android settings.</string>
+    <string name="hotspot_toggle">Wi-Fi hotspot</string>
+    <string name="hotspot_refresh">Refresh</string>
+    <string name="hotspot_open_settings">Open Android hotspot settings</string>
+    <string name="hotspot_settings_unavailable">No app on this device can open this.</string>
+
+    <!-- Shizuku -->
+    <string name="hotspot_shizuku_title">Direct control with Shizuku</string>
+    <string name="hotspot_shizuku_message">Android does not let apps turn the hotspot on or off, read its password or change its settings. With Shizuku, Able can do it and then checks the real result. Without it, use Android settings.</string>
+    <string name="hotspot_shizuku_help">Able uses Shizuku to call the same Android services that the Settings app uses (tethering and Wi-Fi). These are not public Android APIs: some options may be missing or behave differently on some devices or Android versions, and Able reports when that happens. You can revoke Shizuku access at any time in the Shizuku app.</string>
+    <string name="hotspot_shizuku_authorize">Allow Shizuku access</string>
+    <string name="hotspot_shizuku_open">Open Shizuku</string>
+    <string name="hotspot_shizuku_required">Connect Shizuku to control the hotspot from Able.</string>
+    <string name="hotspot_shizuku_not_running">Shizuku is not running. Start it in the Shizuku app.</string>
+    <string name="hotspot_shizuku_not_installed">Shizuku is not installed.</string>
+
+    <!-- Loading -->
+    <string name="hotspot_load_failed_title">Could not read the hotspot</string>
+    <string name="hotspot_load_failed_message">Able could not read the hotspot through Shizuku (%1$s).</string>
+    <string name="hotspot_config_unavailable_title">Settings not available</string>
+    <string name="hotspot_config_unavailable_message">This Android version did not let Able read the hotspot settings. Use Android settings to view or change them.</string>
+    <string name="hotspot_diagnostics_title">Technical details</string>
+    <string name="hotspot_diagnostics_summary">%1$d items could not be read on this device</string>
+
+    <!-- Configuration -->
+    <string name="hotspot_config_title">Hotspot settings</string>
+    <string name="hotspot_ssid">Network name</string>
+    <string name="hotspot_ssid_hint">Up to 32 bytes</string>
+    <string name="hotspot_password">Password</string>
+    <string name="hotspot_password_hidden">••••••••</string>
+    <string name="hotspot_password_none">None (open network)</string>
+    <string name="hotspot_password_unreadable">Android did not share it</string>
+    <string name="hotspot_password_show">Show password</string>
+    <string name="hotspot_password_hide">Hide password</string>
+    <string name="hotspot_password_hint">8–63 characters (%1$d)</string>
+    <string name="hotspot_security">Security</string>
+    <string name="hotspot_security_open">None (open)</string>
+    <string name="hotspot_security_wpa2">WPA2-Personal</string>
+    <string name="hotspot_security_transition">WPA2/WPA3-Personal</string>
+    <string name="hotspot_security_wpa3">WPA3-Personal</string>
+    <string name="hotspot_security_owe">Enhanced Open (OWE)</string>
+    <string name="hotspot_band">Band</string>
+    <string name="hotspot_band_2">2.4 GHz</string>
+    <string name="hotspot_band_5">5 GHz preferred (2.4 GHz fallback)</string>
+    <string name="hotspot_band_6">6 GHz preferred</string>
+    <string name="hotspot_band_dual">2.4 GHz and 5 GHz at the same time</string>
+    <string name="hotspot_band_2_short">2.4 GHz</string>
+    <string name="hotspot_band_5_short">5 GHz</string>
+    <string name="hotspot_band_6_short">6 GHz</string>
+    <string name="hotspot_band_dual_note">The hotspot currently uses two bands at once. Choosing a band switches it to a single band.</string>
+    <string name="hotspot_hidden">Hidden network</string>
+    <string name="hotspot_hidden_hint">Devices must enter the network name to connect</string>
+    <string name="hotspot_max_clients">Maximum devices</string>
+    <string name="hotspot_max_clients_none">No limit</string>
+    <string name="hotspot_max_clients_hint">0 means no limit</string>
+    <string name="hotspot_max_clients_hint_max">0 means no limit · this device supports up to %1$d</string>
+    <string name="hotspot_auto_off">Turn off automatically</string>
+    <string name="hotspot_auto_off_hint">When no device is connected</string>
+    <string name="hotspot_auto_off_disabled">Never</string>
+    <string name="hotspot_timeout_default">System default</string>
+    <string name="hotspot_timeout_minutes">After %1$d min</string>
+    <string name="hotspot_mac_randomization">Hotspot MAC address</string>
+    <string name="hotspot_mac_none">Device MAC</string>
+    <string name="hotspot_mac_persistent">Randomized (persistent)</string>
+    <string name="hotspot_mac_non_persistent">Randomized (changes each time)</string>
+    <string name="hotspot_unknown">Unknown</string>
+    <string name="hotspot_yes">Yes</string>
+    <string name="hotspot_no">No</string>
+
+    <!-- QR -->
+    <string name="hotspot_qr_show">Show QR code</string>
+    <string name="hotspot_qr_hide">Hide QR code</string>
+    <string name="hotspot_qr_hint">Scan with the camera of the other device to join.</string>
+    <string name="hotspot_qr_description">QR code to join the %1$s hotspot</string>
+    <string name="hotspot_qr_too_long">The network name and password are too long for a QR code.</string>
+    <string name="hotspot_qr_unavailable">No QR code: the password is not available or this security type cannot be shared by QR.</string>
+    <string name="hotspot_share">Share join details</string>
+    <string name="hotspot_share_help">Shares the network name and password as text (WIFI: format) with the app you choose. Anyone who receives it can join your hotspot. Change the password to revoke access.</string>
+
+    <!-- Editing -->
+    <string name="hotspot_edit">Edit</string>
+    <string name="hotspot_edit_title">Edit hotspot</string>
+    <string name="hotspot_edit_help">Changes are saved in Android\'s hotspot settings, the same ones used by the Settings app. After applying, Able reads the settings back and shows the real values. Changing the name, password, security, band or visibility restarts a running hotspot.</string>
+    <string name="hotspot_security_help">Changing the security type or password disconnects every connected device; they must join again with the new password. WPA3 is more secure but older devices may not connect; WPA2/WPA3 accepts both. An open network lets anyone nearby use your connection.</string>
+    <string name="hotspot_band_help">5 GHz is faster but has shorter range; Android falls back to 2.4 GHz when 5 GHz cannot be used (for example in some countries or while connected to Wi-Fi). 6 GHz needs WPA3 and a compatible device. Changing the band restarts a running hotspot.</string>
+    <string name="hotspot_open_warning_title">Open network</string>
+    <string name="hotspot_open_warning">Anyone nearby can connect and use your mobile data.</string>
+    <string name="hotspot_unsupported_here">Not supported by this device</string>
+    <string name="hotspot_apply">Apply</string>
+    <string name="hotspot_cancel">Cancel</string>
+    <string name="hotspot_restart_title">Restart the hotspot?</string>
+    <string name="hotspot_restart_message">To apply these changes Android restarts the hotspot. Every connected device is disconnected and must join again (with the new password, if you changed it).</string>
+    <string name="hotspot_restart_confirm">Apply and restart</string>
+
+    <!-- Validation -->
+    <string name="hotspot_fix_errors">Fix the highlighted fields first.</string>
+    <string name="hotspot_no_changes">No changes to apply.</string>
+    <string name="hotspot_error_ssid_empty">Enter a network name</string>
+    <string name="hotspot_error_ssid_long">Name too long (max 32 bytes)</string>
+    <string name="hotspot_error_password_short">At least 8 characters</string>
+    <string name="hotspot_error_password_long">At most 63 characters</string>
+    <string name="hotspot_error_password_ascii">Use only standard letters, digits and symbols</string>
+    <string name="hotspot_error_band_unsupported">This device does not support this band for the hotspot</string>
+    <string name="hotspot_error_band_6_wpa3">6 GHz requires WPA3-Personal security</string>
+    <string name="hotspot_error_max_clients">Enter a number from 0 to %1$d</string>
+    <string name="hotspot_error_max_clients_generic">Invalid number of devices</string>
+    <string name="hotspot_error_timeout">Invalid timeout</string>
+    <string name="hotspot_error_mac">Invalid MAC address</string>
+
+    <!-- Results -->
+    <string name="hotspot_started">Hotspot turned on and confirmed.</string>
+    <string name="hotspot_stopped">Hotspot turned off and confirmed.</string>
+    <string name="hotspot_unconfirmed">Android did not confirm the change. The state shown is the real one.</string>
+    <string name="hotspot_command_failed">Able could not send the command (%1$s).</string>
+    <string name="hotspot_error_unsupported">Android reports that Wi-Fi hotspot is not supported on this device.</string>
+    <string name="hotspot_error_permission">Android refused the change: missing permission for hotspot control.</string>
+    <string name="hotspot_error_duplicate">Android is already handling a hotspot request. Try again in a moment.</string>
+    <string name="hotspot_error_entitlement">Your carrier did not allow the hotspot (entitlement check failed).</string>
+    <string name="hotspot_error_code">Android rejected the request (error %1$d).</string>
+    <string name="hotspot_config_applied">Settings applied and confirmed.</string>
+    <string name="hotspot_config_applied_restarted">Settings applied and confirmed; hotspot restarted.</string>
+    <string name="hotspot_restart_failed">Settings saved, but the hotspot did not restart correctly. Check its state.</string>
+    <string name="hotspot_apply_failed">Able could not apply the settings (%1$s).</string>
+    <string name="hotspot_apply_rejected">Android rejected the new settings.</string>
+    <string name="hotspot_apply_partial">Android kept a different value for some settings. The values shown are the real ones.</string>
+
+    <!-- Clients -->
+    <string name="hotspot_clients_title">Connected devices</string>
+    <string name="hotspot_clients_help">Devices currently using your hotspot, as reported by Android. The name is the one the device sent when it connected and may be missing. Blocking adds the device\'s MAC address to the hotspot block list; devices that randomize their MAC address can reconnect with a new one.</string>
+    <string name="hotspot_clients_none">No devices connected.</string>
+    <string name="hotspot_clients_off">The hotspot is off.</string>
+    <string name="hotspot_clients_unavailable">This Android version did not let Able list connected devices.</string>
+    <string name="hotspot_block">Block</string>
+    <string name="hotspot_block_client">Block %1$s</string>
+    <string name="hotspot_block_title">Block this device?</string>
+    <string name="hotspot_block_message">%1$s will be disconnected and will not be able to join the hotspot. You can unblock it from this screen.</string>
+    <string name="hotspot_block_message_reconnect">%1$s will not be able to join again. This device cannot disconnect it immediately: the block applies the next time it connects or when the hotspot restarts. You can unblock it from this screen.</string>
+    <string name="hotspot_blocked_title">Blocked devices</string>
+    <string name="hotspot_unblock">Unblock</string>
+    <string name="hotspot_client_blocked">Device blocked and confirmed.</string>
+    <string name="hotspot_client_unblocked">Device unblocked and confirmed.</string>
+</resources>

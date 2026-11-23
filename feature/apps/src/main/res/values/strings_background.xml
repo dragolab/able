@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Background activity controls of the Apps section (Background view and detail section). -->
+<resources>
+    <string name="apps_view_all">All apps</string>
+    <string name="apps_view_background">Background</string>
+    <string name="apps_section_background">Background activity</string>
+
+    <string name="apps_bg_intro">See and change which apps may run in the background. Changes need Shizuku and are read back from Android.</string>
+    <string name="apps_bg_search_hint">Search apps by name or package</string>
+    <string name="apps_bg_filter_restricted">Restricted only</string>
+    <string name="apps_bg_loading">Reading background state…</string>
+    <string name="apps_bg_load_failed_title">Background state not available</string>
+    <string name="apps_bg_load_failed_message">Android did not answer the background-state query through Shizuku. Try again.</string>
+    <plurals name="apps_bg_restricted_count">
+        <item quantity="one">%d app restricted in background</item>
+        <item quantity="other">%d apps restricted in background</item>
+    </plurals>
+
+    <string name="apps_bg_status_allowed">Allowed</string>
+    <string name="apps_bg_status_restricted">Restricted</string>
+    <string name="apps_bg_status_partial">Partly restricted</string>
+    <string name="apps_bg_status_unknown">Unknown</string>
+    <string name="apps_bg_exempt_pill">Battery unrestricted</string>
+    <string name="apps_bg_exempt_yes">Battery optimization: off</string>
+    <string name="apps_bg_exempt_no">Battery optimization: on</string>
+    <string name="apps_bg_exempt_note">This app is exempt from battery optimization (Android \"Unrestricted\"). Able does not change this exemption; change it in Android\'s app battery settings.</string>
+    <string name="apps_bg_blocked_pill">Not changed by Able</string>
+
+    <string name="apps_bg_shizuku_missing_title">Shizuku is required</string>
+    <string name="apps_bg_shizuku_missing_message">Android shows the background state of other apps only to system tools. Start Shizuku to see and change it here. Without Shizuku, use Android App info → App battery usage.</string>
+    <string name="apps_bg_shizuku_permission_title">Allow Able in Shizuku</string>
+    <string name="apps_bg_shizuku_permission_message">Shizuku is running but Able is not allowed yet. Allow it to read and change background activity.</string>
+    <string name="apps_bg_needs_permission">Allow Able in Shizuku to change background activity.</string>
+    <string name="apps_bg_needs_shizuku">Requires Shizuku. You can also use Android App info → App battery usage.</string>
+
+    <string name="apps_bg_select">Select</string>
+    <string name="apps_bg_select_all">Select all shown</string>
+    <string name="apps_bg_select_done">Done</string>
+    <string name="apps_bg_row_select">select</string>
+    <plurals name="apps_bg_selected_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <string name="apps_bg_restrict_selected">Restrict (%1$d)</string>
+    <string name="apps_bg_allow_selected">Allow (%1$d)</string>
+
+    <plurals name="apps_bg_restrict_confirm_title">
+        <item quantity="one">Restrict background activity of %d app?</item>
+        <item quantity="other">Restrict background activity of %d apps?</item>
+    </plurals>
+    <string name="apps_bg_restrict_confirm_title_one">Restrict background activity of %1$s?</string>
+    <string name="apps_bg_restrict_consequences">Android stops background jobs and limits alarms while the app is not in use. Notifications, alarms and reminders may arrive late or not at all, sync and backups may stop, and widgets may stop updating.</string>
+    <string name="apps_bg_restrict_undo">Undo at any time with Allow, here or in Android App info → App battery usage.</string>
+    <string name="apps_bg_restrict_action">Restrict</string>
+    <plurals name="apps_bg_warn_protected">
+        <item quantity="one">%d selected app is protected in Able.</item>
+        <item quantity="other">%d selected apps are protected in Able.</item>
+    </plurals>
+    <string name="apps_bg_warn_protected_one">This app is protected in Able.</string>
+    <plurals name="apps_bg_warn_risky">
+        <item quantity="one">%d selected app is rated Expert or Unsafe, or is a system app without information. Restricting it can break other functions of the phone.</item>
+        <item quantity="other">%d selected apps are rated Expert or Unsafe, or are system apps without information. Restricting them can break other functions of the phone.</item>
+    </plurals>
+    <string name="apps_bg_warn_risky_one">This app is rated Expert or Unsafe, or is a system app without information. Restricting it can break other functions of the phone.</string>
+    <plurals name="apps_bg_skipped">
+        <item quantity="one">%d app will be skipped: Able never changes itself, Shizuku or core Android components.</item>
+        <item quantity="other">%d apps will be skipped: Able never changes itself, Shizuku or core Android components.</item>
+    </plurals>
+    <plurals name="apps_bg_allow_confirm_title">
+        <item quantity="one">Allow background activity of %d app?</item>
+        <item quantity="other">Allow background activity of %d apps?</item>
+    </plurals>
+    <string name="apps_bg_allow_consequences">Android may run these apps\' background jobs and alarms again, as with the default \"Optimized\" battery setting.</string>
+    <string name="apps_bg_allow_action">Allow</string>
+
+    <string name="apps_bg_bulk_running_restrict">Restricting background activity…</string>
+    <string name="apps_bg_bulk_running_allow">Allowing background activity…</string>
+    <string name="apps_bg_bulk_progress">%1$d of %2$d apps checked</string>
+    <string name="apps_bg_bulk_done_restrict">Restrict background: finished</string>
+    <string name="apps_bg_bulk_done_allow">Allow background: finished</string>
+    <string name="apps_bg_bulk_result">Applied: %1$d · Rejected: %2$d · Not confirmed: %3$d · Skipped: %4$d</string>
+
+    <string name="apps_bg_card_title">Background state</string>
+    <string name="apps_bg_state_allowed_message">Android lets this app run background jobs and alarms within the usual battery limits.</string>
+    <string name="apps_bg_state_restricted_message">Background activity is restricted: background jobs and most alarms do not run while the app is not in use.</string>
+    <string name="apps_bg_state_partial_message">Only part of the background controls is restricted. Use the switch to allow or restrict both.</string>
+    <string name="apps_bg_state_unknown_message">Android shows the background state of other apps only through Shizuku.</string>
+    <string name="apps_bg_state_failed_message">Android did not report the background state of this app.</string>
+    <string name="apps_bg_switch_title">Allow background activity</string>
+    <string name="apps_bg_switch_message">Off restricts background jobs and alarms (RUN_ANY_IN_BACKGROUND and RUN_IN_BACKGROUND).</string>
+    <string name="apps_bg_blocked_self">Able does not restrict itself.</string>
+    <string name="apps_bg_blocked_shizuku">Able needs Shizuku in the background, so it does not restrict it.</string>
+    <string name="apps_bg_blocked_core">This is a core Android component. Able does not restrict it.</string>
+
+    <string name="apps_bg_change_allow">Allow background activity</string>
+    <string name="apps_bg_change_restrict">Restrict background activity</string>
+    <string name="apps_bg_change_bucket">Standby bucket %1$s</string>
+    <string name="apps_bg_result_applied">%1$s: applied</string>
+    <string name="apps_bg_result_applied_message">Android reports the new state.</string>
+    <string name="apps_bg_result_rejected">%1$s: rejected</string>
+    <string name="apps_bg_result_rejected_message">Android refused the change; nothing was changed.</string>
+    <string name="apps_bg_result_unconfirmed">%1$s: not confirmed</string>
+    <string name="apps_bg_result_unconfirmed_message">The command ran, but Android does not report the requested state.</string>
+
+    <string name="apps_bucket_title">App standby bucket</string>
+    <string name="apps_bucket_pill">Bucket: %1$s</string>
+    <string name="apps_bucket_other">Bucket %1$d</string>
+    <string name="apps_bucket_exempted">Exempted</string>
+    <string name="apps_bucket_active">Active</string>
+    <string name="apps_bucket_working_set">Working set</string>
+    <string name="apps_bucket_frequent">Frequent</string>
+    <string name="apps_bucket_rare">Rare</string>
+    <string name="apps_bucket_restricted">Restricted</string>
+    <string name="apps_bucket_never">Never used</string>
+    <string name="apps_bucket_exempted_desc">Not limited by app standby (system component).</string>
+    <string name="apps_bucket_active_desc">In use or used very recently. Minimal limits.</string>
+    <string name="apps_bucket_working_set_desc">Used regularly. Mild limits on jobs and alarms.</string>
+    <string name="apps_bucket_frequent_desc">Used often, not daily. Stronger limits on jobs and alarms.</string>
+    <string name="apps_bucket_rare_desc">Rarely used. Strict limits; no background network access.</string>
+    <string name="apps_bucket_restricted_desc">Lowest priority: jobs once a day, one alarm a day, no background network, also while charging.</string>
+    <string name="apps_bucket_never_desc">Installed but never opened.</string>
+    <string name="apps_bucket_picker_title">App standby bucket</string>
+    <string name="apps_bucket_picker_note">Android moves apps between buckets based on use. A bucket set here can change again when you use the app.</string>
+    <string name="apps_bucket_system_may_change">Android may move the app to another bucket when you use it.</string>
+
+    <string name="apps_help_background_title">Background activity</string>
+    <string name="apps_help_background_text">Restrict sets the Android controls RUN_ANY_IN_BACKGROUND and RUN_IN_BACKGROUND to \"ignore\", the same as \"Restricted\" in Android App battery usage. Android then stops the app\'s background jobs and limits its alarms while you are not using it.\n\nRisk: notifications, alarms, reminders, sync, backups and widgets may stop or arrive late. Do not restrict messaging, alarm, health or security apps you rely on.\n\nUndo: Allow sets both controls back to \"allow\". Able never restricts itself, Shizuku or core Android components, and never applies these changes automatically.</string>
+    <string name="apps_help_bucket_title">App standby bucket</string>
+    <string name="apps_help_bucket_text">Android places every app in a standby bucket based on how recently and often you use it, and limits jobs, alarms and network access accordingly (Restricted is the strongest).\n\nRisk: a lower bucket can delay notifications and sync.\n\nUndo: choose Active, or simply open the app: Android moves apps back up when you use them.</string>
+    <string name="apps_help_bg_shizuku_text">Android lets only system tools read and change the background controls of other apps. Shizuku gives Able that access after you start it with wireless debugging or root.\n\nWithout Shizuku, open Android App info → App battery usage for the same app.</string>
+
+    <!-- Action history entries -->
+    <string name="apps_log_background_restrict">Restrict background activity of %1$s</string>
+    <string name="apps_log_background_allow">Allow background activity of %1$s</string>
+    <string name="apps_log_standby_bucket">Set standby bucket of %1$s to %2$s</string>
+</resources>

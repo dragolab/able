@@ -1,0 +1,35 @@
+# Able non-functional requirements
+
+**Status:** Draft. Requirements are measurable where the current product decisions allow it; numeric performance/battery budgets remain to be baselined on reference devices.
+
+| ID | Area | Requirement | Verification |
+| --- | --- | --- | --- |
+| NFR-PRIV-001 | Privacy | V1 has no cloud sync or account requirement. Crash reports (ACRA, ADR-015) are offered only when the user has opted in and leave the device only through the user's own email send action; no automatic upload, no third-party server, and no feature-use analytics. | Inspect network behavior/configuration and the opt-in/send flow; verify no diagnostic network request and exported files remain user-directed. |
+| NFR-PRIV-002 | Data minimization | App usage and battery history stay local. Battery-session summaries and any opt-in contextual measurements expire after 90 days by default; the user may choose 30 days or until manual deletion and may delete them immediately. Derived idle-drain baselines are deleted with their source history. Configuration export excludes observation history and permission grants by default. | Verify all retention modes, expiry, manual deletion of sessions/context/baseline, configuration preservation, and export exclusions. |
+| NFR-PRIV-003 | Diagnostics minimization | Crash reports contain only technical crash data shown to the user before sending; never include account identifiers, message/file contents, hotspot credentials, or the installed-app list. Keep stored unsent reports bounded and local; delete them when the opt-in is turned off. | Inspect ACRA report fields and an emailed sample; test opt-in off/on, discard, deletion on opt-out, and no-email-app behavior. |
+| NFR-SEC-001 | Import security | Import treats archives and JSON as untrusted input, validates schema/size/checksum/paths, and never executes content. | Malformed archive, path traversal, oversized payload, unsupported schema, and corrupt checksum cases cause no mutations. |
+| NFR-SEC-002 | Permissions | Request only the minimum access for a user-selected feature, just before it is needed; explain purpose, state, and revocation route. | Permission-flow review on clean install; denied/revoked permission scenarios. |
+| NFR-SEC-003 | Sensitive values | Standard configuration backup excludes hotspot passwords and other secrets. | Inspect export schema and preview with populated hotspot credentials. |
+| NFR-REL-001 | State integrity | Privileged operations are verified by reading state back or receiving an authoritative Android result; retries are bounded and idempotent. | OS rejection, process interruption, duplicate trigger, and Shizuku disconnect cases. |
+| NFR-REL-002 | Recovery | Destructive/restrictive actions provide an undo/restore path when Android exposes enough prior state; otherwise label recovery as best-effort. | App-management and import replace recovery scenarios. |
+| NFR-PWR-001 | Power impact | Continuous monitoring is opt-in, visible, and uses the lowest sampling frequency that can support the feature; profile logic must not require frequent polling if system events suffice. | Battery comparison of monitor on/off under a documented test protocol before release. |
+| NFR-PWR-002 | Honest measurement | Rates and battery/app impact are labeled as estimates when derived from rounded or incomplete Android data; no unsupported causality or fixed savings claims. | Review screens and verify calculations against known synthetic intervals. |
+| NFR-UI-001 | Adaptivity | Main flows work across compact, medium, and expanded windows and do not assume a device class from window width alone. | Resize/orientation/split-screen checks and form-factor matrix. |
+| NFR-TV-001 | TV usability | Every primary TV control is reachable and operable by D-pad/Select/Back, with visible focus and readable 10-foot layout. | TV emulator/device manual verification and Play TV quality checklist review. |
+| NFR-ACC-002 | Readability and immediacy (revised 2026-11-22) | Concise primary text with progressive disclosure for long explanations; minimum 48dp touch targets; text and essential icon contrast meet WCAG 2.x AA (4.5:1 body text, 3:1 large text and UI components) in light, dark, and dynamic color themes; every control has a TalkBack label; collapsing headers never overlap content. Card headers must not squeeze titles: status pills and help buttons go beside the title only when it fits, otherwise under it, and no title is forced into one-word lines. Raw system values (epoch dates, enum/integer codes, raw byte counts) are always formatted for humans (localized date/time, named state, binary-prefixed size), with the raw value secondary; unknown codes are shown as "Unknown (code N)". | Layout inspection/Accessibility Scanner on reference phone, tablet, and TV; contrast checks for each theme; TalkBack walkthrough; scroll tests of collapsing headers at large font scale; card-header layout at 200% font scale in Italian and English on a compact phone; audit of every screen showing system values (battery health, app detail, archive, storage, shell exit status). |
+| NFR-ACC-001 | Accessibility | Controls have semantic labels, state, and action descriptions for TalkBack; focus order is logical; status is not communicated by color alone. | TalkBack and keyboard/D-pad accessibility review. |
+| NFR-I18N-001 | Localization | Italian and English cover all user-visible strings, permission rationale, notifications, errors, plurals, dates, units, and accessibility labels. | String-resource audit and locale-switch walkthrough. |
+| NFR-COMPAT-001 | Compatibility | Features are gated by actual API/hardware/service capability and degrade safely when unavailable. | Test one supported and one unsupported configuration per hardware-dependent feature. |
+| NFR-MAINT-001 | Maintainability | Product requirements, stories, use cases, and verification cases are linked by stable IDs and updated together. | Traceability review on every scope change. |
+| NFR-PERF-001 | Responsiveness | Long app scans, archive validation, and file analysis run off the UI thread and report progress/cancellation where appropriate. | UI responsiveness profiling and cancellation tests on reference phone/tablet. |
+
+## Proposed measurement budgets still to establish
+
+Before release, benchmark on Pixel 8 Pro and Xiaomi Pad 7 and record:
+
+- Idle battery cost of the monitor enabled vs disabled, over matched screen-off windows.
+- App start and primary navigation responsiveness, including cold start.
+- Peak memory and time for app-list discovery and large configuration import.
+- Storage scan speed on representative internal storage sizes.
+
+Set numeric thresholds only after the baseline and measurement method are agreed. Do not report a threshold as achieved without recorded results and device/OS details.

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ACRA crash dialog (PRIV-001, ADR-015). Shown only when crash reports are enabled in Settings → Privacy. -->
+<resources>
+    <string name="crash_dialog_title">Able stopped unexpectedly</string>
+    <string name="crash_dialog_text">A crash report is ready. It contains only the error stack trace, Able version, Android version, device model and build details — no personal data, contacts, files or app list.\n\nIf you choose Send, your email app opens with the report attached so you can read it before sending it to Drago Labs. Nothing is sent automatically.</string>
+    <string name="crash_dialog_send">Send by email</string>
+    <string name="crash_dialog_discard">Don\'t send</string>
+    <string name="crash_mail_subject">Able crash report</string>
+    <string name="crash_mail_body">The Able crash report is attached. You can review or remove it before sending.\n\nOptional: describe what you were doing when Able stopped.\n</string>
+</resources>

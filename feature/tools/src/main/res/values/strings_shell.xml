@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_subtitle">ADB shell rights via Shizuku</string>
+    <string name="shell_help_title">Command shell</string>
+    <string name="shell_help_text">Runs commands with the same rights as \"adb shell\", through Shizuku. It is not root. Shell commands can read system information, list and manage apps, change Android settings, and also clear app data or uninstall apps. Able cannot undo what a command does.\n\nCommands run only when you tap Run. A command stops when you tap Stop, when you leave this screen, or after 10 minutes. Commands cannot read from the keyboard (no interactive input).\n\nThe output keeps the last 5,000 lines. Your last 100 commands and your snippets are stored only on this device and are excluded from backups. Able\'s action history records each command and its exit status, never its output.</string>
+
+    <string name="shell_shizuku_title">Shizuku is required</string>
+    <string name="shell_shizuku_not_running">Start Shizuku (with Wireless debugging or a computer) and come back. The shell runs commands with ADB shell rights through Shizuku; Able cannot run them on its own.</string>
+    <string name="shell_shizuku_permission">Allow Able in Shizuku so it can run the shell commands you type. Nothing runs until you tap Run.</string>
+    <string name="shell_shizuku_authorize">Authorize</string>
+    <string name="shell_shizuku_open">Open Shizuku</string>
+    <string name="shell_shizuku_check_again">Check again</string>
+    <string name="shell_shizuku_not_installed">Shizuku is not installed or could not be opened.</string>
+    <string name="shell_shizuku_lost">Shizuku is no longer connected. The command was not run.</string>
+    <string name="shell_shizuku_help_title">What Shizuku allows</string>
+    <string name="shell_shizuku_help_text">Shizuku is a separate app that lets other apps use Android\'s ADB shell rights after you start it with Wireless debugging or a computer. With it, shell commands can read system properties and diagnostics (getprop, dumpsys), list packages, change settings, grant or revoke permissions, clear app data and uninstall apps for the current user. It cannot change system partitions or do what needs root. You can revoke Able\'s access in Shizuku at any time.</string>
+
+    <string name="shell_warning_title">Use the shell with care</string>
+    <string name="shell_warning_text">Shell commands run with ADB shell rights. They can change system settings, revoke permissions, clear app data or remove apps, and Able cannot undo them.\n\nCommands run only when you send them. Able asks again before commands that look destructive, but this check cannot catch everything.</string>
+    <string name="shell_warning_accept">I understand</string>
+    <string name="shell_warning_leave">Leave</string>
+
+    <string name="shell_danger_title">Run this command?</string>
+    <string name="shell_danger_text">This command may make changes that Able cannot undo:</string>
+    <string name="shell_danger_run">Run anyway</string>
+    <string name="shell_danger_help_title">Why Able asks</string>
+    <string name="shell_danger_help_text">Able looks for commands that delete files, uninstall apps, clear app data, change settings or the display, write raw data, format storage or restart the device. Running the command is still your choice. The check is based on the command text only: it can ask about harmless commands and can miss risky ones.</string>
+    <string name="shell_risk_delete_files">Deletes files or folders</string>
+    <string name="shell_risk_uninstall_app">Uninstalls an app or its updates</string>
+    <string name="shell_risk_clear_app_data">Clears app data or caches</string>
+    <string name="shell_risk_reboot">Restarts or shuts down the device</string>
+    <string name="shell_risk_change_settings">Changes Android settings</string>
+    <string name="shell_risk_window_manager">Changes display size, density or window settings</string>
+    <string name="shell_risk_raw_disk_write">Writes raw data (dd)</string>
+    <string name="shell_risk_format">Formats or partitions storage</string>
+
+    <string name="shell_input_label">Command</string>
+    <string name="shell_input_placeholder">getprop ro.product.model</string>
+    <string name="shell_run">Run command</string>
+    <string name="shell_stop">Stop command</string>
+    <string name="shell_history_previous">Previous command in history</string>
+    <string name="shell_history_next">Next command in history</string>
+    <string name="shell_copy_output">Copy output</string>
+    <string name="shell_share_output">Share output</string>
+    <string name="shell_clear_output">Clear output</string>
+    <string name="shell_share_chooser">Share shell output</string>
+    <string name="shell_copied_truncated">Copied the newest output only (older lines were too long to copy)</string>
+    <string name="shell_shared_truncated">Shared the newest output only</string>
+    <string name="shell_nothing_to_export">There is no output yet.</string>
+    <string name="shell_output_description">Command output</string>
+    <string name="shell_output_empty_title">No output yet</string>
+    <string name="shell_output_empty_text">Type a command or pick a snippet. Nothing runs until you tap Run.</string>
+    <string name="shell_running">Running: %1$s</string>
+    <string name="shell_exit_code">Exit %1$d</string>
+    <string name="shell_exit_unknown">Exit code not reported</string>
+    <string name="shell_end_stopped">Stopped</string>
+    <string name="shell_end_timed_out">Stopped after %1$d minutes</string>
+    <string name="shell_end_failed">Could not run the command</string>
+    <string name="shell_stderr_label">ERR</string>
+    <string name="shell_stderr_description">Error output</string>
+    <string name="shell_dropped_lines">%1$d older lines removed (the last %2$d are kept)</string>
+    <string name="shell_jump_to_latest">Scroll to latest output</string>
+
+    <string name="shell_snippets">Snippets</string>
+    <string name="shell_snippets_manage">Snippets and history</string>
+    <string name="shell_snippets_empty">No snippets. Add commands you use often.</string>
+    <string name="shell_snippet_add">Add snippet</string>
+    <string name="shell_snippet_save_current">Save current command</string>
+    <string name="shell_snippet_new_title">New snippet</string>
+    <string name="shell_snippet_edit_title">Edit snippet</string>
+    <string name="shell_snippet_name">Name</string>
+    <string name="shell_snippet_command">Command</string>
+    <string name="shell_snippet_saved">Snippet saved</string>
+    <string name="shell_snippet_deleted">Deleted \"%1$s\"</string>
+    <string name="shell_snippet_delete_title">Delete snippet?</string>
+    <string name="shell_snippet_delete_text">\"%1$s\" will be removed from your snippets.</string>
+    <string name="shell_snippet_edit">Edit %1$s</string>
+    <string name="shell_snippet_delete">Delete %1$s</string>
+    <string name="shell_snippet_insert_hint">Puts the command in the input field without running it</string>
+    <string name="shell_insert">Insert</string>
+    <string name="shell_history">Recent commands</string>
+    <string name="shell_history_empty">Commands you run appear here.</string>
+    <string name="shell_history_clear">Clear history</string>
+
+    <string name="shell_snippet_android_version">Android version</string>
+    <string name="shell_snippet_user_apps">Installed user apps</string>
+    <string name="shell_snippet_battery">Battery status</string>
+    <string name="shell_snippet_adb_enabled">Is USB debugging on?</string>
+    <string name="shell_snippet_disabled_apps">Disabled apps</string>
+    <string name="shell_snippet_data_space">Free space on /data</string>
+</resources>

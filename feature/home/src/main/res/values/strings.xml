@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Able</string>
+    <string name="home_customize">Customize Home</string>
+    <string name="home_loading">Loading…</string>
+    <string name="home_value_unavailable">Not reported</string>
+    <string name="home_close">Close</string>
+    <string name="home_open_battery">Open Battery</string>
+    <string name="home_all_hidden_title">All cards are hidden</string>
+    <string name="home_all_hidden_message">Show the cards you want from Customize Home. Safety alerts always stay visible.</string>
+    <string name="home_layout_reset_done">Home layout restored to default</string>
+    <string name="home_shizuku_request_failed">Shizuku is not reachable. Open Shizuku and make sure it is running.</string>
+
+    <!-- Card names and descriptions (HOME-002) -->
+    <string name="home_card_battery_title">Battery &amp; profile</string>
+    <string name="home_card_battery_desc">Level, charging state and selected profile</string>
+    <string name="home_card_quick_actions_title">Quick actions</string>
+    <string name="home_card_quick_actions_desc">Torch, screen lock, GPS, storage, toggles</string>
+    <string name="home_card_capabilities_title">Access status</string>
+    <string name="home_card_capabilities_desc">Shizuku, Accessibility, Usage access, notifications</string>
+    <string name="home_card_storage_title">Storage</string>
+    <string name="home_card_storage_desc">Free and used internal storage</string>
+    <string name="home_card_shortcuts_title">Favorite shortcuts</string>
+    <string name="home_card_shortcuts_desc">Shortcuts created with Shortcut Maker</string>
+    <string name="home_card_recent_title">Recent actions</string>
+    <string name="home_card_recent_desc">Latest Able actions and their real outcome</string>
+    <string name="home_card_sensors_title">Sensors</string>
+    <string name="home_card_sensors_desc">Level, ruler and compass</string>
+    <string name="home_card_geo_title">Position</string>
+    <string name="home_card_geo_desc">Save or reopen a GPS point</string>
+
+    <!-- Safety banners (HOME-003) -->
+    <string name="home_alert_shizuku_waiting_title">Shizuku is waiting for permission</string>
+    <string name="home_alert_shizuku_waiting_message">Advanced actions (profiles, force stop) stay unavailable until you allow Able in Shizuku.</string>
+    <string name="home_alert_shizuku_grant">Allow</string>
+    <string name="home_alert_shizuku_denied_title">Shizuku permission denied</string>
+    <string name="home_alert_shizuku_denied_message">Advanced actions are unavailable. You can ask again, or keep using Able without Shizuku.</string>
+    <string name="home_alert_shizuku_retry">Ask again</string>
+    <plurals name="home_alert_failures_title">
+        <item quantity="one">%d action failed in the last 24 hours</item>
+        <item quantity="other">%d actions failed in the last 24 hours</item>
+    </plurals>
+    <string name="home_alert_failures_details">Details</string>
+    <string name="home_failures_dialog_title">Recent failures</string>
+    <string name="home_failures_dialog_message">These actions were not applied. Check the required access or the profile settings.</string>
+
+    <!-- Battery card -->
+    <string name="home_battery_profile_label">Profile: %1$s</string>
+    <string name="home_battery_percent">%1$d%%</string>
+    <string name="home_battery_not_present">This device does not report a battery.</string>
+    <string name="home_battery_state_with_plug">%1$s · %2$s</string>
+    <string name="home_battery_state_charging">Charging</string>
+    <string name="home_battery_state_full">Full</string>
+    <string name="home_battery_state_discharging">On battery</string>
+    <string name="home_battery_state_not_charging">Plugged in, not charging</string>
+    <string name="home_battery_state_unknown">State not reported</string>
+    <string name="home_battery_plug_ac">Charger</string>
+    <string name="home_battery_plug_usb">USB</string>
+    <string name="home_battery_plug_wireless">Wireless</string>
+    <string name="home_battery_plug_dock">Dock</string>
+    <string name="home_battery_emergency_active">Emergenza active</string>
+
+    <!-- Quick actions / sensors -->
+    <string name="home_tool_torch">Torch</string>
+    <string name="home_tool_lock">Lock screen</string>
+    <string name="home_tool_gps">Save position</string>
+    <string name="home_tool_storage">Storage</string>
+    <string name="home_tool_toggles">System toggles</string>
+    <string name="home_tool_all">All tools</string>
+    <string name="home_tool_level">Level</string>
+    <string name="home_tool_ruler">Ruler</string>
+    <string name="home_tool_compass">Compass</string>
+    <string name="home_sensor_unavailable">Sensor not available</string>
+
+    <!-- Capability card -->
+    <string name="home_capabilities_subtitle">Optional accesses. Open Settings to manage them.</string>
+    <string name="home_capability_shizuku">Shizuku</string>
+    <string name="home_capability_shizuku_optional">Shizuku is optional; it enables advanced actions only.</string>
+    <string name="home_capability_accessibility">Accessibility</string>
+    <string name="home_capability_usage">Usage access</string>
+    <string name="home_capability_notifications">Notifications</string>
+    <string name="home_capability_granted">On</string>
+    <string name="home_capability_not_granted">Off</string>
+
+    <!-- Recent actions -->
+    <string name="home_recent_empty">No actions recorded yet.</string>
+    <string name="home_action_status_attempted">Not confirmed</string>
+    <string name="home_action_status_success">Applied</string>
+    <string name="home_action_status_skipped">Skipped</string>
+    <string name="home_action_status_failed">Failed</string>
+
+    <!-- Storage -->
+    <string name="home_storage_unavailable">Android did not report storage figures.</string>
+    <string name="home_storage_free_of_total">%1$s free of %2$s</string>
+    <string name="home_storage_used">%1$s used (%2$d%%)</string>
+    <string name="home_storage_open">Open storage tool</string>
+
+    <!-- Shortcuts / geo -->
+    <string name="home_shortcuts_empty">No shortcuts yet. Create one for an app, a website, a file or an Able tool.</string>
+    <string name="home_geo_subtitle">GPS tool</string>
+    <string name="home_geo_message">Save your current position or reopen a saved point. Location is used only while the tool is open.</string>
+
+    <!-- Customize sheet (HOME-002) -->
+    <string name="home_customize_title">Customize Home</string>
+    <string name="home_customize_message">Show, hide and reorder cards. Safety alerts always appear at the top.</string>
+    <string name="home_customize_state_shown">Shown</string>
+    <string name="home_customize_state_hidden">Hidden</string>
+    <string name="home_customize_move_up">Move %1$s up</string>
+    <string name="home_customize_move_down">Move %1$s down</string>
+    <string name="home_customize_visible">Show %1$s on Home</string>
+    <string name="home_customize_reset">Reset to default</string>
+
+    <!-- Favorite shortcuts (Shortcut Maker) and brand header -->
+    <string name="home_tagline">Battery, apps and tools in one place</string>
+    <string name="home_shortcuts_subtitle">Pinned shortcuts first</string>
+    <string name="home_shortcuts_create">Create a shortcut</string>
+    <string name="home_shortcuts_open_maker">Open Shortcut Maker</string>
+    <string name="home_shortcut_failed">This shortcut could not be opened. No app on this device can handle it.</string>
+    <string name="home_shortcut_unsupported">This shortcut target is not supported. Edit it in Shortcut Maker.</string>
+    <string name="home_shortcut_app_missing">The app for this shortcut is not installed.</string>
+    <string name="home_shortcut_blocked">Android blocked this shortcut. The app or file no longer allows access.</string>
+    <string name="home_battery_no_active_profile">No battery profile active</string>
+    <string name="home_battery_active_profiles">Active: %1$s</string>
+</resources>

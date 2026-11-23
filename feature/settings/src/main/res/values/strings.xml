@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_action_cancel">Cancel</string>
+    <string name="settings_action_close">Close</string>
+    <string name="settings_action_copy">Copy</string>
+    <string name="settings_action_copy_command">Copy command</string>
+    <string name="settings_clip_label">Able</string>
+    <string name="settings_copied">Copied to clipboard</string>
+
+    <!-- Sections -->
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_access">Access &amp; permissions</string>
+    <string name="settings_section_privacy">Privacy</string>
+    <string name="settings_section_backup">Backup &amp; transfer</string>
+    <string name="settings_section_home">Home layout</string>
+    <string name="settings_section_about">About</string>
+
+    <!-- Appearance (SET-001) -->
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_system">System default</string>
+    <string name="settings_language_system_supporting">Follows the Android language</string>
+    <string name="settings_language_italian" translatable="false">Italiano</string>
+    <string name="settings_language_english" translatable="false">English</string>
+    <string name="settings_language_not_applied">Android did not apply the language change. Try again from Android Settings → Apps → Able → Language.</string>
+
+    <!-- Access checklist (SET-002) -->
+    <string name="settings_access_intro">All optional. Able asks only when you use a feature. Tap a row for details.</string>
+    <string name="settings_access_group_battery_apps">Battery profiles and app controls</string>
+    <string name="settings_access_group_screen_lock">Screen lock</string>
+    <string name="settings_access_group_monitor">Battery monitor and alerts</string>
+    <string name="settings_access_group_system">System toggles</string>
+    <string name="settings_access_group_gps">GPS tools</string>
+    <string name="settings_access_state_granted">Granted</string>
+    <string name="settings_access_state_not_granted">Not granted</string>
+    <string name="settings_access_shizuku_title">Shizuku</string>
+    <string name="settings_access_shizuku_purpose">Lets Able disable apps and apply system changes that need elevated access.</string>
+    <string name="settings_access_shizuku_unavailable">Shizuku is not installed or not running. Install and start Shizuku, then come back.</string>
+    <string name="settings_access_usage_title">Usage access</string>
+    <string name="settings_access_usage_purpose">Shows recently used apps for battery and app reviews.</string>
+    <string name="settings_access_accessibility_title">Accessibility (screen lock)</string>
+    <string name="settings_access_accessibility_purpose">Only locks the screen (double tap, tile, shortcut). Able never reads screen content.</string>
+    <string name="settings_access_notifications_title">Notifications</string>
+    <string name="settings_access_notifications_purpose">Live battery monitor, alerts and action results.</string>
+    <string name="settings_access_write_settings_title">Modify system settings</string>
+    <string name="settings_access_write_settings_purpose">Screen timeout and brightness from tools and profiles.</string>
+    <string name="settings_access_secure_title">Write secure settings</string>
+    <string name="settings_access_secure_purpose">Advanced toggles such as Private DNS. Granted once with ADB from a computer.</string>
+    <string name="settings_access_location_title">Precise location</string>
+    <string name="settings_access_location_purpose">Saves exact GPS coordinates in the coordinate catalog.</string>
+    <string name="settings_access_action_manage">Open Android settings</string>
+    <string name="settings_access_action_allow">Allow notifications</string>
+    <string name="settings_access_action_authorize_shizuku">Authorize Able in Shizuku</string>
+    <string name="settings_access_action_open_shizuku">Open the Shizuku app</string>
+    <string name="settings_access_action_adb">Show the ADB command</string>
+    <string name="settings_access_secure_dialog_body">Android grants this access only from a computer. Enable USB debugging, connect the device and run:</string>
+    <string name="settings_access_secure_dialog_granted">This access is granted. The command used to grant it is:</string>
+    <string name="settings_access_secure_dialog_revoke">To revoke it, run the same command with “revoke” instead of “grant”, or uninstall Able.</string>
+
+    <!-- Privacy (PRIV-001, ADR-015) -->
+    <string name="settings_telemetry_title">Offer crash reports</string>
+    <string name="settings_telemetry_supporting">Off by default. After a crash, you choose whether to email the report.</string>
+    <string name="settings_telemetry_categories_title">What a crash report contains</string>
+    <string name="settings_telemetry_categories_body">Error stack trace, Able version, Android version, device brand and model, build details. Never personal data, accounts, messages, files, hotspot credentials, logs or your app list. No feature analytics and no third-party servers.</string>
+
+    <!-- Backup & transfer (CFG-001..CFG-007) -->
+    <string name="settings_backup_export_title">Export configuration</string>
+    <string name="settings_backup_export_supporting">Choose what to include, then where to save the .ablebackup file</string>
+    <string name="settings_backup_import_title">Import configuration</string>
+    <string name="settings_backup_import_supporting">Validate and preview a .ablebackup file before applying it</string>
+    <string name="settings_backup_restore_title">Restore previous configuration</string>
+    <string name="settings_backup_restore_supporting">Undo the last import using the restore point saved before it</string>
+    <string name="settings_backup_restore_failed">The restore point could not be read. Nothing was changed.</string>
+    <string name="settings_backup_export_dialog_title">Export configuration</string>
+    <string name="settings_backup_export_dialog_body">Select the sections to include. Nothing is selected in advance.</string>
+    <string name="settings_backup_export_choose_destination">Choose destination</string>
+    <string name="settings_backup_export_done">Saved “%1$s”</string>
+    <string name="settings_backup_export_failed">The file could not be written. Nothing was saved.</string>
+    <string name="settings_backup_section_battery">Battery profiles and app rules</string>
+    <string name="settings_backup_section_battery_desc">Profile thresholds, Notte schedule, protected apps and per-app levels</string>
+    <string name="settings_backup_section_home">Home layout and appearance</string>
+    <string name="settings_backup_section_home_desc">Card order and visibility, theme and language</string>
+    <string name="settings_backup_section_gps">Saved GPS points</string>
+    <string name="settings_backup_section_gps_desc">Coordinates, labels, notes and tags</string>
+    <string name="settings_backup_section_dns">Private DNS profiles</string>
+    <string name="settings_backup_section_dns_desc">Saved DNS profile names and hostnames</string>
+    <string name="settings_backup_section_shortcuts">Shortcuts and collections</string>
+    <string name="settings_backup_section_shortcuts_desc">Shortcut definitions and their collections</string>
+    <string name="settings_backup_excluded_title">Never included</string>
+    <string name="settings_backup_excluded_battery_history">Battery history and monitor measurements</string>
+    <string name="settings_backup_excluded_usage">Usage and accessibility observations</string>
+    <string name="settings_backup_excluded_permissions">Android permission grants</string>
+    <string name="settings_backup_excluded_shizuku">Shizuku state</string>
+    <string name="settings_backup_excluded_app_data">Installed apps and their data</string>
+    <string name="settings_backup_excluded_hotspot">Hotspot passwords</string>
+    <string name="settings_backup_excluded_telemetry">Diagnostics preference and history</string>
+    <string name="settings_backup_excluded_icons">Custom shortcut icon images (not supported in this version)</string>
+    <string name="settings_backup_import_reading">Checking the file…</string>
+    <string name="settings_backup_import_applying">Applying configuration…</string>
+    <string name="settings_backup_import_invalid_title">This file cannot be imported</string>
+    <string name="settings_backup_import_not_applied_title">Import not applied</string>
+    <string name="settings_backup_import_rollback_failed">Able could not save a restore point, so nothing was changed. Free some storage and try again.</string>
+    <string name="settings_backup_error_not_archive">The file is not an Able backup archive.</string>
+    <string name="settings_backup_error_too_large">The file is larger than the allowed %1$d MB.</string>
+    <string name="settings_backup_error_too_many_entries">The archive contains too many files.</string>
+    <string name="settings_backup_error_unsafe_path">The archive contains an unsafe file path.</string>
+    <string name="settings_backup_error_missing_manifest">The archive has no manifest.</string>
+    <string name="settings_backup_error_corrupt">The archive is damaged or incomplete.</string>
+    <string name="settings_backup_error_schema">The backup uses format version %1$d; this version of Able supports up to %2$d. Update Able and try again.</string>
+    <string name="settings_backup_error_checksum">The archive failed its integrity check. It may be damaged or modified.</string>
+    <string name="settings_backup_error_section">The section “%1$s” is not readable.</string>
+    <string name="settings_backup_error_no_sections">The archive contains no section this version of Able supports.</string>
+    <string name="settings_backup_error_read">The file could not be read. Check that it is still available.</string>
+    <string name="settings_backup_error_no_changes">No changes were made.</string>
+    <string name="settings_backup_preview_title">Review import</string>
+    <string name="settings_backup_preview_source">Created by Able %1$s on %2$s</string>
+    <string name="settings_backup_preview_unsupported_title">Ignored content not supported by this version</string>
+    <string name="settings_backup_mode_title">How to import</string>
+    <string name="settings_backup_mode_merge">Merge</string>
+    <string name="settings_backup_mode_merge_desc">Adds imported items and keeps settings that are not in the file</string>
+    <string name="settings_backup_mode_replace">Replace</string>
+    <string name="settings_backup_mode_replace_desc">Overwrites the included sections with the file content</string>
+    <string name="settings_backup_replace_summary_title">These sections will be overwritten</string>
+    <string name="settings_backup_policy_keep">Keep current values</string>
+    <string name="settings_backup_policy_imported">Use imported values</string>
+    <string name="settings_backup_rollback_note">A restore point is saved before any change, so you can undo this import.</string>
+    <string name="settings_backup_apply">Apply import</string>
+    <string name="settings_backup_result_done">Import complete</string>
+    <string name="settings_backup_result_restored">Previous configuration restored</string>
+    <string name="settings_backup_result_partial">Import partially applied</string>
+    <string name="settings_backup_result_section_failed">This section could not be applied. Use Restore to return to the previous configuration.</string>
+    <string name="settings_backup_result_repin_title">Pin shortcuts again</string>
+    <string name="settings_backup_result_rollback_available">You can undo this import from Settings → Backup &amp; transfer.</string>
+    <string name="settings_backup_log_import">Configuration import: %1$d applied, %2$d skipped</string>
+    <string name="settings_backup_log_restore">Configuration restore: %1$d applied, %2$d skipped</string>
+    <plurals name="settings_backup_conflicts_title">
+        <item quantity="one">%d item differs from your current configuration</item>
+        <item quantity="other">%d items differ from your current configuration</item>
+    </plurals>
+    <plurals name="settings_backup_preview_items">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    <plurals name="settings_backup_preview_conflicts">
+        <item quantity="one">%d conflict with current values</item>
+        <item quantity="other">%d conflicts with current values</item>
+    </plurals>
+    <plurals name="settings_backup_preview_invalid">
+        <item quantity="one">%d invalid or unsupported item will be skipped</item>
+        <item quantity="other">%d invalid or unsupported items will be skipped</item>
+    </plurals>
+    <plurals name="settings_backup_preview_unresolved">
+        <item quantity="one">%d item refers to an app or file not found on this device (kept, inactive)</item>
+        <item quantity="other">%d items refer to apps or files not found on this device (kept, inactive)</item>
+    </plurals>
+    <plurals name="settings_backup_preview_repin">
+        <item quantity="one">%d shortcut was pinned on the launcher; pin it again from Shortcut Maker</item>
+        <item quantity="other">%d shortcuts were pinned on the launcher; pin them again from Shortcut Maker</item>
+    </plurals>
+    <plurals name="settings_backup_preview_icons">
+        <item quantity="one">%d custom icon image is not included and will use the default icon</item>
+        <item quantity="other">%d custom icon images are not included and will use the default icon</item>
+    </plurals>
+    <plurals name="settings_backup_result_applied">
+        <item quantity="one">%d item applied</item>
+        <item quantity="other">%d items applied</item>
+    </plurals>
+    <plurals name="settings_backup_result_skipped">
+        <item quantity="one">%d item skipped</item>
+        <item quantity="other">%d items skipped</item>
+    </plurals>
+
+    <!-- Home layout -->
+    <string name="settings_home_reset_title">Reset Home layout</string>
+    <string name="settings_home_reset_supporting">Restore the default card order and visibility</string>
+    <string name="settings_home_reset_confirm_title">Reset Home layout?</string>
+    <string name="settings_home_reset_confirm_body">Card order and hidden cards return to the defaults. Other settings are not changed.</string>
+    <string name="settings_home_reset_confirm_action">Reset</string>
+    <string name="settings_home_reset_done">Home layout reset to default</string>
+
+    <!-- About (ABOUT-001) -->
+    <string name="settings_about_version_unknown">Unknown</string>
+    <string name="settings_about_website">Drago Labs website</string>
+    <string name="settings_about_email">Support email</string>
+    <string name="settings_about_github">Source code on GitHub</string>
+    <string name="settings_about_github_not_configured">Not configured yet</string>
+    <string name="settings_about_licenses">Open-source licenses</string>
+    <string name="settings_about_licenses_body">Fonts, data and libraries bundled with Able</string>
+    <string name="settings_no_handler_title">No app can open this</string>
+    <string name="settings_no_handler_body">You can copy it and open it elsewhere:</string>
+    <string name="settings_no_handler_generic">No app on this device can handle this action.</string>
+
+    <!-- Onboarding (primary flow 1) -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_step_description">Step %1$d of %2$d</string>
+    <string name="onboarding_welcome_title">Welcome to Able</string>
+    <string name="onboarding_welcome_body">A toolbox for battery, apps and everyday device tools.</string>
+    <string name="onboarding_welcome_local_title">Your data stays on this device</string>
+    <string name="onboarding_welcome_local_body">Profiles, rules, shortcuts and history are stored locally. There is no account and no cloud sync. You decide when to export a backup.</string>
+    <string name="onboarding_welcome_control_title">You stay in control</string>
+    <string name="onboarding_welcome_control_body">Able changes only what you review and confirm. Freezing or disabling apps is always manual.</string>
+    <string name="onboarding_privacy_title">Crash reports</string>
+    <string name="onboarding_privacy_body">If Able crashes, it can offer to send a crash report by email. You review it and decide each time.</string>
+    <string name="onboarding_privacy_no">No, don\'t offer crash reports</string>
+    <string name="onboarding_privacy_no_supporting">Nothing is collected or sent.</string>
+    <string name="onboarding_privacy_yes">Yes, offer to send crash reports</string>
+    <string name="onboarding_privacy_yes_supporting">After a crash, a dialog asks first. Sending opens your email app; nothing is sent automatically.</string>
+    <string name="onboarding_privacy_change_later">Reports go only to info.dragolabs@gmail.com, from your email app. No analytics, no third-party servers. Change it any time in Settings → Privacy.</string>
+    <string name="onboarding_capabilities_title">Optional accesses</string>
+    <string name="onboarding_capabilities_body">Some tools need extra access. Nothing is requested now.</string>
+    <string name="onboarding_capabilities_footer">Able asks for each access only when you open the feature that needs it. You can review them in Settings → Access &amp; permissions.</string>
+
+    <!-- Appearance, help, About and licenses (UX-001..003, ABOUT-001) -->
+    <string name="settings_dynamic_color_title">Use wallpaper colors</string>
+    <string name="settings_dynamic_color_supporting">Off uses the Able color palette</string>
+    <string name="settings_haptics_title">Haptic feedback</string>
+    <string name="settings_haptics_supporting">Light vibrations for taps, toggles and confirmations</string>
+    <string name="settings_section_help">Help</string>
+    <string name="settings_help_tour_title">Replay the tour</string>
+    <string name="settings_help_tour_supporting">A short guide to the sections and main options</string>
+    <string name="settings_tiles_widgets_title">Tiles &amp; widgets</string>
+    <string name="settings_tiles_widgets_supporting">Quick Settings tiles and Home screen widgets</string>
+    <string name="settings_help_shizuku">Shizuku runs a helper with ADB-level access so Able can disable or restore apps and change protected settings. Anything Able does with it is shown and confirmed first, and checked afterwards. Revoke it any time in the Shizuku app; stopping Shizuku turns these actions off.</string>
+    <string name="settings_help_secure">This grant lets Able change protected system settings such as Private DNS. It can only be given from a computer with ADB. Wrong values can break connectivity, so Able shows what it changes and reads it back. Revoke with “pm revoke” or by uninstalling Able.</string>
+    <string name="settings_help_crash_reports">When this is on and Able crashes, a dialog asks whether to send a report. If you choose Send, your email app opens with the report attached, addressed to info.dragolabs@gmail.com; you can read, edit or cancel it. The report contains the error stack trace, Able version, Android version, device brand and model, and build details. Nothing is sent automatically, no third-party servers are used and there are no feature analytics. Off: no dialog and nothing is collected.</string>
+    <string name="settings_help_backup">Export saves only the sections you pick to a .ablebackup file you choose. Import shows a preview first and saves a restore point, so you can undo it.</string>
+    <string name="settings_help_replace_import">Replace overwrites every included section with the file content; your current values for those sections are lost. A restore point is saved first, so you can undo it from Settings → Backup &amp; transfer. Choose Merge to keep what you have.</string>
+    <string name="settings_about_app_name">Able</string>
+    <string name="settings_about_version_value">Version %1$s</string>
+    <string name="settings_about_made_by">Made by Drago Labs</string>
+    <string name="settings_licenses_intro">Able bundles the following third-party content. Tap a license to read it.</string>
+    <string name="settings_licenses_font_name">Google Sans Flex</string>
+    <string name="settings_licenses_font_detail">Font · SIL Open Font License 1.1</string>
+    <string name="settings_licenses_uad_name">Universal Android Debloater list</string>
+    <string name="settings_licenses_uad_detail">Package descriptions in Apps · GNU GPL 3.0</string>
+    <string name="settings_licenses_acra_name">ACRA</string>
+    <string name="settings_licenses_acra_detail">Crash report dialog and email · Apache License 2.0</string>
+    <string name="settings_licenses_libraries_name">Android and Kotlin libraries</string>
+    <string name="settings_licenses_libraries_detail">AndroidX, Jetpack Compose, Kotlin, kotlinx.coroutines, kotlinx.serialization, Shizuku API · Apache License 2.0</string>
+    <string name="settings_licenses_doc_ofl">SIL Open Font License 1.1</string>
+    <string name="settings_licenses_doc_notice">Source and attribution</string>
+    <string name="settings_licenses_doc_gpl">GNU General Public License 3.0</string>
+    <string name="settings_licenses_doc_apache">Apache License 2.0</string>
+    <string name="settings_licenses_trademark_title">Trademarks</string>
+    <string name="settings_licenses_trademark_body">Google Sans is a trademark of Google LLC. Able is not affiliated with or endorsed by Google.</string>
+    <string name="settings_licenses_read_failed">This license text could not be read.</string>
+    <string name="onboarding_privacy_how_title">How it works</string>
+
+    <!-- Guided tour (UX-001) -->
+    <string name="tour_skip">Skip</string>
+    <string name="tour_back">Back</string>
+    <string name="tour_next">Next</string>
+    <string name="tour_done">Start using Able</string>
+    <string name="tour_step_description">Page %1$d of %2$d</string>
+    <string name="tour_welcome_title">A quick tour</string>
+    <string name="tour_welcome_body">One minute to see what Able can do. Skip any time and replay it from Settings → Help.</string>
+    <string name="tour_home_title">Home</string>
+    <string name="tour_home_body">Your dashboard of summaries and shortcuts.</string>
+    <string name="tour_home_cards_title">Cards</string>
+    <string name="tour_home_cards_body">Battery, storage and tools at a glance. Tap a card to open it.</string>
+    <string name="tour_home_customize_title">Customize</string>
+    <string name="tour_home_customize_body">Reorder or hide cards. Reset the layout from Settings.</string>
+    <string name="tour_home_banners_title">Safety banners</string>
+    <string name="tour_home_banners_body">Banners tell you when a profile is active or an access is missing.</string>
+    <string name="tour_battery_title">Battery</string>
+    <string name="tour_battery_body">Profiles and monitoring you control.</string>
+    <string name="tour_battery_profiles_title">Profiles</string>
+    <string name="tour_battery_profiles_body">Normale, Notte, Risparmio and Emergenza. Review what each one changes.</string>
+    <string name="tour_battery_triggers_title">Triggers start off</string>
+    <string name="tour_battery_triggers_body">No profile switches automatically until you enable each trigger yourself.</string>
+    <string name="tour_battery_monitor_title">Monitor</string>
+    <string name="tour_battery_monitor_body">Optional live notification with charge, current and temperature history.</string>
+    <string name="tour_apps_title">Apps</string>
+    <string name="tour_apps_body">Find, understand and manage installed apps.</string>
+    <string name="tour_apps_info_title">Info and filters</string>
+    <string name="tour_apps_info_body">Search, filter by type and read what a package does before acting.</string>
+    <string name="tour_apps_manage_title">Disable, uninstall, restore</string>
+    <string name="tour_apps_manage_body">Always manual and confirmed. Archive and restore where Android supports it.</string>
+    <string name="tour_apps_shizuku_title">Shizuku</string>
+    <string name="tour_apps_shizuku_body">Needed for elevated actions. Able tells you when it is not running.</string>
+    <string name="tour_tools_title">Tools</string>
+    <string name="tour_tools_body">Everyday utilities in one place.</string>
+    <string name="tour_tools_everyday_title">Torch and storage</string>
+    <string name="tour_tools_everyday_body">Flashlight with brightness, and a storage summary.</string>
+    <string name="tour_tools_shortcuts_title">Shortcuts</string>
+    <string name="tour_tools_shortcuts_body">Create launcher shortcuts to apps, settings and activities.</string>
+    <string name="tour_tools_lock_title">Double tap to lock</string>
+    <string name="tour_tools_lock_body">Uses Accessibility only to lock the screen.</string>
+    <string name="tour_tools_toggles_title">Quick toggles</string>
+    <string name="tour_tools_toggles_body">System switches such as screen timeout or Private DNS, when access allows.</string>
+    <string name="tour_tiles_title">Tiles &amp; widgets</string>
+    <string name="tour_tiles_body">Use Able without opening it.</string>
+    <string name="tour_tiles_qs_title">Quick Settings tiles</string>
+    <string name="tour_tiles_qs_body">Edit your Quick Settings panel and drag in Able tiles.</string>
+    <string name="tour_tiles_widgets_title">Home screen widgets</string>
+    <string name="tour_tiles_widgets_body">Battery and quick actions. See Settings → Help → Tiles &amp; widgets.</string>
+    <string name="tour_settings_title">Settings and privacy</string>
+    <string name="tour_settings_body">Everything stays on this device. You decide what Able may do.</string>
+    <string name="tour_settings_access_title">Access &amp; permissions</string>
+    <string name="tour_settings_access_body">Each access is optional and asked only when needed. Review them in Settings.</string>
+    <string name="tour_settings_crash_title">Crash reports</string>
+    <string name="tour_settings_crash_body">Off by default. When on, you choose after each crash whether to email a report.</string>
+    <string name="tour_settings_backup_title">Backup</string>
+    <string name="tour_settings_backup_body">Export and import your configuration as a .ablebackup file.</string>
+</resources>

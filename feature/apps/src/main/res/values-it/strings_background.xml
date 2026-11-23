@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Controlli dell'attività in background della sezione App (vista Background e sezione dettaglio). -->
+<resources>
+    <string name="apps_view_all">Tutte le app</string>
+    <string name="apps_view_background">Background</string>
+    <string name="apps_section_background">Attività in background</string>
+
+    <string name="apps_bg_intro">Vedi e cambia quali app possono funzionare in background. Le modifiche richiedono Shizuku e vengono verificate rileggendo lo stato da Android.</string>
+    <string name="apps_bg_search_hint">Cerca app per nome o pacchetto</string>
+    <string name="apps_bg_filter_restricted">Solo limitate</string>
+    <string name="apps_bg_loading">Lettura dello stato in background…</string>
+    <string name="apps_bg_load_failed_title">Stato in background non disponibile</string>
+    <string name="apps_bg_load_failed_message">Android non ha risposto alla richiesta tramite Shizuku. Riprova.</string>
+    <plurals name="apps_bg_restricted_count">
+        <item quantity="one">%d app limitata in background</item>
+        <item quantity="other">%d app limitate in background</item>
+    </plurals>
+
+    <string name="apps_bg_status_allowed">Consentito</string>
+    <string name="apps_bg_status_restricted">Limitato</string>
+    <string name="apps_bg_status_partial">Limitato in parte</string>
+    <string name="apps_bg_status_unknown">Sconosciuto</string>
+    <string name="apps_bg_exempt_pill">Batteria senza limiti</string>
+    <string name="apps_bg_exempt_yes">Ottimizzazione batteria: disattivata</string>
+    <string name="apps_bg_exempt_no">Ottimizzazione batteria: attiva</string>
+    <string name="apps_bg_exempt_note">Questa app è esclusa dall\'ottimizzazione della batteria (\"Senza limitazioni\" in Android). Able non cambia questa esclusione; puoi cambiarla nelle impostazioni batteria dell\'app in Android.</string>
+    <string name="apps_bg_blocked_pill">Non modificata da Able</string>
+
+    <string name="apps_bg_shizuku_missing_title">Serve Shizuku</string>
+    <string name="apps_bg_shizuku_missing_message">Android mostra lo stato in background delle altre app solo agli strumenti di sistema. Avvia Shizuku per vederlo e cambiarlo qui. Senza Shizuku usa Info app di Android → Utilizzo batteria app.</string>
+    <string name="apps_bg_shizuku_permission_title">Consenti Able in Shizuku</string>
+    <string name="apps_bg_shizuku_permission_message">Shizuku è attivo ma Able non è ancora autorizzata. Consentila per leggere e cambiare l\'attività in background.</string>
+    <string name="apps_bg_needs_permission">Consenti Able in Shizuku per cambiare l\'attività in background.</string>
+    <string name="apps_bg_needs_shizuku">Richiede Shizuku. Puoi anche usare Info app di Android → Utilizzo batteria app.</string>
+
+    <string name="apps_bg_select">Seleziona</string>
+    <string name="apps_bg_select_all">Seleziona tutte</string>
+    <string name="apps_bg_select_done">Fine</string>
+    <string name="apps_bg_row_select">selezionare</string>
+    <plurals name="apps_bg_selected_count">
+        <item quantity="one">%d selezionata</item>
+        <item quantity="other">%d selezionate</item>
+    </plurals>
+    <string name="apps_bg_restrict_selected">Limita (%1$d)</string>
+    <string name="apps_bg_allow_selected">Consenti (%1$d)</string>
+
+    <plurals name="apps_bg_restrict_confirm_title">
+        <item quantity="one">Limitare l\'attività in background di %d app?</item>
+        <item quantity="other">Limitare l\'attività in background di %d app?</item>
+    </plurals>
+    <string name="apps_bg_restrict_confirm_title_one">Limitare l\'attività in background di %1$s?</string>
+    <string name="apps_bg_restrict_consequences">Android interrompe i job in background e limita le sveglie mentre l\'app non è in uso. Notifiche, sveglie e promemoria possono arrivare in ritardo o non arrivare, sincronizzazione e backup possono fermarsi e i widget possono smettere di aggiornarsi.</string>
+    <string name="apps_bg_restrict_undo">Puoi annullare in qualsiasi momento con Consenti, qui o in Info app di Android → Utilizzo batteria app.</string>
+    <string name="apps_bg_restrict_action">Limita</string>
+    <plurals name="apps_bg_warn_protected">
+        <item quantity="one">%d app selezionata è protetta in Able.</item>
+        <item quantity="other">%d app selezionate sono protette in Able.</item>
+    </plurals>
+    <string name="apps_bg_warn_protected_one">Questa app è protetta in Able.</string>
+    <plurals name="apps_bg_warn_risky">
+        <item quantity="one">%d app selezionata è classificata Esperto o Non sicuro, oppure è un\'app di sistema senza informazioni. Limitarla può compromettere altre funzioni del telefono.</item>
+        <item quantity="other">%d app selezionate sono classificate Esperto o Non sicuro, oppure sono app di sistema senza informazioni. Limitarle può compromettere altre funzioni del telefono.</item>
+    </plurals>
+    <string name="apps_bg_warn_risky_one">Questa app è classificata Esperto o Non sicuro, oppure è un\'app di sistema senza informazioni. Limitarla può compromettere altre funzioni del telefono.</string>
+    <plurals name="apps_bg_skipped">
+        <item quantity="one">%d app verrà saltata: Able non modifica mai sé stessa, Shizuku o i componenti principali di Android.</item>
+        <item quantity="other">%d app verranno saltate: Able non modifica mai sé stessa, Shizuku o i componenti principali di Android.</item>
+    </plurals>
+    <plurals name="apps_bg_allow_confirm_title">
+        <item quantity="one">Consentire l\'attività in background di %d app?</item>
+        <item quantity="other">Consentire l\'attività in background di %d app?</item>
+    </plurals>
+    <string name="apps_bg_allow_consequences">Android potrà di nuovo eseguire job e sveglie in background di queste app, come con l\'impostazione batteria predefinita \"Ottimizzata\".</string>
+    <string name="apps_bg_allow_action">Consenti</string>
+
+    <string name="apps_bg_bulk_running_restrict">Limitazione dell\'attività in background…</string>
+    <string name="apps_bg_bulk_running_allow">Ripristino dell\'attività in background…</string>
+    <string name="apps_bg_bulk_progress">%1$d di %2$d app verificate</string>
+    <string name="apps_bg_bulk_done_restrict">Limita background: completato</string>
+    <string name="apps_bg_bulk_done_allow">Consenti background: completato</string>
+    <string name="apps_bg_bulk_result">Applicate: %1$d · Rifiutate: %2$d · Non confermate: %3$d · Saltate: %4$d</string>
+
+    <string name="apps_bg_card_title">Stato in background</string>
+    <string name="apps_bg_state_allowed_message">Android consente a questa app job e sveglie in background entro i normali limiti della batteria.</string>
+    <string name="apps_bg_state_restricted_message">L\'attività in background è limitata: job in background e gran parte delle sveglie non vengono eseguiti mentre l\'app non è in uso.</string>
+    <string name="apps_bg_state_partial_message">Solo una parte dei controlli in background è limitata. Usa l\'interruttore per consentirli o limitarli entrambi.</string>
+    <string name="apps_bg_state_unknown_message">Android mostra lo stato in background delle altre app solo tramite Shizuku.</string>
+    <string name="apps_bg_state_failed_message">Android non ha riportato lo stato in background di questa app.</string>
+    <string name="apps_bg_switch_title">Consenti attività in background</string>
+    <string name="apps_bg_switch_message">Disattivato limita job e sveglie in background (RUN_ANY_IN_BACKGROUND e RUN_IN_BACKGROUND).</string>
+    <string name="apps_bg_blocked_self">Able non limita sé stessa.</string>
+    <string name="apps_bg_blocked_shizuku">Able ha bisogno di Shizuku in background, quindi non lo limita.</string>
+    <string name="apps_bg_blocked_core">È un componente principale di Android. Able non lo limita.</string>
+
+    <string name="apps_bg_change_allow">Consenti attività in background</string>
+    <string name="apps_bg_change_restrict">Limita attività in background</string>
+    <string name="apps_bg_change_bucket">Gruppo di standby %1$s</string>
+    <string name="apps_bg_result_applied">%1$s: applicato</string>
+    <string name="apps_bg_result_applied_message">Android riporta il nuovo stato.</string>
+    <string name="apps_bg_result_rejected">%1$s: rifiutato</string>
+    <string name="apps_bg_result_rejected_message">Android ha rifiutato la modifica; non è cambiato nulla.</string>
+    <string name="apps_bg_result_unconfirmed">%1$s: non confermato</string>
+    <string name="apps_bg_result_unconfirmed_message">Il comando è stato eseguito, ma Android non riporta lo stato richiesto.</string>
+
+    <string name="apps_bucket_title">Gruppo di standby app</string>
+    <string name="apps_bucket_pill">Gruppo: %1$s</string>
+    <string name="apps_bucket_other">Gruppo %1$d</string>
+    <string name="apps_bucket_exempted">Esente</string>
+    <string name="apps_bucket_active">Attiva</string>
+    <string name="apps_bucket_working_set">Uso regolare</string>
+    <string name="apps_bucket_frequent">Frequente</string>
+    <string name="apps_bucket_rare">Rara</string>
+    <string name="apps_bucket_restricted">Limitata</string>
+    <string name="apps_bucket_never">Mai usata</string>
+    <string name="apps_bucket_exempted_desc">Non limitata dallo standby delle app (componente di sistema).</string>
+    <string name="apps_bucket_active_desc">In uso o usata di recente. Limiti minimi.</string>
+    <string name="apps_bucket_working_set_desc">Usata regolarmente. Limiti lievi su job e sveglie.</string>
+    <string name="apps_bucket_frequent_desc">Usata spesso, non ogni giorno. Limiti più forti su job e sveglie.</string>
+    <string name="apps_bucket_rare_desc">Usata raramente. Limiti stretti; nessun accesso alla rete in background.</string>
+    <string name="apps_bucket_restricted_desc">Priorità minima: job una volta al giorno, una sveglia al giorno, nessuna rete in background, anche in carica.</string>
+    <string name="apps_bucket_never_desc">Installata ma mai aperta.</string>
+    <string name="apps_bucket_picker_title">Gruppo di standby app</string>
+    <string name="apps_bucket_picker_note">Android sposta le app tra i gruppi in base all\'uso. Un gruppo scelto qui può cambiare di nuovo quando usi l\'app.</string>
+    <string name="apps_bucket_system_may_change">Android può spostare l\'app in un altro gruppo quando la usi.</string>
+
+    <string name="apps_help_background_title">Attività in background</string>
+    <string name="apps_help_background_text">Limita imposta i controlli Android RUN_ANY_IN_BACKGROUND e RUN_IN_BACKGROUND su \"ignore\", come \"Con limitazioni\" in Utilizzo batteria app di Android. Android interrompe quindi i job in background dell\'app e ne limita le sveglie mentre non la usi.\n\nRischio: notifiche, sveglie, promemoria, sincronizzazione, backup e widget possono fermarsi o arrivare in ritardo. Non limitare app di messaggistica, sveglie, salute o sicurezza su cui fai affidamento.\n\nAnnulla: Consenti riporta entrambi i controlli su \"allow\". Able non limita mai sé stessa, Shizuku o i componenti principali di Android e non applica mai queste modifiche in automatico.</string>
+    <string name="apps_help_bucket_title">Gruppo di standby app</string>
+    <string name="apps_help_bucket_text">Android assegna ogni app a un gruppo di standby in base a quanto spesso e quanto di recente la usi, e limita di conseguenza job, sveglie e accesso alla rete (Limitata è il più restrittivo).\n\nRischio: un gruppo più basso può ritardare notifiche e sincronizzazione.\n\nAnnulla: scegli Attiva, oppure apri l\'app: Android la riporta in alto quando la usi.</string>
+    <string name="apps_help_bg_shizuku_text">Android consente solo agli strumenti di sistema di leggere e cambiare i controlli in background delle altre app. Shizuku dà questo accesso ad Able dopo averlo avviato con il debug wireless o il root.\n\nSenza Shizuku apri Info app di Android → Utilizzo batteria app per la stessa app.</string>
+
+    <!-- Voci della cronologia azioni -->
+    <string name="apps_log_background_restrict">Limita attività in background di %1$s</string>
+    <string name="apps_log_background_allow">Consenti attività in background di %1$s</string>
+    <string name="apps_log_standby_bucket">Imposta il gruppo di standby di %1$s su %2$s</string>
+</resources>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Button shortcuts tool (BTN-001..BTN-003). -->
+<resources>
+    <string name="buttons_hero_title">Run actions with the volume keys</string>
+    <string name="buttons_status_service_off">Accessibility service off</string>
+    <string name="buttons_status_off">Off</string>
+    <string name="buttons_status_no_mapping">On, no gesture assigned yet</string>
+    <string name="buttons_status_on">Active</string>
+    <string name="buttons_open_accessibility">Open Accessibility settings</string>
+    <string name="buttons_help_service_title">How button shortcuts work</string>
+    <string name="buttons_help_service_text">Able\'s Accessibility service watches volume key presses only while this tool is on and at least one gesture is assigned; otherwise Android does not pass any key to Able. Other keys are never touched. Nothing is stored or sent.\n\nIt is the same service used by Screen lock and App lock.\n\nHow to turn it off: switch \"Button shortcuts\" off, or turn off the service in Android Settings › Accessibility › Able.</string>
+    <string name="buttons_enable_title">Button shortcuts</string>
+    <string name="buttons_enable_summary">Recognise the volume key gestures below. Off by default.</string>
+
+    <string name="buttons_gestures_title">Gestures</string>
+    <string name="buttons_help_gestures_title">Gestures and the volume</string>
+    <string name="buttons_help_gestures_text">Double press: the first press changes the volume as usual; if the second press comes quickly, Able runs the action instead and (optionally) puts the volume back. Single presses are never delayed.\n\nLong press: when assigned, Able holds back that key\'s press. A short press still changes the volume by one step when you release it, but holding the key to change the volume continuously no longer works for that key.\n\nBoth keys together: press volume up and down at the same time and release quickly. Holding both for a few seconds stays Android\'s Accessibility shortcut and does not run Able\'s action.\n\nDuring calls and while the phone rings, keys always work normally.</string>
+    <string name="buttons_gesture_both">Volume up + down together</string>
+    <string name="buttons_gesture_double_up">Double press volume up</string>
+    <string name="buttons_gesture_double_down">Double press volume down</string>
+    <string name="buttons_gesture_long_up">Long press volume up</string>
+    <string name="buttons_gesture_long_down">Long press volume down</string>
+    <string name="buttons_gesture_both_hint">press both, release quickly</string>
+    <string name="buttons_gesture_double_hint">volume changes once, then the action runs</string>
+    <string name="buttons_gesture_long_hint">holding to change volume is lost for this key</string>
+    <string name="buttons_unassigned">Not assigned</string>
+    <string name="buttons_clear_cd">Remove the action of %1$s</string>
+    <string name="buttons_enable_first">Turn on Button shortcuts to assign gestures.</string>
+    <string name="buttons_long_press_note">Long press assigned: a short press still changes the volume when you release the key.</string>
+
+    <string name="buttons_timing_title">Timing and feedback</string>
+    <string name="buttons_double_press_label">Max time between presses: %1$d ms</string>
+    <string name="buttons_long_press_label">Long press after: %1$d ms</string>
+    <string name="buttons_help_double_title">Time between presses</string>
+    <string name="buttons_help_double_text">The second press must start within this time after the first is released. Shorter avoids triggering when you quickly press twice to change the volume; longer is easier to hit.</string>
+    <string name="buttons_help_long_title">Long press time</string>
+    <string name="buttons_help_long_text">How long to hold the key before the long-press action runs. Releasing earlier counts as a normal volume press.</string>
+    <string name="buttons_undo_title">Put the volume back</string>
+    <string name="buttons_undo_summary">After a double press or both keys, undo the one volume step the first press made.</string>
+    <string name="buttons_haptic_title">Vibrate on gesture</string>
+    <string name="buttons_haptic_summary">A short vibration confirms that a gesture was recognised.</string>
+
+    <string name="buttons_test_title">Test area</string>
+    <string name="buttons_help_test_title">Testing gestures</string>
+    <string name="buttons_help_test_text">While the test runs, every gesture is recognised (even unassigned ones) and only reported here with a vibration: no action runs. The test stops when you leave this screen.</string>
+    <string name="buttons_test_body">Try the gestures to tune the timing without running any action.</string>
+    <string name="buttons_test_idle">Test not running.</string>
+    <string name="buttons_test_waiting">Waiting for a gesture…</string>
+    <string name="buttons_test_detected">Recognised: %1$s (%2$s)</string>
+    <string name="buttons_test_start">Start test</string>
+    <string name="buttons_test_stop">Stop test</string>
+    <string name="buttons_test_needs_setup">Turn on the Accessibility service and Button shortcuts to test.</string>
+
+    <string name="buttons_picker_title">Action for: %1$s</string>
+    <string name="buttons_picker_tab_actions">Able actions</string>
+    <string name="buttons_picker_tab_apps">Apps</string>
+    <string name="buttons_picker_tab_activities">Activities</string>
+    <string name="buttons_picker_search_apps">Search apps</string>
+    <string name="buttons_picker_search_activities">Search activities</string>
+    <string name="buttons_target_camera">Camera</string>
+    <string name="buttons_target_camera_hint">Opens the camera; while locked, the secure camera.</string>
+    <string name="buttons_target_unknown_action">Unknown action (%1$s)</string>
+    <string name="buttons_target_missing_app">App not installed (%1$s)</string>
+    <string name="buttons_target_activity">%1$s · %2$s</string>
+
+    <string name="buttons_action_torch">Torch on/off</string>
+    <string name="buttons_action_screen_lock">Turn off the screen</string>
+    <string name="buttons_action_ringer">Ringer: sound, vibrate, silent</string>
+    <string name="buttons_action_nfc">NFC</string>
+    <string name="buttons_action_auto_brightness">Auto brightness</string>
+    <string name="buttons_action_private_dns">Private DNS</string>
+    <string name="buttons_action_level">Spirit level</string>
+    <string name="buttons_action_compass">Compass</string>
+    <string name="buttons_action_ruler">Screen ruler</string>
+    <string name="buttons_action_gps">Save GPS position</string>
+    <string name="buttons_action_hotspot">Hotspot</string>
+    <string name="buttons_action_toggles">System toggles</string>
+    <string name="buttons_action_activities">Activity launcher</string>
+    <string name="buttons_action_open_able">Open Able</string>
+
+    <string name="buttons_limits_title">What Android allows</string>
+    <string name="buttons_limits_body">Only the volume keys can be used. Android does not pass the power key to apps, so it cannot be remapped (Able can only notice the screen turning on or off). With the screen off Android sends volume keys straight to the audio system, so shortcuts work only with the screen on, lock screen included. Actions that change system settings (NFC, Private DNS) need the phone unlocked and may open a settings panel if Able lacks access. Apps that use the volume keys themselves (camera shutter, readers) still receive presses that are not part of a gesture. If Android blocks Accessibility services, shortcuts do not work.</string>
+</resources>

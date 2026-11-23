@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Able</string>
+    <string name="home_customize">Personalizza Home</string>
+    <string name="home_loading">Caricamento…</string>
+    <string name="home_value_unavailable">Non rilevato</string>
+    <string name="home_close">Chiudi</string>
+    <string name="home_open_battery">Apri Batteria</string>
+    <string name="home_all_hidden_title">Tutte le schede sono nascoste</string>
+    <string name="home_all_hidden_message">Mostra le schede che vuoi da Personalizza Home. Gli avvisi di sicurezza restano sempre visibili.</string>
+    <string name="home_layout_reset_done">Layout della Home ripristinato</string>
+    <string name="home_shizuku_request_failed">Shizuku non è raggiungibile. Apri Shizuku e verifica che sia in esecuzione.</string>
+
+    <string name="home_card_battery_title">Batteria e profilo</string>
+    <string name="home_card_battery_desc">Livello, stato di ricarica e profilo selezionato</string>
+    <string name="home_card_quick_actions_title">Azioni rapide</string>
+    <string name="home_card_quick_actions_desc">Torcia, blocco schermo, GPS, memoria, interruttori</string>
+    <string name="home_card_capabilities_title">Stato accessi</string>
+    <string name="home_card_capabilities_desc">Shizuku, Accessibilità, Accesso utilizzo, notifiche</string>
+    <string name="home_card_storage_title">Memoria</string>
+    <string name="home_card_storage_desc">Memoria interna libera e usata</string>
+    <string name="home_card_shortcuts_title">Scorciatoie preferite</string>
+    <string name="home_card_shortcuts_desc">Scorciatoie create con Shortcut Maker</string>
+    <string name="home_card_recent_title">Azioni recenti</string>
+    <string name="home_card_recent_desc">Ultime azioni di Able e il loro esito reale</string>
+    <string name="home_card_sensors_title">Sensori</string>
+    <string name="home_card_sensors_desc">Livella, righello e bussola</string>
+    <string name="home_card_geo_title">Posizione</string>
+    <string name="home_card_geo_desc">Salva o riapri un punto GPS</string>
+
+    <string name="home_alert_shizuku_waiting_title">Shizuku attende l\'autorizzazione</string>
+    <string name="home_alert_shizuku_waiting_message">Le azioni avanzate (profili, arresto forzato) restano non disponibili finché non autorizzi Able in Shizuku.</string>
+    <string name="home_alert_shizuku_grant">Autorizza</string>
+    <string name="home_alert_shizuku_denied_title">Autorizzazione Shizuku negata</string>
+    <string name="home_alert_shizuku_denied_message">Le azioni avanzate non sono disponibili. Puoi chiedere di nuovo o continuare a usare Able senza Shizuku.</string>
+    <string name="home_alert_shizuku_retry">Chiedi di nuovo</string>
+    <plurals name="home_alert_failures_title">
+        <item quantity="one">%d azione non riuscita nelle ultime 24 ore</item>
+        <item quantity="other">%d azioni non riuscite nelle ultime 24 ore</item>
+    </plurals>
+    <string name="home_alert_failures_details">Dettagli</string>
+    <string name="home_failures_dialog_title">Errori recenti</string>
+    <string name="home_failures_dialog_message">Queste azioni non sono state applicate. Controlla gli accessi richiesti o le impostazioni del profilo.</string>
+
+    <string name="home_battery_profile_label">Profilo: %1$s</string>
+    <string name="home_battery_percent">%1$d%%</string>
+    <string name="home_battery_not_present">Questo dispositivo non segnala una batteria.</string>
+    <string name="home_battery_state_with_plug">%1$s · %2$s</string>
+    <string name="home_battery_state_charging">In carica</string>
+    <string name="home_battery_state_full">Carica completa</string>
+    <string name="home_battery_state_discharging">A batteria</string>
+    <string name="home_battery_state_not_charging">Collegato, non in carica</string>
+    <string name="home_battery_state_unknown">Stato non rilevato</string>
+    <string name="home_battery_plug_ac">Caricatore</string>
+    <string name="home_battery_plug_usb">USB</string>
+    <string name="home_battery_plug_wireless">Wireless</string>
+    <string name="home_battery_plug_dock">Dock</string>
+    <string name="home_battery_emergency_active">Emergenza attiva</string>
+
+    <string name="home_tool_torch">Torcia</string>
+    <string name="home_tool_lock">Blocca schermo</string>
+    <string name="home_tool_gps">Salva posizione</string>
+    <string name="home_tool_storage">Memoria</string>
+    <string name="home_tool_toggles">Interruttori di sistema</string>
+    <string name="home_tool_all">Tutti gli strumenti</string>
+    <string name="home_tool_level">Livella</string>
+    <string name="home_tool_ruler">Righello</string>
+    <string name="home_tool_compass">Bussola</string>
+    <string name="home_sensor_unavailable">Sensore non disponibile</string>
+
+    <string name="home_capabilities_subtitle">Accessi facoltativi. Gestiscili da Impostazioni.</string>
+    <string name="home_capability_shizuku">Shizuku</string>
+    <string name="home_capability_shizuku_optional">Shizuku è facoltativo: abilita solo le azioni avanzate.</string>
+    <string name="home_capability_accessibility">Accessibilità</string>
+    <string name="home_capability_usage">Accesso utilizzo</string>
+    <string name="home_capability_notifications">Notifiche</string>
+    <string name="home_capability_granted">Attivo</string>
+    <string name="home_capability_not_granted">Non attivo</string>
+
+    <string name="home_recent_empty">Nessuna azione registrata.</string>
+    <string name="home_action_status_attempted">Non confermata</string>
+    <string name="home_action_status_success">Applicata</string>
+    <string name="home_action_status_skipped">Saltata</string>
+    <string name="home_action_status_failed">Non riuscita</string>
+
+    <string name="home_storage_unavailable">Android non ha fornito i dati della memoria.</string>
+    <string name="home_storage_free_of_total">%1$s liberi su %2$s</string>
+    <string name="home_storage_used">%1$s usati (%2$d%%)</string>
+    <string name="home_storage_open">Apri lo strumento Memoria</string>
+
+    <string name="home_shortcuts_empty">Nessuna scorciatoia. Creane una per un\'app, un sito, un file o uno strumento di Able.</string>
+    <string name="home_geo_subtitle">Strumento GPS</string>
+    <string name="home_geo_message">Salva la posizione attuale o riapri un punto salvato. La posizione è usata solo mentre lo strumento è aperto.</string>
+
+    <string name="home_customize_title">Personalizza Home</string>
+    <string name="home_customize_message">Mostra, nascondi e riordina le schede. Gli avvisi di sicurezza compaiono sempre in alto.</string>
+    <string name="home_customize_state_shown">Visibile</string>
+    <string name="home_customize_state_hidden">Nascosta</string>
+    <string name="home_customize_move_up">Sposta %1$s in alto</string>
+    <string name="home_customize_move_down">Sposta %1$s in basso</string>
+    <string name="home_customize_visible">Mostra %1$s nella Home</string>
+    <string name="home_customize_reset">Ripristina predefinito</string>
+
+    <!-- Favorite shortcuts (Shortcut Maker) and brand header -->
+    <string name="home_tagline">Batteria, app e strumenti in un unico posto</string>
+    <string name="home_shortcuts_subtitle">Prima quelle aggiunte alla schermata Home</string>
+    <string name="home_shortcuts_create">Crea una scorciatoia</string>
+    <string name="home_shortcuts_open_maker">Apri Shortcut Maker</string>
+    <string name="home_shortcut_failed">Impossibile aprire la scorciatoia. Nessuna app del dispositivo può gestirla.</string>
+    <string name="home_shortcut_unsupported">La destinazione della scorciatoia non è supportata. Modificala in Shortcut Maker.</string>
+    <string name="home_shortcut_app_missing">L\'app di questa scorciatoia non è installata.</string>
+    <string name="home_shortcut_blocked">Android ha bloccato la scorciatoia. L\'app o il file non consentono più l\'accesso.</string>
+    <string name="home_battery_no_active_profile">Nessun profilo batteria attivo</string>
+    <string name="home_battery_active_profiles">Attivi: %1$s</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Aggiunte Interruttori di sistema: modalità avanzata NFC (SYS-001). Prefisso tools_toggles_. -->
+<resources>
+    <string name="tools_toggles_nfc_direct_advanced">Modificato direttamente (modalità avanzata)</string>
+    <string name="tools_toggles_nfc_direct_shizuku">Modificato direttamente tramite Shizuku</string>
+    <string name="tools_toggles_nfc_copy_adb">Copia il comando ADB per la modalità avanzata</string>
+    <string name="tools_toggles_nfc_help_title">Modalità avanzata NFC</string>
+    <string name="tools_toggles_nfc_help_text">Android non offre alle app un modo pubblico per attivare o disattivare l\'NFC, quindi per impostazione predefinita Able, il suo riquadro NFC e il widget aprono le impostazioni NFC di Android.\n\nLa modalità avanzata cambia l\'NFC direttamente. Concedi una volta \"Scrittura impostazioni sicure\" da un computer con ADB:\n\n%1$s\n\nLo stesso permesso consente ad Able di cambiare il debug USB/wireless e il DNS privato. Anche Shizuku, se connesso, cambia l\'NFC direttamente. Per annullare, esegui lo stesso comando con \"revoke\" al posto di \"grant\", oppure disinstalla Able.\n\nLa modalità avanzata segue l\'app open source \"NFC Quick Settings\" di Paul Colby.</string>
+</resources>

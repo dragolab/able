@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Able tile/action icon set (BRAND-001, CUST-001). 24dp grid, white fill: the system or
+  widget tints it. 2dp strokes with round caps/joins on a 20dp live area.
+  Original Drago Labs artwork; the ringer bell is derived from Material Symbols Rounded
+  geometry (Apache-2.0). Generated from the icon spec; edit consistently across the set.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M5.9,19.6V10.6A6.1,6.1 0 0,1 18.1,10.6V19.6" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M9.4,12.5h5.2a2.2,2.2 0 0,1 2.2,2.2v0a2.2,2.2 0 0,1 -2.2,2.2h-5.2a2.2,2.2 0 0,1 -2.2,-2.2v0a2.2,2.2 0 0,1 2.2,-2.2zM13.25,14.7a1.35,1.35 0 1,0 2.7,0a1.35,1.35 0 1,0 -2.7,0z" />
+</vector>

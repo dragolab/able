@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App lock prompt (APPLOCK-001). -->
+<resources>
+    <string name="applock_prompt_title">Unlock %1$s</string>
+    <string name="applock_prompt_subtitle">Locked by Able. Use your fingerprint, face or screen lock.</string>
+    <string name="applock_prompt_unavailable">Able could not ask for your screen lock, so the locked app stays closed. Check that a PIN, pattern or password is set.</string>
+</resources>

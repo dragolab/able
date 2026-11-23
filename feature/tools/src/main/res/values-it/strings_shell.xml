@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_subtitle">Permessi shell ADB tramite Shizuku</string>
+    <string name="shell_help_title">Shell comandi</string>
+    <string name="shell_help_text">Esegue comandi con gli stessi permessi di \"adb shell\", tramite Shizuku. Non è root. I comandi shell possono leggere informazioni di sistema, elencare e gestire app, modificare le impostazioni di Android e anche cancellare i dati delle app o disinstallarle. Able non può annullare gli effetti di un comando.\n\nI comandi vengono eseguiti solo quando tocchi Esegui. Un comando si interrompe quando tocchi Interrompi, quando esci da questa schermata o dopo 10 minuti. I comandi non possono leggere dalla tastiera (nessun input interattivo).\n\nL\'output conserva le ultime 5.000 righe. Gli ultimi 100 comandi e i tuoi snippet restano solo su questo dispositivo e sono esclusi dai backup. La cronologia azioni di Able registra ogni comando e il suo codice di uscita, mai l\'output.</string>
+
+    <string name="shell_shizuku_title">Serve Shizuku</string>
+    <string name="shell_shizuku_not_running">Avvia Shizuku (con Debug wireless o da un computer) e torna qui. La shell esegue i comandi con i permessi shell ADB tramite Shizuku; Able da sola non può eseguirli.</string>
+    <string name="shell_shizuku_permission">Autorizza Able in Shizuku per eseguire i comandi shell che digiti. Nulla viene eseguito finché non tocchi Esegui.</string>
+    <string name="shell_shizuku_authorize">Autorizza</string>
+    <string name="shell_shizuku_open">Apri Shizuku</string>
+    <string name="shell_shizuku_check_again">Controlla di nuovo</string>
+    <string name="shell_shizuku_not_installed">Shizuku non è installato o non è stato possibile aprirlo.</string>
+    <string name="shell_shizuku_lost">Shizuku non è più connesso. Il comando non è stato eseguito.</string>
+    <string name="shell_shizuku_help_title">Cosa permette Shizuku</string>
+    <string name="shell_shizuku_help_text">Shizuku è un\'app separata che permette ad altre app di usare i permessi shell ADB di Android dopo che l\'hai avviata con Debug wireless o da un computer. Con Shizuku i comandi shell possono leggere proprietà e diagnostica di sistema (getprop, dumpsys), elencare pacchetti, modificare impostazioni, concedere o revocare permessi, cancellare dati delle app e disinstallare app per l\'utente corrente. Non può modificare le partizioni di sistema né fare ciò che richiede root. Puoi revocare l\'accesso di Able in Shizuku in qualsiasi momento.</string>
+
+    <string name="shell_warning_title">Usa la shell con attenzione</string>
+    <string name="shell_warning_text">I comandi shell vengono eseguiti con permessi shell ADB. Possono modificare impostazioni di sistema, revocare permessi, cancellare dati delle app o rimuovere app, e Able non può annullarli.\n\nI comandi vengono eseguiti solo quando li invii. Able chiede di nuovo conferma per i comandi che sembrano distruttivi, ma questo controllo non può individuare tutto.</string>
+    <string name="shell_warning_accept">Ho capito</string>
+    <string name="shell_warning_leave">Esci</string>
+
+    <string name="shell_danger_title">Eseguire questo comando?</string>
+    <string name="shell_danger_text">Questo comando potrebbe fare modifiche che Able non può annullare:</string>
+    <string name="shell_danger_run">Esegui comunque</string>
+    <string name="shell_danger_help_title">Perché Able chiede conferma</string>
+    <string name="shell_danger_help_text">Able cerca comandi che eliminano file, disinstallano app, cancellano dati delle app, modificano impostazioni o il display, scrivono dati grezzi, formattano la memoria o riavviano il dispositivo. Eseguire il comando resta una tua scelta. Il controllo si basa solo sul testo del comando: può chiedere conferma per comandi innocui e non riconoscerne alcuni rischiosi.</string>
+    <string name="shell_risk_delete_files">Elimina file o cartelle</string>
+    <string name="shell_risk_uninstall_app">Disinstalla un\'app o i suoi aggiornamenti</string>
+    <string name="shell_risk_clear_app_data">Cancella dati o cache delle app</string>
+    <string name="shell_risk_reboot">Riavvia o spegne il dispositivo</string>
+    <string name="shell_risk_change_settings">Modifica le impostazioni di Android</string>
+    <string name="shell_risk_window_manager">Modifica dimensioni, densità o impostazioni delle finestre</string>
+    <string name="shell_risk_raw_disk_write">Scrive dati grezzi (dd)</string>
+    <string name="shell_risk_format">Formatta o partiziona la memoria</string>
+
+    <string name="shell_input_label">Comando</string>
+    <string name="shell_input_placeholder">getprop ro.product.model</string>
+    <string name="shell_run">Esegui comando</string>
+    <string name="shell_stop">Interrompi comando</string>
+    <string name="shell_history_previous">Comando precedente nella cronologia</string>
+    <string name="shell_history_next">Comando successivo nella cronologia</string>
+    <string name="shell_copy_output">Copia output</string>
+    <string name="shell_share_output">Condividi output</string>
+    <string name="shell_clear_output">Cancella output</string>
+    <string name="shell_share_chooser">Condividi output della shell</string>
+    <string name="shell_copied_truncated">Copiato solo l\'output più recente (le righe più vecchie erano troppo lunghe)</string>
+    <string name="shell_shared_truncated">Condiviso solo l\'output più recente</string>
+    <string name="shell_nothing_to_export">Non c\'è ancora output.</string>
+    <string name="shell_output_description">Output del comando</string>
+    <string name="shell_output_empty_title">Ancora nessun output</string>
+    <string name="shell_output_empty_text">Digita un comando o scegli uno snippet. Nulla viene eseguito finché non tocchi Esegui.</string>
+    <string name="shell_running">In esecuzione: %1$s</string>
+    <string name="shell_exit_code">Uscita %1$d</string>
+    <string name="shell_exit_unknown">Codice di uscita non riportato</string>
+    <string name="shell_end_stopped">Interrotto</string>
+    <string name="shell_end_timed_out">Interrotto dopo %1$d minuti</string>
+    <string name="shell_end_failed">Impossibile eseguire il comando</string>
+    <string name="shell_stderr_label">ERR</string>
+    <string name="shell_stderr_description">Output di errore</string>
+    <string name="shell_dropped_lines">%1$d righe più vecchie rimosse (vengono conservate le ultime %2$d)</string>
+    <string name="shell_jump_to_latest">Vai all\'output più recente</string>
+
+    <string name="shell_snippets">Snippet</string>
+    <string name="shell_snippets_manage">Snippet e cronologia</string>
+    <string name="shell_snippets_empty">Nessuno snippet. Aggiungi i comandi che usi spesso.</string>
+    <string name="shell_snippet_add">Aggiungi snippet</string>
+    <string name="shell_snippet_save_current">Salva comando attuale</string>
+    <string name="shell_snippet_new_title">Nuovo snippet</string>
+    <string name="shell_snippet_edit_title">Modifica snippet</string>
+    <string name="shell_snippet_name">Nome</string>
+    <string name="shell_snippet_command">Comando</string>
+    <string name="shell_snippet_saved">Snippet salvato</string>
+    <string name="shell_snippet_deleted">\"%1$s\" eliminato</string>
+    <string name="shell_snippet_delete_title">Eliminare lo snippet?</string>
+    <string name="shell_snippet_delete_text">\"%1$s\" verrà rimosso dai tuoi snippet.</string>
+    <string name="shell_snippet_edit">Modifica %1$s</string>
+    <string name="shell_snippet_delete">Elimina %1$s</string>
+    <string name="shell_snippet_insert_hint">Inserisce il comando nel campo senza eseguirlo</string>
+    <string name="shell_insert">Inserisci</string>
+    <string name="shell_history">Comandi recenti</string>
+    <string name="shell_history_empty">I comandi che esegui compaiono qui.</string>
+    <string name="shell_history_clear">Cancella cronologia</string>
+
+    <string name="shell_snippet_android_version">Versione di Android</string>
+    <string name="shell_snippet_user_apps">App utente installate</string>
+    <string name="shell_snippet_battery">Stato della batteria</string>
+    <string name="shell_snippet_adb_enabled">Debug USB attivo?</string>
+    <string name="shell_snippet_disabled_apps">App disattivate</string>
+    <string name="shell_snippet_data_space">Spazio libero in /data</string>
+</resources>

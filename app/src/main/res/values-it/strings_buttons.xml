@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Scorciatoie tasti (BTN-002): esiti quando un gesto non può eseguire la sua azione. -->
+<resources>
+    <string name="buttons_result_app_missing">Scorciatoia tasti: l\'app non è più installata o non si può aprire.</string>
+    <string name="buttons_result_action_missing">Scorciatoia tasti: questa azione non è più disponibile.</string>
+    <string name="buttons_result_unlock_first">Scorciatoia tasti: sblocca prima il telefono per questa azione.</string>
+    <string name="buttons_result_unsupported">Scorciatoia tasti: questa azione non è supportata su questo dispositivo.</string>
+    <string name="buttons_result_no_app">Scorciatoia tasti: nessuna app può aprirla.</string>
+    <string name="buttons_result_denied">Scorciatoia tasti: Android non ha permesso ad Able di aprirla.</string>
+    <string name="buttons_result_failed">Scorciatoia tasti: impossibile avviare l\'azione.</string>
+</resources>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Storage tool (STO-001, STO-002, STO-003). Owned by the Storage tool; prefix storage_. -->
+<resources>
+    <!-- Sections -->
+    <string name="storage_section_overview">Overview</string>
+    <string name="storage_section_cleanup">Clean up</string>
+    <string name="storage_section_review">Review files</string>
+
+    <!-- Overview (STO-003) -->
+    <string name="storage_internal_title">Internal storage</string>
+    <string name="storage_used_value">%1$s used</string>
+    <string name="storage_of_total">of %1$s</string>
+    <string name="storage_free_value">%1$s free</string>
+    <string name="storage_ring_used_label">used</string>
+    <string name="storage_percent">%1$d%%</string>
+    <string name="storage_percent_below_one">&lt;1%</string>
+    <string name="storage_chart_description">Used %1$s of %2$s, %3$d%%. %4$s free.</string>
+    <string name="storage_overview_failed">Android did not report storage space.</string>
+    <string name="storage_breakdown_title">What uses the space</string>
+    <string name="storage_breakdown_description">Storage by category</string>
+    <string name="storage_legend_value">%1$s · %2$s</string>
+    <string name="storage_kind_apps">Apps</string>
+    <string name="storage_kind_images">Images</string>
+    <string name="storage_kind_video">Video</string>
+    <string name="storage_kind_audio">Audio</string>
+    <string name="storage_kind_documents">Documents</string>
+    <string name="storage_kind_downloads">Other downloads</string>
+    <string name="storage_kind_other">System and other</string>
+    <string name="storage_kind_free">Free</string>
+    <string name="storage_other_includes_unmeasured">Includes what Able can\'t measure yet</string>
+    <string name="storage_needs_usage_access">Needs Usage access</string>
+    <string name="storage_needs_media_access">Needs media access</string>
+    <string name="storage_media_visible_only">Documents and downloads include only files Android shows to Able.</string>
+    <string name="storage_usage_title">See how much space apps use</string>
+    <string name="storage_usage_rationale">Usage access lets Able read each app\'s size and cache from Android. Able does not read your app activity for this screen.</string>
+    <string name="storage_usage_action">Allow Usage access</string>
+    <string name="storage_media_title">Measure photos, videos and audio</string>
+    <string name="storage_media_rationale">Media access lets Able add up the size of your media files.</string>
+
+    <!-- Largest apps -->
+    <string name="storage_largest_apps">Largest apps</string>
+    <string name="storage_app_meta">Total %1$s · cache %2$s</string>
+    <string name="storage_app_info">App info for %1$s</string>
+    <string name="storage_apps_empty">Android reported no app sizes.</string>
+
+    <!-- System-wide cache cleanup (STO-002) -->
+    <string name="storage_system_cache_title">App caches</string>
+    <string name="storage_system_cache_body">Asks Android to delete cached files of all apps. Apps rebuild them when needed, so they may open a bit slower once.</string>
+    <string name="storage_trim_action">Clear all caches</string>
+    <string name="storage_trim_help_title">Clear all caches</string>
+    <string name="storage_trim_help_text">Able asks Android (through Shizuku) to free as much cache as it can for every app. Your files, accounts and settings are not touched. Android decides what to delete, so the result can be small or zero. Able measures free space before and after and shows only what was actually freed. Nothing needs to be undone: apps recreate their cache.</string>
+    <string name="storage_trim_confirm_title">Clear all app caches?</string>
+    <string name="storage_trim_confirm_message">Android deletes temporary files of all apps. Your data is kept. Apps may load a bit slower the first time.</string>
+    <string name="storage_trim_done">Android freed %1$s of cache (measured).</string>
+    <string name="storage_freed_none">0 bytes freed. Android had nothing more to clear.</string>
+    <string name="storage_trim_unmeasured">Android accepted the request, but free space could not be measured.</string>
+    <string name="storage_trim_failed">Android rejected the cache cleanup.</string>
+    <string name="storage_apps_clear_action">Clear cache · %1$d selected (%2$s)</string>
+    <string name="storage_apps_select_hint">Select apps to clear only their cache.</string>
+    <string name="storage_apps_help_title">Clear an app\'s cache</string>
+    <string name="storage_apps_help_text">Deletes only the selected apps\' temporary files, like Android\'s own \"Clear cache\" button in App info. Data, logins and settings stay. Able re-reads each app\'s cache afterwards and reports the measured difference.</string>
+    <string name="storage_apps_confirm_title">Clear cache of selected apps (%1$d)?</string>
+    <string name="storage_apps_confirm_message">About %1$s of cache. Data, logins and settings are kept.</string>
+    <string name="storage_apps_done">Apps cleared: %1$d. Freed %2$s (measured).</string>
+    <string name="storage_apps_done_none">Apps cleared: %1$d. 0 bytes freed (measured).</string>
+    <string name="storage_apps_partial">Apps cleared: %1$d of %2$d. Freed %3$s. Android rejected the others.</string>
+    <string name="storage_apps_failed">Android rejected clearing these caches.</string>
+    <string name="storage_select_app">Select %1$s</string>
+    <string name="storage_shizuku_needed_title">System-wide cleanup needs Shizuku</string>
+    <string name="storage_shizuku_needed_message">Android lets only system tools clear other apps\' caches. With Shizuku, Able can ask Android to do it. Without it, use Android\'s storage settings or each app\'s App info.</string>
+    <string name="storage_shizuku_help_title">Why Shizuku?</string>
+    <string name="storage_shizuku_help_text">Regular apps cannot delete other apps\' caches. Shizuku runs Android\'s own package manager commands with shell rights, after you start it and allow Able. Without Shizuku, open Android storage settings or an app\'s App info and tap \"Clear cache\".</string>
+    <string name="storage_shizuku_allow">Allow Shizuku</string>
+    <string name="storage_open_storage_settings">Open Android storage settings</string>
+    <string name="storage_able_cache_body">Clears only temporary files created by Able. Works without Shizuku.</string>
+
+    <!-- Review files (STO-001) -->
+    <string name="storage_delete_help_title">Delete files</string>
+    <string name="storage_delete_help_text">Select files to review them. For media, Android shows its own confirmation before anything is deleted; for a folder, Able asks first. Deleted files cannot be recovered. Able checks afterwards which files are really gone.</string>
+</resources>

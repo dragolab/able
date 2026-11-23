@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Richiesta di sblocco del Blocco app (APPLOCK-001). -->
+<resources>
+    <string name="applock_prompt_title">Sblocca %1$s</string>
+    <string name="applock_prompt_subtitle">Bloccata da Able. Usa impronta, volto o il blocco schermo.</string>
+    <string name="applock_prompt_unavailable">Able non è riuscita a chiedere il blocco schermo, quindi l\'app bloccata resta chiusa. Controlla di avere impostato PIN, sequenza o password.</string>
+</resources>

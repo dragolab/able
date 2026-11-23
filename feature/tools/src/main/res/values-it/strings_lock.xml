@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strumento Blocco schermo: doppio tocco per spegnere lo schermo (LOCK-001, LOCK-002). -->
+<resources>
+    <string name="lock_hero_title">Doppio tocco per spegnere lo schermo</string>
+    <string name="lock_hero_service_on">Servizio di Accessibilità attivo</string>
+    <string name="lock_hero_service_off">Servizio di Accessibilità disattivato</string>
+    <string name="lock_hero_active_none">Nessuna posizione scelta. Segui i passaggi qui sotto.</string>
+    <string name="lock_hero_active_prefix">Attivo su: %1$s</string>
+    <string name="lock_place_lock_screen">schermata di blocco</string>
+    <string name="lock_place_home">schermata Home</string>
+    <string name="lock_place_status_bar">barra di stato</string>
+    <string name="lock_place_separator">" · "</string>
+
+    <string name="lock_step_done">Fatto</string>
+    <string name="lock_step_todo">Da fare</string>
+
+    <string name="lock_step1_title">1. Attiva il servizio di Accessibilità</string>
+    <string name="lock_step1_body">Android permette alle app senza diritti di amministratore di spegnere lo schermo solo tramite un servizio di Accessibilità. Nelle impostazioni di Accessibilità apri \"Able screen lock\" e attivalo.</string>
+    <string name="lock_step1_privacy">Legge solo la struttura delle finestre dell\'interfaccia di sistema per sapere quando è visibile la schermata di blocco. Nulla viene salvato o inviato.</string>
+    <string name="lock_help_service_title">Servizio di Accessibilità di Able</string>
+    <string name="lock_help_service_text">Cosa fa: invia ad Android l\'azione \"blocca schermo\" quando lo chiedi (strumento, riquadro, widget o doppio tocco).\n\nCosa legge: solo la struttura delle finestre (ID delle viste) dell\'interfaccia di sistema (SystemUI), per sapere se sono visibili la schermata di blocco, la tendina delle notifiche o il tastierino del PIN. Non legge ciò che digiti né il contenuto delle altre app e non salva né invia nulla.\n\nRischi: i servizi di Accessibilità sono potenti; Android mostra un avviso quando ne attivi uno. Con l\'opzione schermata di blocco, Able mette un\'area invisibile sulla parte alta della schermata di blocco e ripete i tuoi scorrimenti, così lo sblocco continua a funzionare.\n\nCome disattivarlo: Impostazioni Android › Accessibilità › Able screen lock, oppure il pulsante in questa schermata.</string>
+
+    <string name="lock_step2_title">2. Scegli dove toccare due volte</string>
+    <string name="lock_step2_needs_service">Attiva prima il servizio di Accessibilità.</string>
+
+    <string name="lock_option_lock_screen_title">Schermata di blocco</string>
+    <string name="lock_option_lock_screen_summary">Tocca due volte uno spazio vuoto nella parte alta della schermata di blocco.</string>
+    <string name="lock_recognition_unknown">Blocca e riattiva il telefono per verificare che la schermata di blocco venga riconosciuta.</string>
+    <string name="lock_recognition_ok">La schermata di blocco è stata riconosciuta l\'ultima volta che è apparsa.</string>
+    <string name="lock_recognition_failed">L\'ultima volta la schermata di blocco non è stata riconosciuta: il doppio tocco potrebbe non funzionare lì su questo dispositivo o versione di Android.</string>
+    <string name="lock_help_lock_screen_title">Doppio tocco sulla schermata di blocco</string>
+    <string name="lock_help_lock_screen_text">Quando è visibile la schermata di blocco, Able mette un\'area invisibile sui due terzi superiori (orologio e notifiche). Due tocchi su uno spazio vuoto spengono lo schermo. I tocchi su pulsanti e notifiche vengono inoltrati e gli scorrimenti vengono ripetuti, così puoi ancora sbloccare o aprire la tendina.\n\nL\'area si disattiva da sola quando sono visibili la tendina delle notifiche, la schermata di PIN, sequenza o password, o quando Able non riconosce la schermata di blocco. Non copre mai il sensore di impronte né le scorciatoie in basso.\n\nLimiti: le pressioni prolungate e alcune animazioni della schermata di blocco possono comportarsi diversamente. Il riconoscimento dipende dall\'interfaccia di sistema e può smettere di funzionare dopo un aggiornamento.\n\nCome disattivarlo: spegni questa opzione o disattiva il servizio di Accessibilità.</string>
+
+    <string name="lock_option_home_title">Widget della schermata Home (consigliato)</string>
+    <string name="lock_home_none">Nessun widget posizionato.</string>
+    <plurals name="lock_home_count">
+        <item quantity="one">%1$d widget posizionato.</item>
+        <item quantity="other">%1$d widget posizionati.</item>
+    </plurals>
+    <string name="lock_home_add">Aggiungi widget alla schermata Home</string>
+    <string name="lock_home_manual">Il tuo launcher non permette alle app di aggiungere widget. Tieni premuto uno spazio vuoto della Home › Widget › Able › \"Doppio tocco per bloccare\".</string>
+    <string name="lock_home_requested">Conferma nella finestra, poi ridimensiona il widget sopra lo spazio vuoto della Home.</string>
+    <string name="lock_home_request_failed">Il launcher non ha accettato la richiesta. Aggiungi il widget a mano dall\'elenco dei widget.</string>
+    <string name="lock_help_home_title">Doppio tocco sulla schermata Home</string>
+    <string name="lock_help_home_text">Android non dice alle app dove tocchi sulla schermata Home del launcher, quindi il metodo affidabile è un widget invisibile e ridimensionabile: posizionalo in uno spazio vuoto della Home (per esempio un\'intera pagina vuota o l\'area tra le icone) e toccalo due volte per spegnere lo schermo. Funziona con tutti i launcher che supportano i widget.\n\nIl widget non fa altro e non legge nulla. Se il servizio di Accessibilità è disattivato, un tocco apre questa schermata.\n\nCome rimuoverlo: tieni premuta l\'area e trascinala su \"Rimuovi\".</string>
+
+    <string name="lock_option_status_bar_title">Barra di stato</string>
+    <string name="lock_option_status_bar_summary">Tocca due volte la barra di stato mentre usi il telefono. Disattivato per impostazione predefinita.</string>
+    <string name="lock_help_status_bar_title">Doppio tocco sulla barra di stato</string>
+    <string name="lock_help_status_bar_text">Quando il telefono è sbloccato, Able mette una striscia invisibile sopra la barra di stato. Due tocchi spengono lo schermo; uno scorrimento verso il basso apre comunque la tendina delle notifiche.\n\nLa striscia si disattiva nelle app a schermo intero e quando la tendina è aperta. Le icone della barra di stato non sono toccabili attraverso la striscia.\n\nCome disattivarlo: spegni questa opzione.</string>
+
+    <string name="lock_settings_title">Impostazioni del gesto</string>
+    <string name="lock_timeout_label">Tempo massimo tra i tocchi: %1$d ms</string>
+    <string name="lock_help_timeout_title">Tempo tra i tocchi</string>
+    <string name="lock_help_timeout_text">Due tocchi valgono come doppio tocco solo se il secondo arriva entro questo tempo. Aumentalo se i doppi tocchi non vengono riconosciuti; diminuiscilo se un tocco singolo blocca lo schermo per errore. Usa l\'area di prova per provarlo senza bloccare.</string>
+    <string name="lock_haptic_title">Vibra prima di bloccare</string>
+    <string name="lock_haptic_summary">Una breve vibrazione conferma il doppio tocco.</string>
+    <string name="lock_practice_idle">Area di prova: tocca due volte qui per provare il tempo</string>
+    <string name="lock_practice_hit">Doppio tocco riconosciuto</string>
+    <string name="lock_practice_cd">Area di prova per il tempo del doppio tocco. Non blocca lo schermo.</string>
+
+    <string name="lock_test_title">Prova</string>
+    <string name="lock_test_body">Spegni ora lo schermo per verificare che il blocco funzioni su questo dispositivo. Poi prova il doppio tocco in ogni posizione che hai attivato.</string>
+
+    <string name="lock_alternatives_title">Altri modi per bloccare</string>
+    <string name="lock_alternatives_body">Il riquadro delle Impostazioni rapide blocca con un tocco dalla tendina delle notifiche e usa lo stesso servizio di Accessibilità.</string>
+
+    <string name="lock_limits_title">Dipende dal dispositivo</string>
+    <string name="lock_limits_body">Il riconoscimento della schermata di blocco dipende dall\'interfaccia di sistema (SystemUI) e le opzioni per la Home dal tuo launcher. Potrebbero smettere di funzionare dopo un aggiornamento di Android o del launcher; in quel caso Able smette di intercettare i tocchi invece di bloccare lo schermo. Android può anche bloccare i servizi di Accessibilità di app esterne al Play Store o su dispositivi gestiti (per esempio con Protezione avanzata o criteri di lavoro); in quel caso nessuna di queste opzioni funziona.</string>
+
+    <!-- Doppio tocco sperimentale sulla Home senza widget. -->
+    <string name="lock_place_home_tap">schermata Home (doppio tocco)</string>
+    <string name="lock_option_home_tap_title">Schermata Home senza widget</string>
+    <string name="lock_option_home_tap_summary">Doppio tocco sullo spazio vuoto della Home.</string>
+    <string name="lock_home_tap_status_off">Disattivato. Il widget qui sopra è l\'opzione affidabile.</string>
+    <string name="lock_home_tap_status_ok">Modalità Leggera: osserva quando iniziano i tocchi mentre la Home è in primo piano.</string>
+    <string name="lock_home_tap_status_unknown">Vai alla schermata Home per avviarlo.</string>
+    <string name="lock_home_tap_status_no_launcher">Nessuna app Home predefinita: scegline una nelle impostazioni di Android.</string>
+    <string name="lock_home_tap_status_failed">Android ha rifiutato l\'osservatore invisibile su questo dispositivo. Usa il widget.</string>
+    <string name="lock_help_home_tap_title">Doppio tocco sulla Home senza widget</string>
+    <string name="lock_help_home_tap_text">Modalità Precisa (consigliata): mentre l\'app Home mostra le sue pagine, Able mette sopra lo schermo un livello di Accessibilità invisibile, esclusi la barra di stato, i bordi laterali usati per il gesto Indietro e la barra di navigazione in basso, così la navigazione di sistema non passa mai da Able. Il livello riceve i tocchi solo sulla schermata Home e li restituisce al launcher: un tocco su un\'icona, una cartella, un widget o la barra di ricerca gli viene inviato subito; un tocco singolo sullo spazio vuoto viene restituito appena scade il tempo del doppio tocco; scorrimenti, pressioni prolungate e trascinamenti vengono ripetuti al launcher quando sollevi il dito, quindi pagine, elenco app e tendina delle notifiche continuano a funzionare, con un leggero ritardo. Due tocchi sullo spazio vuoto (nessuna icona o widget sotto il dito) entro il tempo impostato qui sotto spengono lo schermo. Il livello viene tolto appena apri un\'app, l\'elenco app, le app recenti, una cartella, un menu, la tastiera o la tendina delle notifiche. Limiti: spostare icone e widget è diverso dal solito, perché il trascinamento viene ripetuto solo dopo che sollevi il dito; funziona solo con i launcher di cui Able riconosce la struttura (Pixel Launcher e altre app Home basate su Launcher3); con TalkBack attivo non intercetta nulla.\n\nModalità Leggera: Able non trattiene mai i tocchi; un osservatore di 1×1 pixel sa solo quando inizia un tocco, non dove, quindi deduce lo \"spazio vuoto\" da ciò che segnala il launcher. Due scorrimenti rapidi o tocchi accanto a un\'icona possono essere fraintesi, e alcuni doppi tocchi vengono persi.\n\nNulla di ciò che tocchi viene salvato o inviato. Entrambe funzionano solo con la Home in primo piano e il telefono sbloccato. Per disattivarlo: spegni questa opzione.</string>
+    <string name="lock_home_mode_precise_title">Precisa (consigliata)</string>
+    <string name="lock_home_mode_precise_summary">Riconosce dove tocchi. I tocchi sulle pagine Home passano da Able e vengono restituiti al launcher; scorrimenti e pressioni prolungate avvengono quando sollevi il dito.</string>
+    <string name="lock_home_mode_light_title">Leggera</string>
+    <string name="lock_home_mode_light_summary">Non trattiene mai i tocchi, ma sa solo quando inizia un tocco, non dove. Può perdere doppi tocchi o fraintendere gli scorrimenti.</string>
+    <string name="lock_home_tap_status_precise_ok">Modalità Precisa attiva sulle pagine Home. Altrove i tocchi non vengono intercettati.</string>
+    <string name="lock_home_tap_status_not_recognized">La modalità Precisa non riconosce la struttura di questa app Home, quindi non intercetta nulla. Passa alla modalità Leggera.</string>
+    <string name="lock_home_tap_status_precise_unknown">Modalità Precisa: vai alla schermata Home per avviarla.</string>
+</resources>

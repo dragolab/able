@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App lock tool (APPLOCK-001..APPLOCK-003). -->
+<resources>
+    <string name="applock_hero_title">Ask for fingerprint, face or PIN before opening apps</string>
+    <string name="applock_status_off">Off</string>
+    <string name="applock_status_on">Active</string>
+    <string name="applock_status_blocked">Waiting for setup</string>
+    <string name="applock_hero_none">No app chosen yet.</string>
+    <plurals name="applock_hero_count">
+        <item quantity="one">%1$d app locked.</item>
+        <item quantity="other">%1$d apps locked.</item>
+    </plurals>
+
+    <string name="applock_requirements_title">What it needs</string>
+    <string name="applock_service_on">Accessibility service on</string>
+    <string name="applock_service_off">Accessibility service off</string>
+    <string name="applock_open_accessibility">Open Accessibility settings</string>
+    <string name="applock_help_service_title">Why the Accessibility service</string>
+    <string name="applock_help_service_text">To know when a locked app comes to the front, Able\'s Accessibility service reads the package name of the app whose window just opened. It does not read the app\'s content or what you type, and nothing is stored or sent.\n\nIt is the same service used by Screen lock and Button shortcuts; each feature works only when you turn it on.\n\nHow to turn it off: Android Settings › Accessibility › Able.</string>
+    <string name="applock_secure_off">No screen lock set</string>
+    <string name="applock_secure_biometric">Screen lock and fingerprint/face ready</string>
+    <string name="applock_secure_credential">Screen lock ready (PIN, pattern or password)</string>
+    <string name="applock_open_security">Set a screen lock</string>
+    <string name="applock_help_auth_title">How you unlock</string>
+    <string name="applock_help_auth_text">Able shows Android\'s own unlock prompt: fingerprint or face (if enrolled and strong enough for Android), or your device PIN, pattern or password. Able never sees or stores them and has no separate PIN.\n\nThe device must have a screen lock. Without one Android cannot verify you, so App lock stays off rather than locking you out.</string>
+    <string name="applock_needs_secure_lock">Set a screen lock (PIN, pattern or password) first.</string>
+
+    <string name="applock_settings_title">Settings</string>
+    <string name="applock_enable_title">App lock</string>
+    <string name="applock_enable_summary">Ask to unlock when a chosen app opens. Off by default.</string>
+    <string name="applock_lock_able_title">Lock Able too</string>
+    <string name="applock_lock_able_summary">Ask to unlock before opening Able, so nobody can turn App lock off.</string>
+    <string name="applock_grace_title">Stay unlocked after leaving an app</string>
+    <string name="applock_grace_immediately">Lock again immediately</string>
+    <plurals name="applock_grace_minutes">
+        <item quantity="one">For %1$d minute</item>
+        <item quantity="other">For %1$d minutes</item>
+    </plurals>
+    <string name="applock_help_grace_title">When apps lock again</string>
+    <string name="applock_help_grace_text">After you unlock an app it stays open while you use it. When you leave it (home screen, recents or another app) it locks again immediately or after the time you choose here. Short dialogs on top of the app, such as permission requests or the share sheet, do not count as leaving.\n\nTurning off the screen always locks every app again.</string>
+
+    <string name="applock_apps_title">Apps to lock</string>
+    <string name="applock_search_placeholder">Search apps</string>
+    <string name="applock_apps_empty">No app matches.</string>
+    <string name="applock_help_apps_title">Choosing apps</string>
+    <string name="applock_help_apps_text">Only apps with an icon in the launcher are listed. The home-screen app cannot be locked, and Able is controlled by \"Lock Able too\".\n\nTip: locking Android Settings also protects the Accessibility settings, so App lock cannot be turned off without unlocking.\n\nCalls are never interrupted: during a call or while the phone rings nothing is locked.</string>
+
+    <string name="applock_limits_title">What App lock cannot do</string>
+    <string name="applock_limits_body">It works at app level, not inside Android: the app opens first and Able covers it right after its window appears, so a glimpse is possible on slow devices. Android does not let Able hide other apps\' content in recents (FLAG_SECURE can only be set by each app itself) or their notifications. It is not active while the phone is locked; after unlocking, a locked app in front asks again. If the Accessibility service is turned off or Android blocks it (for example on managed devices), apps are not locked.</string>
+</resources>

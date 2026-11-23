@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RAM tool (memory). Owned by the RAM tool; prefix memory_. No "clean RAM" or "boost" promises. -->
+<resources>
+    <string name="memory_title">RAM</string>
+    <string name="memory_refresh">Refresh</string>
+
+    <!-- Hero -->
+    <string name="memory_hero_title">Memory (RAM)</string>
+    <string name="memory_percent">%1$d%%</string>
+    <string name="memory_ring_in_use">in use</string>
+    <string name="memory_used_value">%1$s in use</string>
+    <string name="memory_of_total">of %1$s</string>
+    <string name="memory_available_value">%1$s available</string>
+    <string name="memory_chart_description">%1$s of %2$s in use, %3$d%%. %4$s available.</string>
+    <string name="memory_threshold">Android frees memory by closing background apps when less than %1$s is available.</string>
+    <string name="memory_swap_value">Swap (compressed memory): %1$s of %2$s used</string>
+    <string name="memory_swap_none">No swap configured</string>
+    <string name="memory_swap_unknown">Swap usage is not readable on this device</string>
+    <string name="memory_low_memory">Android reports low memory</string>
+    <string name="memory_summary_unavailable">Android did not report memory usage.</string>
+    <string name="memory_hero_help_title">About memory use</string>
+    <string name="memory_hero_help_text">Android keeps recently used apps in memory so they open faster; unused RAM is wasted RAM. \"In use\" is total minus what Android reports as available, which already counts caches it can reclaim instantly. Swap is compressed memory (zram) that holds pages Android moved out of RAM.</string>
+
+    <!-- Honest copy -->
+    <string name="memory_honest_title">Android manages memory on its own</string>
+    <string name="memory_honest_message">Freeing RAM does not save battery by itself and does not make the phone faster. Stopped apps may restart on their own, and a force-stopped app does not receive notifications or run alarms until you open it again.</string>
+
+    <!-- Without Shizuku -->
+    <string name="memory_no_shizuku_title">Running apps need Shizuku</string>
+    <string name="memory_no_shizuku_message">Android lets an app see only its own processes. With Shizuku connected, Able can list running apps with their memory and stop the ones you choose. Without it, Android\'s \"Running services\" screen (Developer options) shows the same information.</string>
+    <string name="memory_running_services">Running services</string>
+
+    <!-- List -->
+    <string name="memory_section_apps">Running apps</string>
+    <string name="memory_apps_help_title">About running apps</string>
+    <string name="memory_apps_help_text">The list comes from the Android process table (ps) through Shizuku. Memory is resident memory (RSS) summed over the app\'s processes; pages shared with other apps are counted for each of them, so the total can exceed the RAM in use.\n\nForce stop ends every process of the app and keeps it stopped until you or another app opens it: notifications, alarms and background work stop too.\n\nStop background processes asks Android to end only the processes it can safely end; foreground and visible ones keep running.\n\nAble, Shizuku, System UI, the launcher, phone, the current keyboard and persistent system apps are protected and never stopped. Every stop is recorded in the action history.</string>
+    <string name="memory_search">Search running apps</string>
+    <string name="memory_filter_user">User apps</string>
+    <string name="memory_filter_system">System apps</string>
+    <string name="memory_filter_all">All</string>
+    <string name="memory_clear_selection">Clear selection</string>
+    <string name="memory_loading_apps">Reading running apps…</string>
+    <string name="memory_load_failed">Could not read running apps through Shizuku.</string>
+    <string name="memory_empty">No running apps match</string>
+    <plurals name="memory_apps_count">
+        <item quantity="one">%1$d running app</item>
+        <item quantity="other">%1$d running apps</item>
+    </plurals>
+    <string name="memory_app_size">%1$s</string>
+    <plurals name="memory_processes">
+        <item quantity="one">%1$d process</item>
+        <item quantity="other">%1$d processes</item>
+    </plurals>
+    <string name="memory_app_user">User %1$d</string>
+    <string name="memory_protected">Protected</string>
+    <string name="memory_actions_for">Actions for %1$s</string>
+
+    <!-- Process importance -->
+    <string name="memory_state_foreground">In use</string>
+    <string name="memory_state_visible">Visible or perceptible</string>
+    <string name="memory_state_service">Running a service</string>
+    <string name="memory_state_home">Home screen</string>
+    <string name="memory_state_recent">Previous app</string>
+    <string name="memory_state_cached">Cached</string>
+    <string name="memory_state_persistent">Persistent</string>
+    <string name="memory_state_other">Background</string>
+
+    <!-- Protection reasons -->
+    <string name="memory_protect_self">Protected: Able itself</string>
+    <string name="memory_protect_shizuku">Protected: Able needs Shizuku</string>
+    <string name="memory_protect_core">Protected: core Android component</string>
+    <string name="memory_protect_launcher">Protected: current launcher</string>
+    <string name="memory_protect_phone">Protected: phone and calls</string>
+    <string name="memory_protect_keyboard">Protected: current keyboard</string>
+    <string name="memory_protect_persistent">Protected: persistent system app (Android restarts it)</string>
+
+    <!-- Actions -->
+    <string name="memory_action_force_stop">Force stop</string>
+    <string name="memory_action_kill">Stop background processes</string>
+    <string name="memory_action_app_info">App info</string>
+    <plurals name="memory_stop_selected">
+        <item quantity="one">Stop %1$d app</item>
+        <item quantity="other">Stop %1$d apps</item>
+    </plurals>
+    <string name="memory_confirm_force_stop_title">Force stop %1$s?</string>
+    <string name="memory_confirm_kill_title">Stop background processes of %1$s?</string>
+    <plurals name="memory_confirm_bulk_title">
+        <item quantity="one">Force stop %1$d app?</item>
+        <item quantity="other">Force stop %1$d apps?</item>
+    </plurals>
+    <string name="memory_confirm_force_stop_message">Unsaved work may be lost. Until it is opened again, the app will not show notifications, run alarms or sync. Android may restart some apps on its own. This does not save battery by itself.</string>
+    <string name="memory_confirm_kill_message">Android ends only the processes it can safely end; the app can start again whenever it needs to. Notifications are not blocked.</string>
+
+    <!-- Results (read back from the process list) -->
+    <string name="memory_result_stopped">%1$s stopped: no process left.</string>
+    <string name="memory_result_partial">%1$s: some processes stopped, Android kept others running.</string>
+    <string name="memory_result_still_running">%1$s is still running (Android kept or restarted it).</string>
+    <string name="memory_result_failed">Android rejected the request for %1$s.</string>
+    <string name="memory_result_bulk">Stopped: %1$d · still running: %2$d · failed: %3$d</string>
+</resources>

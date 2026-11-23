@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strumento Scorciatoie tasti (BTN-001..BTN-003). -->
+<resources>
+    <string name="buttons_hero_title">Esegui azioni con i tasti del volume</string>
+    <string name="buttons_status_service_off">Servizio di Accessibilità disattivato</string>
+    <string name="buttons_status_off">Disattivato</string>
+    <string name="buttons_status_no_mapping">Attivo, nessun gesto assegnato</string>
+    <string name="buttons_status_on">Attivo</string>
+    <string name="buttons_open_accessibility">Apri le impostazioni di Accessibilità</string>
+    <string name="buttons_help_service_title">Come funzionano le scorciatoie tasti</string>
+    <string name="buttons_help_service_text">Il servizio di Accessibilità di Able osserva i tasti del volume solo mentre questo strumento è attivo e almeno un gesto è assegnato; altrimenti Android non passa alcun tasto ad Able. Gli altri tasti non vengono mai toccati. Non salva né invia nulla.\n\nÈ lo stesso servizio usato da Blocco schermo e Blocco app.\n\nCome disattivarlo: spegni \"Scorciatoie tasti\" oppure il servizio in Impostazioni Android › Accessibilità › Able.</string>
+    <string name="buttons_enable_title">Scorciatoie tasti</string>
+    <string name="buttons_enable_summary">Riconosci i gesti dei tasti del volume qui sotto. Disattivato all\'inizio.</string>
+
+    <string name="buttons_gestures_title">Gesti</string>
+    <string name="buttons_help_gestures_title">Gesti e volume</string>
+    <string name="buttons_help_gestures_text">Doppia pressione: la prima pressione cambia il volume come sempre; se la seconda arriva subito, Able esegue l\'azione e (se vuoi) rimette il volume com\'era. Le pressioni singole non vengono mai ritardate.\n\nPressione prolungata: se assegnata, Able trattiene la pressione di quel tasto. Una pressione breve cambia comunque il volume di un passo quando rilasci, ma tenere premuto il tasto per cambiare il volume in modo continuo non funziona più per quel tasto.\n\nEntrambi i tasti: premi volume su e giù insieme e rilascia subito. Tenerli premuti per qualche secondo resta la scorciatoia Accessibilità di Android e non esegue l\'azione di Able.\n\nDurante le chiamate e mentre il telefono squilla i tasti funzionano sempre normalmente.</string>
+    <string name="buttons_gesture_both">Volume su + giù insieme</string>
+    <string name="buttons_gesture_double_up">Doppia pressione volume su</string>
+    <string name="buttons_gesture_double_down">Doppia pressione volume giù</string>
+    <string name="buttons_gesture_long_up">Pressione prolungata volume su</string>
+    <string name="buttons_gesture_long_down">Pressione prolungata volume giù</string>
+    <string name="buttons_gesture_both_hint">premi entrambi, rilascia subito</string>
+    <string name="buttons_gesture_double_hint">il volume cambia una volta, poi parte l\'azione</string>
+    <string name="buttons_gesture_long_hint">per questo tasto non puoi più tenere premuto per il volume</string>
+    <string name="buttons_unassigned">Non assegnato</string>
+    <string name="buttons_clear_cd">Rimuovi l\'azione di %1$s</string>
+    <string name="buttons_enable_first">Attiva Scorciatoie tasti per assegnare i gesti.</string>
+    <string name="buttons_long_press_note">Pressione prolungata assegnata: una pressione breve cambia comunque il volume quando rilasci il tasto.</string>
+
+    <string name="buttons_timing_title">Tempi e feedback</string>
+    <string name="buttons_double_press_label">Tempo massimo tra le pressioni: %1$d ms</string>
+    <string name="buttons_long_press_label">Pressione prolungata dopo: %1$d ms</string>
+    <string name="buttons_help_double_title">Tempo tra le pressioni</string>
+    <string name="buttons_help_double_text">La seconda pressione deve iniziare entro questo tempo dal rilascio della prima. Più breve evita attivazioni quando premi due volte per cambiare il volume; più lungo è più facile da eseguire.</string>
+    <string name="buttons_help_long_title">Durata della pressione prolungata</string>
+    <string name="buttons_help_long_text">Quanto tenere premuto il tasto prima che parta l\'azione. Rilasciando prima conta come normale pressione del volume.</string>
+    <string name="buttons_undo_title">Rimetti il volume</string>
+    <string name="buttons_undo_summary">Dopo una doppia pressione o entrambi i tasti, annulla il passo di volume fatto dalla prima pressione.</string>
+    <string name="buttons_haptic_title">Vibra al gesto</string>
+    <string name="buttons_haptic_summary">Una breve vibrazione conferma che il gesto è stato riconosciuto.</string>
+
+    <string name="buttons_test_title">Area di prova</string>
+    <string name="buttons_help_test_title">Provare i gesti</string>
+    <string name="buttons_help_test_text">Durante la prova ogni gesto viene riconosciuto (anche quelli non assegnati) e solo segnalato qui con una vibrazione: nessuna azione viene eseguita. La prova si ferma quando esci da questa schermata.</string>
+    <string name="buttons_test_body">Prova i gesti per regolare i tempi senza eseguire azioni.</string>
+    <string name="buttons_test_idle">Prova non avviata.</string>
+    <string name="buttons_test_waiting">In attesa di un gesto…</string>
+    <string name="buttons_test_detected">Riconosciuto: %1$s (%2$s)</string>
+    <string name="buttons_test_start">Avvia prova</string>
+    <string name="buttons_test_stop">Ferma prova</string>
+    <string name="buttons_test_needs_setup">Attiva il servizio di Accessibilità e Scorciatoie tasti per provare.</string>
+
+    <string name="buttons_picker_title">Azione per: %1$s</string>
+    <string name="buttons_picker_tab_actions">Azioni di Able</string>
+    <string name="buttons_picker_tab_apps">App</string>
+    <string name="buttons_picker_tab_activities">Attività</string>
+    <string name="buttons_picker_search_apps">Cerca app</string>
+    <string name="buttons_picker_search_activities">Cerca attività</string>
+    <string name="buttons_target_camera">Fotocamera</string>
+    <string name="buttons_target_camera_hint">Apre la fotocamera; con il telefono bloccato, quella sicura.</string>
+    <string name="buttons_target_unknown_action">Azione sconosciuta (%1$s)</string>
+    <string name="buttons_target_missing_app">App non installata (%1$s)</string>
+    <string name="buttons_target_activity">%1$s · %2$s</string>
+
+    <string name="buttons_action_torch">Torcia accesa/spenta</string>
+    <string name="buttons_action_screen_lock">Spegni lo schermo</string>
+    <string name="buttons_action_ringer">Suoneria: suono, vibrazione, silenzioso</string>
+    <string name="buttons_action_nfc">NFC</string>
+    <string name="buttons_action_auto_brightness">Luminosità automatica</string>
+    <string name="buttons_action_private_dns">DNS privato</string>
+    <string name="buttons_action_level">Livella</string>
+    <string name="buttons_action_compass">Bussola</string>
+    <string name="buttons_action_ruler">Righello</string>
+    <string name="buttons_action_gps">Salva posizione GPS</string>
+    <string name="buttons_action_hotspot">Hotspot</string>
+    <string name="buttons_action_toggles">Interruttori di sistema</string>
+    <string name="buttons_action_activities">Avvio attività</string>
+    <string name="buttons_action_open_able">Apri Able</string>
+
+    <string name="buttons_limits_title">Cosa permette Android</string>
+    <string name="buttons_limits_body">Si possono usare solo i tasti del volume. Android non passa il tasto di accensione alle app, quindi non si può riprogrammare (Able può solo accorgersi che lo schermo si accende o si spegne). Con lo schermo spento Android manda i tasti del volume direttamente al sistema audio, quindi le scorciatoie funzionano solo a schermo acceso, schermata di blocco compresa. Le azioni che cambiano impostazioni di sistema (NFC, DNS privato) richiedono il telefono sbloccato e possono aprire un pannello delle impostazioni se Able non ha l\'accesso. Le app che usano i tasti del volume (scatto della fotocamera, lettori) ricevono comunque le pressioni che non fanno parte di un gesto. Se Android blocca i servizi di Accessibilità, le scorciatoie non funzionano.</string>
+</resources>

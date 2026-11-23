@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
+    <!-- App-wide options search. Keywords are comma-separated synonyms; they intentionally mix
+         English and Italian so either language finds the option. Not shown to the user. -->
+    <string name="search_title">Search Able</string>
+    <string name="search_placeholder">Search options and tools</string>
+    <string name="search_clear_query">Clear search text</string>
+    <string name="search_recent_title">Recent searches</string>
+    <string name="search_recent_clear">Clear</string>
+    <string name="search_recent_clear_cd">Clear recent searches</string>
+    <string name="search_recent_item_cd">Search again for %1$s</string>
+    <string name="search_suggestions_title">Popular</string>
+    <string name="search_breadcrumb">%1$s › %2$s</string>
+    <plurals name="search_results_count">
+        <item quantity="one">%1$d result</item>
+        <item quantity="other">%1$d results</item>
+    </plurals>
+    <string name="search_empty_title">No options match “%1$s”</string>
+    <string name="search_empty_message">Try a shorter word or a synonym, for example “torch” or “dark mode”.</string>
+    <string name="search_privacy_note">Recent searches stay on this device.</string>
+
+    <string name="search_entry_apps_search">Search installed apps</string>
+    <string name="search_entry_apps_disable">Disable or uninstall apps</string>
+    <string name="search_entry_private_dns">Private DNS</string>
+
+    <string name="search_kw_home_customize">customize, personalize, reorder, hide, cards, layout, personalizza, riordina, nascondi, schede, disposizione</string>
+    <string name="search_kw_home_quick_actions">quick actions, shortcuts, buttons, azioni rapide, scorciatoie, pulsanti</string>
+    <string name="search_kw_home_shortcuts">favorites, pinned, shortcuts, preferiti, fissate, scorciatoie</string>
+    <string name="search_kw_home_recent">recent, log, history, activity, recenti, registro, cronologia, azioni</string>
+    <string name="search_kw_home_sensors">sensors, accelerometer, light, pressure, sensori, accelerometro, luce, pressione</string>
+    <string name="search_kw_access">permissions, access, grants, permessi, accessi, autorizzazioni</string>
+
+    <string name="search_kw_battery_overview">battery level, percentage, charging, temperature, voltage, livello, percentuale, ricarica, temperatura, tensione, batteria</string>
+    <string name="search_kw_battery_profiles">profiles, normal, night, power saver, emergency, app pause, profili, normale, notte, risparmio, emergenza, pausa app</string>
+    <string name="search_kw_battery_triggers">automatic, triggers, automation, rules, automatico, attivatori, automazione, regole</string>
+    <string name="search_kw_battery_night">night, schedule, sleep, bedtime, screen off, notte, orario, programma, dormire, schermo spento</string>
+    <string name="search_kw_battery_thresholds">thresholds, percent, limits, soglie, percentuale, limiti</string>
+    <string name="search_kw_battery_pause">pause, stop automation, manual, pausa, sospendi, automazione, manuale</string>
+    <string name="search_kw_battery_protected">protected apps, exclude, whitelist, alarm, app protette, escludi, sveglia</string>
+    <string name="search_kw_battery_saver">battery saver, power saving, risparmio energetico, risparmio batteria</string>
+    <string name="search_kw_battery_monitor">live monitor, drain, consumption, screen on, screen off, deep sleep, notification, consumo, schermo acceso, schermo spento, notifica</string>
+    <string name="search_kw_battery_alerts">alerts, idle drain, unusual, warning, avvisi, consumo a riposo, anomalo, notturno</string>
+    <string name="search_kw_battery_reset">reset, statistics, plug in, restart, azzera, statistiche, caricatore, riavvio</string>
+    <string name="search_kw_battery_outputs">units, celsius, fahrenheit, temperature unit, notification layout, unità, temperatura, notifica</string>
+    <string name="search_kw_battery_history">history, sessions, charging diary, notes, tags, cronologia, sessioni, storico, diario di ricarica, note</string>
+    <string name="search_kw_battery_retention">retention, keep, delete history, days, conservazione, conserva, elimina cronologia, giorni</string>
+    <string name="search_kw_battery_health">health, condition, capacity, wear, salute, stato, capacità, usura</string>
+    <string name="search_kw_battery_cycles">charge cycles, cycle count, cicli di ricarica, conteggio cicli</string>
+    <string name="search_kw_battery_advanced">advanced, hardware, design capacity, kernel, shizuku, avanzate, capacità di progetto</string>
+    <string name="search_kw_battery_diagnostics">diagnostics, anomaly, high drain, troubleshoot, checklist, diagnostica, anomalia, consumo elevato, problemi</string>
+    <string name="search_kw_battery_usage">battery usage, apps activity, android usage, utilizzo batteria, attività app</string>
+
+    <string name="search_kw_apps_search">find apps, installed, packages, list, trova app, installate, pacchetti, elenco</string>
+    <string name="search_kw_apps_archive">archive, restore, disabled, uninstalled, archivio, ripristina, disattivate, disinstallate</string>
+    <string name="search_kw_apps_filters">filters, system apps, user apps, OEM, Google, carrier, filtri, app di sistema, app utente, operatore</string>
+    <string name="search_kw_apps_removal">removal levels, debloat, bloatware, UAD, recommended, expert, unsafe, livelli di rimozione, consigliato, esperto</string>
+    <string name="search_kw_apps_disable">disable, uninstall, freeze, debloat, bloatware, Shizuku, disattiva, disinstalla, congela</string>
+    <string name="search_kw_apps_force_stop">force stop, kill, close app, arresto forzato, termina, chiudi app</string>
+    <string name="search_kw_apps_profile_rules">rules, background, restrict, Osserva, Limita, Arresta, regole, in background, limita</string>
+
+    <string name="search_kw_tool_torch">torch, flashlight, light, lamp, torcia, luce, lampada, flash</string>
+    <string name="search_kw_tool_hotspot">hotspot, tethering, wifi sharing, router, condivisione, rete, punto di accesso</string>
+    <string name="search_kw_tool_storage">storage, files, space, cleanup, photos, videos, archiviazione, memoria, spazio, file, foto, pulizia</string>
+    <string name="search_kw_tool_lock">lock screen, screen off, turn off screen, blocca schermo, blocco schermo, spegni schermo</string>
+    <string name="search_kw_tool_activities">activities, launcher, hidden settings, attività, impostazioni nascoste, avvia</string>
+    <string name="search_kw_tool_shortcuts">shortcuts, home screen, icon, collections, scorciatoie, schermata home, icona, raccolte</string>
+    <string name="search_kw_tool_toggles">toggles, NFC, auto brightness, USB debugging, wireless debugging, ADB, interruttori, luminosità automatica, debug</string>
+    <string name="search_kw_tool_shell">shell, terminal, command, ADB, terminale, comando, comandi</string>
+    <string name="search_kw_tool_applock">app lock, PIN, fingerprint, biometric, privacy, blocco app, impronta, biometrico</string>
+    <string name="search_kw_tool_buttons">buttons, volume keys, remap, gestures, pulsanti, tasti volume, rimappa, gesti</string>
+    <string name="search_kw_tool_gps">GPS, location, coordinates, position, map, posizione, coordinate, mappa</string>
+    <string name="search_kw_tool_level">level, spirit level, bubble, inclinometer, livella, bolla, inclinometro</string>
+    <string name="search_kw_tool_ruler">ruler, measure, centimeters, inches, righello, misura, centimetri, pollici</string>
+    <string name="search_kw_tool_compass">compass, north, direction, heading, bussola, nord, direzione</string>
+    <string name="search_kw_tool_lock_double_tap">double tap, tap to lock, gesture, doppio tocco, tocca per bloccare, gesto</string>
+    <string name="search_kw_tool_hotspot_qr">QR code, share wifi, password, codice QR, condividi wifi</string>
+    <string name="search_kw_tool_private_dns">private DNS, DNS over TLS, ad blocking, DNS privato, blocco pubblicità</string>
+
+    <string name="search_kw_settings_theme">theme, dark mode, light mode, night mode, appearance, tema, tema scuro, tema chiaro, modalità scura, aspetto</string>
+    <string name="search_kw_settings_language">language, English, Italian, locale, lingua, inglese, italiano</string>
+    <string name="search_kw_settings_dynamic_color">wallpaper colors, dynamic color, Material You, palette, colori dello sfondo, colori dinamici, sfondo</string>
+    <string name="search_kw_settings_haptics">haptic feedback, vibration, touch feedback, feedback aptico, vibrazione, vibrazioni</string>
+    <string name="search_kw_access_shizuku">Shizuku, ADB, privileged, root, privilegi</string>
+    <string name="search_kw_access_usage">usage access, usage stats, accesso utilizzo, statistiche di utilizzo</string>
+    <string name="search_kw_access_accessibility">accessibility, screen lock service, accessibilità, servizio blocco schermo</string>
+    <string name="search_kw_access_notifications">notifications, alerts, notifiche, avvisi</string>
+    <string name="search_kw_access_write_settings">modify system settings, write settings, brightness, timeout, modifica impostazioni di sistema, luminosità</string>
+    <string name="search_kw_access_secure">write secure settings, ADB grant, WRITE_SECURE_SETTINGS, impostazioni protette</string>
+    <string name="search_kw_access_location">precise location, GPS, posizione precisa, localizzazione</string>
+    <string name="search_kw_settings_crash_reports">crash reports, privacy, diagnostics, ACRA, segnalazioni arresti anomali, crash, diagnostica</string>
+    <string name="search_kw_settings_export">backup, export, save configuration, transfer, esporta, salva configurazione, trasferisci</string>
+    <string name="search_kw_settings_import">import, restore backup, ablebackup, importa, ripristina backup</string>
+    <string name="search_kw_settings_restore">undo import, rollback, restore point, annulla importazione, punto di ripristino</string>
+    <string name="search_kw_settings_home_reset">reset home, default layout, cards order, ripristina home, disposizione predefinita</string>
+    <string name="search_kw_settings_tour">tour, guide, tutorial, introduction, help, guida, introduzione, aiuto</string>
+    <string name="search_kw_settings_licenses">open source, licenses, third party, attribution, licenze, terze parti, attribuzioni</string>
+    <string name="search_kw_settings_about">about, version, Drago Labs, contact, email, website, informazioni, versione, contatti, sito</string>
+
+    <string name="search_kw_tiles">tiles, widgets, Quick Settings, launcher, riquadri, impostazioni rapide, widget</string>
+    <string name="search_kw_tiles_custom">custom tiles, slots, assign action, riquadri personalizzati, slot, assegna azione</string>
+    <string name="search_kw_tiles_builtin">built-in tiles, NFC, torch, DNS, ADB, brightness, riquadri integrati, torcia, luminosità</string>
+    <string name="search_kw_tiles_widgets">widgets, home screen, battery widget, widget, schermata home, widget batteria</string>
+    <string name="search_kw_tiles_custom_widget">custom widget, layout, actions, widget personalizzato, azioni</string>
+    <string name="search_kw_tool_memory">ram, memoria, memory, processi, processes, app in esecuzione, running apps, kill</string>
+</resources>

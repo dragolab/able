@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Catalogo azioni (ADR-024, CUST-001, CUST-002) -->
+    <string name="action_category_connectivity">Connettività</string>
+    <string name="action_category_battery">Batteria</string>
+    <string name="action_category_tools">Strumenti</string>
+    <string name="action_category_shortcuts">Scorciatoie</string>
+    <string name="action_category_system">Sistema</string>
+
+    <string name="action_torch_title">Torcia</string>
+    <string name="action_torch_desc">Accende o spegne la torcia.</string>
+    <string name="action_nfc_title">NFC</string>
+    <string name="action_nfc_desc">Attiva o disattiva NFC direttamente se \"Scrittura impostazioni sicure\" è concessa tramite ADB o Shizuku è connesso; altrimenti apre le impostazioni NFC.</string>
+    <string name="action_auto_brightness_title">Luminosità automatica</string>
+    <string name="action_auto_brightness_desc">Passa dalla luminosità automatica a quella manuale e viceversa.</string>
+    <string name="action_usb_debugging_title">Debug USB</string>
+    <string name="action_usb_debugging_desc">Attiva o disattiva il debug USB; altrimenti apre le Opzioni sviluppatore.</string>
+    <string name="action_wireless_debugging_title">Debug wireless</string>
+    <string name="action_wireless_debugging_desc">Mostra se il debug wireless è attivo e apre la schermata Debug wireless.</string>
+    <string name="action_private_dns_title">DNS privato</string>
+    <string name="action_private_dns_desc">Alterna il DNS privato tra Disattivato e Automatico; altrimenti apre lo strumento DNS.</string>
+    <string name="action_screen_lock_title">Blocca schermo</string>
+    <string name="action_screen_lock_desc">Blocca lo schermo tramite il servizio di blocco schermo di Able.</string>
+    <string name="action_ringer_title">Modalità suoneria</string>
+    <string name="action_ringer_desc">Alterna Suono, Vibrazione e Silenzioso. Silenzioso richiede l’accesso a Non disturbare.</string>
+    <string name="action_gps_save_title">Salva GPS</string>
+    <string name="action_gps_save_desc">Apre lo strumento GPS per salvare la posizione attuale.</string>
+    <string name="action_battery_profile_title">Profilo batteria</string>
+    <string name="action_battery_profile_desc">Apre Batteria per rivedere e cambiare il profilo Able.</string>
+    <string name="action_hotspot_title">Hotspot</string>
+    <string name="action_hotspot_desc">Apre lo strumento hotspot.</string>
+    <string name="action_storage_title">Spazio</string>
+    <string name="action_storage_desc">Apre la revisione dello spazio di archiviazione.</string>
+    <string name="action_activities_title">Avvio attività</string>
+    <string name="action_activities_desc">Apre l’avvio attività.</string>
+    <string name="action_shortcuts_title">Crea scorciatoie</string>
+    <string name="action_shortcuts_desc">Apre lo strumento per creare scorciatoie.</string>
+    <string name="action_toggles_title">Interruttori di sistema</string>
+    <string name="action_toggles_desc">Apre i controlli di NFC, luminosità, debug e DNS.</string>
+    <string name="action_level_title">Livella</string>
+    <string name="action_level_desc">Apre la livella a bolla.</string>
+    <string name="action_ruler_title">Righello</string>
+    <string name="action_ruler_desc">Apre il righello sullo schermo.</string>
+    <string name="action_compass_title">Bussola</string>
+    <string name="action_compass_desc">Apre la bussola.</string>
+    <string name="action_open_able_title">Apri Able</string>
+    <string name="action_open_able_desc">Apre la Home di Able.</string>
+
+    <!-- Stati delle azioni, riletti da Android -->
+    <string name="action_state_on">Attivo</string>
+    <string name="action_state_off">Disattivato</string>
+    <string name="action_state_automatic">Automatica</string>
+    <string name="action_state_manual">Manuale</string>
+    <string name="action_state_custom_dns">Personalizzato</string>
+    <string name="action_state_unsupported">Non supportato</string>
+    <string name="action_state_opens_settings">Apre le impostazioni</string>
+    <string name="action_state_opens_able">Apre Able</string>
+    <string name="action_state_setup_needed">Configurazione necessaria</string>
+    <string name="action_state_lock_ready">Pronto</string>
+    <string name="action_state_ringer_normal">Suono</string>
+    <string name="action_state_ringer_vibrate">Vibrazione</string>
+    <string name="action_state_ringer_silent">Silenzioso</string>
+
+    <!-- Esiti delle azioni -->
+    <string name="action_result_applied">%1$s: %2$s</string>
+    <string name="action_result_done">%1$s: fatto</string>
+    <string name="action_result_rejected">%1$s: Android ha rifiutato la modifica.</string>
+    <string name="action_result_unverified">%1$s: Android non ha confermato la modifica.</string>
+    <string name="action_result_unsupported">%1$s non è supportato su questo dispositivo.</string>
+    <string name="action_result_needs_screen">%1$s richiede prima un’impostazione. Tocca di nuovo per aprirla.</string>
+
+    <!-- Accesso richiesto dalle azioni privilegiate (ADR-023) -->
+    <string name="action_privilege_secure">Richiede ADB o Shizuku</string>
+    <string name="action_privilege_secure_help">Questa azione modifica un’impostazione di sistema protetta. Con Shizuku attivo, o dopo aver concesso WRITE_SECURE_SETTINGS tramite ADB, viene eseguita direttamente dal riquadro o dal widget. Senza questo accesso apre la schermata corrispondente delle impostazioni Android. NFC si può cambiare solo tramite Shizuku. Able rilegge l’impostazione e ti avvisa se Android non l’ha applicata.</string>
+    <string name="action_privilege_write_settings">Richiede “Modifica impostazioni di sistema”</string>
+    <string name="action_privilege_write_settings_help">Android ti chiede di consentire ad Able di modificare le impostazioni di sistema. Finché non lo consenti, il riquadro o il widget apre quella schermata di autorizzazione. Puoi revocare l’autorizzazione in qualsiasi momento dalle impostazioni Android.</string>
+    <string name="action_privilege_accessibility">Richiede il servizio di blocco schermo di Able</string>
+    <string name="action_privilege_accessibility_help">Il blocco usa il servizio facoltativo di blocco schermo di Able, che non legge il contenuto dello schermo. Finché non lo attivi, il riquadro o il widget apre la configurazione del blocco schermo.</string>
+    <string name="action_privilege_notification_policy">Silenzioso richiede l’accesso a Non disturbare</string>
+    <string name="action_privilege_notification_policy_help">Suono e Vibrazione funzionano senza accessi aggiuntivi. Passare a Silenzioso, o uscirne con Non disturbare attivo, richiede l’accesso a Non disturbare; senza, il ciclo salta Silenzioso e Android può rifiutare la modifica.</string>
+
+    <!-- Configurazione riquadri e widget (CUST-001, CUST-002) -->
+    <string name="tiles_screen_title">Riquadri e widget</string>
+    <string name="tiles_screen_intro">Assegna azioni di Able ai riquadri delle Impostazioni rapide e ai widget della schermata Home. Le azioni che richiedono accessi aggiuntivi aprono la schermata giusta finché l’accesso non è concesso.</string>
+    <string name="tiles_help_title">Come funzionano riquadri e widget</string>
+    <string name="tiles_help_text">Gli slot dei riquadri personalizzati e il widget personalizzato eseguono l’azione assegnata e ne mostrano lo stato reale, riletto da Android. Se un’azione richiede un accesso che Able non ha, il riquadro o il widget apre la schermata dove puoi concederlo o cambiare l’impostazione da te. Niente viene eseguito automaticamente.</string>
+    <string name="tiles_section_custom">Riquadri personalizzati</string>
+    <string name="tiles_section_builtin">Riquadri integrati</string>
+    <string name="tiles_section_widgets">Widget</string>
+    <string name="tiles_section_placed">I tuoi widget personalizzati</string>
+    <string name="tiles_slot_title">Slot %1$d</string>
+    <string name="tiles_slot_label">Slot Able %1$d</string>
+    <string name="tiles_slot_setup">Tocca per configurare</string>
+    <string name="tiles_slot_unassigned">Non assegnato. Tocca per scegliere un’azione per lo slot %1$d.</string>
+    <string name="tiles_add_tile">Aggiungi riquadro</string>
+    <string name="tiles_add_widget">Aggiungi widget</string>
+    <string name="tiles_clear">Svuota</string>
+    <string name="tiles_pick_for_slot">Azione per lo slot %1$d</string>
+    <string name="tiles_pick_for_widget_slot">Azione per lo slot %1$d del widget</string>
+    <string name="tiles_slot_assigned">%1$s assegnato allo slot %2$d.</string>
+    <string name="tiles_slot_cleared">Slot %1$d svuotato.</string>
+    <string name="tiles_save_failed">Impossibile salvare la modifica.</string>
+    <string name="tiles_not_supported">Non supportato su questo dispositivo</string>
+    <string name="tiles_tile_added">Riquadro aggiunto alle Impostazioni rapide.</string>
+    <string name="tiles_tile_already">Questo riquadro è già nelle Impostazioni rapide.</string>
+    <string name="tiles_tile_not_added">Riquadro non aggiunto.</string>
+    <string name="tiles_tile_error">Android non può aggiungere il riquadro da qui. Aggiungilo dall’editor delle Impostazioni rapide.</string>
+    <string name="tiles_widget_pin_requested">Conferma nella schermata Home per aggiungere il widget.</string>
+    <string name="tiles_widget_pin_unsupported">Il tuo launcher non consente alle app di aggiungere widget. Aggiungilo dall’elenco widget del launcher.</string>
+    <string name="tiles_placed_widget">Widget %1$d · %2$s</string>
+    <string name="tiles_placed_empty">Nessun widget personalizzato nella schermata Home.</string>
+    <string name="tiles_widget_not_configured">Da configurare</string>
+    <string name="tiles_privileged_note">Alcune azioni vengono eseguite direttamente solo con accessi aggiuntivi. Senza, aprono la schermata delle impostazioni corrispondente.</string>
+
+    <!-- Editor del widget -->
+    <string name="tiles_widget_config_title">Widget personalizzato</string>
+    <string name="tiles_widget_config_intro">Scegli una disposizione, poi tocca uno slot per assegnare un’azione.</string>
+    <string name="tiles_widget_format">Disposizione</string>
+    <string name="tiles_format_2x1">2 × 1</string>
+    <string name="tiles_format_4x1">4 × 1</string>
+    <string name="tiles_format_4x2">4 × 2</string>
+    <string name="tiles_format_slots">%1$d azioni</string>
+    <string name="tiles_widget_slots">Azioni</string>
+    <string name="tiles_widget_empty_slot">Aggiungi</string>
+    <string name="tiles_widget_save">Salva</string>
+    <string name="tiles_widget_need_action">Assegna almeno un’azione per salvare il widget.</string>
+    <string name="tiles_widget_setup">Tocca per scegliere le azioni</string>
+
+    <string name="widget_custom_actions_name">Azioni personalizzate Able</string>
+    <string name="widget_custom_actions_description">Fino a 8 azioni di Able a tua scelta in una griglia 2×1, 4×1 o 4×2.</string>
+</resources>

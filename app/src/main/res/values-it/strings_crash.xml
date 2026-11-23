@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Finestra di arresto anomalo ACRA (PRIV-001, ADR-015). -->
+<resources>
+    <string name="crash_dialog_title">Able si è chiuso in modo imprevisto</string>
+    <string name="crash_dialog_text">È pronto un rapporto di arresto anomalo. Contiene solo la traccia dell\'errore, la versione di Able, la versione di Android, il modello e i dati di build del dispositivo: nessun dato personale, contatto, file o elenco di app.\n\nSe scegli Invia, si apre la tua app email con il rapporto allegato, così puoi leggerlo prima di inviarlo a Drago Labs. Non viene inviato nulla in automatico.</string>
+    <string name="crash_dialog_send">Invia per email</string>
+    <string name="crash_dialog_discard">Non inviare</string>
+    <string name="crash_mail_subject">Rapporto di arresto anomalo di Able</string>
+    <string name="crash_mail_body">In allegato il rapporto di arresto anomalo di Able. Puoi controllarlo o rimuoverlo prima dell\'invio.\n\nFacoltativo: descrivi cosa stavi facendo quando Able si è chiuso.\n</string>
+</resources>

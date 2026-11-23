@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- APP-001 (owner decision): the app manager lists every installed package, including
+         disabled, uninstalled-for-user and archived system packages, like a debloater. This is the
+         core purpose of the Apps section; Play policy declaration is required for release. -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- Disable / uninstall-for-user / restore run through Shizuku (APP-004), so
+         REQUEST_DELETE_PACKAGES is intentionally not requested. -->
+</manifest>

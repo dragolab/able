@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Destination and tabs -->
+    <string name="battery_title">Battery</string>
+    <string name="battery_tab_overview">Status</string>
+    <string name="battery_tab_monitor">Monitor</string>
+    <string name="battery_tab_health">Health</string>
+    <string name="battery_tab_diagnostics">Diagnostics</string>
+    <string name="battery_no_battery">This device does not report a battery, so battery profiles and monitoring are not available.</string>
+
+    <!-- Shared values and units -->
+    <string name="battery_value_unavailable">Unavailable</string>
+    <string name="battery_not_enough_data">Not enough data</string>
+    <string name="battery_percent_value">%1$d%%</string>
+    <string name="battery_percent_points">+%1$d%%</string>
+    <string name="battery_percent_estimate">%1$s%% (estimate)</string>
+    <string name="battery_rate_per_hour">%1$s%%/h</string>
+    <string name="battery_rate_estimate">%1$s%%/h (estimate)</string>
+    <string name="battery_mv_value">%1$d mV</string>
+    <string name="battery_ma_value">%1$d mA</string>
+    <string name="battery_mah_value">%1$d mAh</string>
+    <string name="battery_w_estimate">%1$s W (estimate)</string>
+    <string name="battery_unit_celsius">%1$s °C</string>
+    <string name="battery_unit_fahrenheit">%1$s °F</string>
+    <string name="battery_unit_celsius_name">Celsius</string>
+    <string name="battery_unit_fahrenheit_name">Fahrenheit</string>
+    <string name="battery_duration_hm">%1$d h %2$02d min</string>
+    <string name="battery_duration_m">%1$d min</string>
+    <string name="battery_duration_drop">%1$s · −%2$d%%</string>
+    <string name="battery_two_values">%1$s / %2$s</string>
+
+    <!-- Battery state -->
+    <string name="battery_state_charging">Charging</string>
+    <string name="battery_state_full">Full</string>
+    <string name="battery_state_discharging">On battery</string>
+    <string name="battery_state_not_charging">Plugged in, not charging</string>
+    <string name="battery_state_unknown">State unknown</string>
+    <string name="battery_plug_ac">Charger</string>
+    <string name="battery_plug_usb">USB</string>
+    <string name="battery_plug_wireless">Wireless</string>
+    <string name="battery_plug_dock">Dock</string>
+    <string name="battery_not_charging_short">Not charging</string>
+
+    <!-- Metrics -->
+    <string name="battery_metric_level">Level</string>
+    <string name="battery_metric_temperature">Temperature</string>
+    <string name="battery_metric_voltage">Voltage</string>
+    <string name="battery_metric_current">Current</string>
+    <string name="battery_metric_power">Power</string>
+    <string name="battery_metric_time_to_full">Time to full</string>
+    <string name="battery_metric_health_status">Android health status</string>
+    <string name="battery_metric_technology">Technology</string>
+    <string name="battery_accuracy_note">Values come from Android and the device hardware. Current, voltage and power can be missing or approximate and are not laboratory measurements.</string>
+
+    <!-- Overview: hero and profiles (BAT-001, BAT-002) -->
+    <string name="battery_hero_title">Battery now</string>
+    <string name="battery_profile_actions_inactive">Shown only: in this version profiles do not change any app.</string>
+    <string name="battery_profiles_title">Battery profiles</string>
+    <string name="battery_automation_pause">Pause all automation</string>
+    <string name="battery_automation_pause_body">Triggers are ignored. Profiles you started by hand stay active.</string>
+
+    <!-- Night (Notte) triggers -->
+    <string name="battery_night_triggers">Night triggers</string>
+    <string name="battery_night_delay_value">Activate after %1$d minutes with the screen off</string>
+    <string name="battery_night_screen_off_note">Evaluated only while the live monitor runs, never while you are using the phone.</string>
+    <string name="battery_schedule_start">Start time</string>
+    <string name="battery_schedule_end">End time</string>
+    <string name="battery_schedule_start_value">Start %1$s</string>
+    <string name="battery_schedule_end_value">End %1$s</string>
+
+    <!-- Thresholds -->
+    <string name="battery_thresholds_title">Battery thresholds</string>
+
+    <!-- Protected apps and app pause -->
+    <string name="battery_protected_title">Protected apps</string>
+    <string name="battery_protected_empty">No protected apps yet.</string>
+    <string name="battery_protected_count">Protected apps: %1$d</string>
+    <string name="battery_protected_more">and %1$d more</string>
+
+    <!-- Android Battery Saver -->
+    <string name="battery_saver_title">Android Battery Saver</string>
+    <string name="battery_saver_body">Android\'s own saver is managed in system settings. Able does not turn it on for you.</string>
+
+    <!-- Live monitor (MON-*) -->
+    <string name="battery_monitor_title">Live monitor</string>
+    <string name="battery_monitor_description">Optional. Saves session summaries on this device.</string>
+    <string name="battery_monitor_battery_note">Event-driven, checks current at most every 5 minutes. Monitoring itself uses some battery.</string>
+    <string name="battery_monitor_running">Running</string>
+    <string name="battery_monitor_stopped">Off</string>
+    <string name="battery_monitor_start">Start monitor</string>
+    <string name="battery_monitor_stop">Stop</string>
+    <string name="battery_monitor_reset_now">Reset statistics</string>
+    <string name="battery_monitor_resume_note">Resumes after a restart if it was running.</string>
+    <string name="battery_monitor_interrupted_title">The monitor stopped unexpectedly</string>
+    <string name="battery_monitor_interrupted_body">Android stopped the battery monitor. The interrupted session was saved as partial.</string>
+    <string name="battery_monitor_dismiss_interrupted">Leave off</string>
+    <string name="battery_live_title">Live readings</string>
+
+    <!-- Statistics since reset (MON-001, MON-002, MON-003) -->
+    <string name="battery_stats_title">Since last reset</string>
+    <string name="battery_stats_since">Since %1$s · %2$s</string>
+    <string name="battery_stats_waiting">Start the monitor to collect statistics.</string>
+    <string name="battery_screen_on">Screen on</string>
+    <string name="battery_screen_off">Screen off</string>
+    <string name="battery_active_drain">Active drain</string>
+    <string name="battery_idle_drain">Idle drain</string>
+    <string name="battery_overall_drain">Drain</string>
+    <string name="battery_charge_rate">Charge rate</string>
+    <string name="battery_charged">Charged</string>
+    <string name="battery_deep_sleep">Deep sleep</string>
+    <string name="battery_deep_sleep_unavailable">Deep-sleep and awake time are not available from the data sources Able uses, so they are not shown or estimated.</string>
+    <string name="battery_stats_note">Rates are estimates over the recorded interval and need at least 15 minutes and a whole-percent change.</string>
+    <string name="battery_current_session_charging">Current charging session: %1$s, %2$d%% → %3$d%%</string>
+    <string name="battery_current_session_discharging">Current session on battery: %1$s, %2$d%% → %3$d%%</string>
+    <string name="battery_reset_reason_first">first start</string>
+    <string name="battery_reset_reason_manual">manual reset</string>
+    <string name="battery_reset_reason_plug">reset on plug-in</string>
+    <string name="battery_reset_reason_threshold">reset at battery level</string>
+    <string name="battery_reset_reason_reboot">reset after restart</string>
+    <string name="battery_reset_reason_deleted">history deleted</string>
+
+    <!-- Idle-drain baseline (BASE-001) -->
+    <string name="battery_baseline_title">Your screen-off pattern</string>
+    <string name="battery_baseline_status_collecting">Collecting baseline</string>
+    <string name="battery_baseline_status_insufficient">Not enough comparable sessions</string>
+    <string name="battery_baseline_status_established">Personal range available</string>
+    <string name="battery_baseline_valid_count">Valid sessions in the last 14 days: %1$d</string>
+    <string name="battery_baseline_latest">Latest valid session: %1$s%% per hour over %2$s (estimate)</string>
+    <string name="battery_baseline_collecting">A personal range appears after at least five valid sessions.</string>
+    <string name="battery_baseline_insufficient">Only %1$d similar sessions so far; more data is needed for a personal range.</string>
+    <string name="battery_baseline_range">Comparable median %1$s%%/h (observed range %2$s–%3$s%%/h, %4$d sessions).</string>
+    <string name="battery_baseline_above_range">Higher than your usual range</string>
+    <string name="battery_baseline_method" formatted="false">Uses only complete, unplugged sessions of at least 4 hours with the screen off for at least 90% of the time, comparing durations within 25% and starting levels within 15 points. This is a personal observation, not a battery-health score, and it does not identify a cause.</string>
+    <string name="battery_baseline_review_factors">Review possible factors</string>
+    <string name="battery_baseline_trend_cd">Trend of %1$d valid sessions, from %2$s to %3$s percent per hour</string>
+    <string name="battery_baseline_offer_title">Get notified about unusual nights?</string>
+    <string name="battery_baseline_offer_body">Your personal range is ready. Able can notify you once after a completed screen-off session that is clearly above it. Alerts stay off unless you enable them.</string>
+    <string name="battery_baseline_offer_enable">Enable alerts</string>
+
+    <!-- Alerts (MON-007, BASE-001) -->
+    <string name="battery_alerts_title">Idle-drain alerts</string>
+    <string name="battery_alerts_body">Sent at most once, after a completed valid screen-off session.</string>
+    <string name="battery_alert_idle_toggle">Alert above a fixed rate</string>
+    <string name="battery_alert_idle_toggle_body">Uses the threshold below</string>
+    <string name="battery_alert_baseline_toggle">Alert above my usual range</string>
+    <string name="battery_alert_baseline_toggle_body">Needs an established personal range</string>
+    <string name="battery_alert_idle_threshold">Fixed threshold: %1$s%% per hour</string>
+    <string name="battery_alert_min_difference">Minimum difference above your range: %1$s%% per hour</string>
+    <string name="battery_alerts_window_note">Only sessions of at least 4 hours, unplugged and mostly with the screen off, are evaluated. Alerts never name an app as the cause.</string>
+
+    <!-- Reset rules (MON-005) and thermal flag (BAT-CHG-001) -->
+    <string name="battery_reset_title">Reset rules</string>
+    <string name="battery_reset_body">Each rule is optional. A reset clears the live statistics; saved sessions are kept.</string>
+    <string name="battery_reset_on_plug">Reset when the charger is connected</string>
+    <string name="battery_reset_on_plug_body">Once per plug-in</string>
+    <string name="battery_reset_on_boot">Reset after restart</string>
+    <string name="battery_reset_on_boot_body">Once per device restart</string>
+    <string name="battery_reset_threshold">Reset when the battery drops to</string>
+    <string name="battery_reset_threshold_off">Off</string>
+    <string name="battery_thermal_threshold">Flag warm sessions at %1$s</string>
+    <string name="battery_thermal_note">Able only flags the session and sends one alert; it never changes charging behavior.</string>
+
+    <!-- Outputs (MON-004) -->
+    <string name="battery_outputs_title">Notification and units</string>
+    <string name="battery_outputs_body">The ongoing notification is required while the monitor runs and includes a Stop action.</string>
+    <string name="battery_temperature_unit">Temperature unit</string>
+    <string name="battery_notif_layout">Notification layout</string>
+    <string name="battery_notif_layout_compact">Compact</string>
+    <string name="battery_notif_layout_detailed">Detailed</string>
+    <string name="battery_notif_show_power">Show current and power</string>
+    <string name="battery_notif_show_power_body">Only when the device reports them</string>
+    <string name="battery_widget_note">The Able battery widget can be added from your launcher\'s widget picker, with or without the monitor. Android limits how often widgets refresh, so it may lag behind the notification.</string>
+
+    <!-- History and retention (MON-009) -->
+    <string name="battery_history_title">Battery history</string>
+    <string name="battery_sessions_count">Saved sessions: %1$d</string>
+    <string name="battery_retention">Keep session summaries</string>
+    <string name="battery_retention_30">30 days</string>
+    <string name="battery_retention_90">90 days (default)</string>
+    <string name="battery_retention_manual">Until I delete them</string>
+    <string name="battery_retention_note">Expired or deleted history also removes notes and the personal baseline. Profiles and app rules are kept.</string>
+    <string name="battery_delete_history">Delete history now</string>
+    <string name="battery_delete_confirm_title">Delete battery history?</string>
+    <string name="battery_delete_confirm_body">This permanently removes saved sessions, their notes and the personal baseline, and resets the live statistics. Profiles and app rules are kept. This cannot be undone.</string>
+    <string name="battery_history_empty_title">No sessions yet</string>
+    <string name="battery_history_empty_body">Start the live monitor to collect session summaries.</string>
+    <string name="battery_sessions_header">Sessions</string>
+    <string name="battery_filter_all">All</string>
+    <string name="battery_filter_discharge">On battery</string>
+    <string name="battery_filter_charging">Charging diary</string>
+
+    <!-- Session cards (MON-001, BAT-CHG-001) -->
+    <string name="battery_session_charging">Charging</string>
+    <string name="battery_session_discharge">On battery</string>
+    <string name="battery_session_summary">%1$s · %2$d%% → %3$d%% · %4$s</string>
+    <string name="battery_session_partial">Partial</string>
+    <string name="battery_session_warm">Warm</string>
+    <string name="battery_temp_avg_peak">Temperature avg / peak</string>
+    <string name="battery_avg_current">Average current</string>
+    <string name="battery_avg_voltage">Average voltage</string>
+    <string name="battery_avg_power">Average power</string>
+
+    <!-- Notes (BAT-NOTE-001) -->
+    <string name="battery_note_title">Session note</string>
+    <string name="battery_note_hint">Add context</string>
+    <string name="battery_note_tags">Tags</string>
+    <string name="battery_note_add">Add a note</string>
+    <string name="battery_note_privacy">Notes stay on this device and are deleted with the session.</string>
+    <string name="battery_tag_travel">Travel</string>
+    <string name="battery_tag_gaming">Gaming</string>
+    <string name="battery_tag_hotspot">Hotspot</string>
+    <string name="battery_tag_navigation">Navigation</string>
+
+    <!-- Hardware health (BAT-HLT-001, BAT-HLT-002) -->
+    <string name="battery_cycles_title">Charge cycles</string>
+    <string name="battery_cycles_value">%1$d cycles</string>
+    <string name="battery_cycles_source">Reported by the public Android 14+ API.</string>
+    <string name="battery_cycles_unavailable_detail">This device\'s hardware does not expose a cycle counter to Android.</string>
+    <string name="battery_cycles_requires_14">The public cycle counter requires Android 14 or later.</string>
+    <string name="battery_android_health_title">Reported by Android</string>
+    <string name="battery_android_health_body">Android reports a health status, not a capacity percentage.</string>
+    <string name="battery_health_good">Good</string>
+    <string name="battery_health_overheat">Overheating</string>
+    <string name="battery_health_dead">Dead</string>
+    <string name="battery_health_over_voltage">Over voltage</string>
+    <string name="battery_health_cold">Cold</string>
+    <string name="battery_health_failure">Failure reported</string>
+    <string name="battery_health_unknown">Not reported</string>
+    <string name="battery_health_no_estimate">Able does not estimate health, remaining capacity or dates without verifiable system data.</string>
+    <string name="battery_advanced_title">Advanced hardware readings</string>
+    <string name="battery_advanced_description">Optional. With Shizuku, Able reads battery fields exposed by the device kernel. Many devices do not expose them.</string>
+    <string name="battery_advanced_read">Read with Shizuku</string>
+    <string name="battery_advanced_unavailable">Start Shizuku and authorize Able to read these fields.</string>
+    <string name="battery_advanced_open_shizuku">Open Shizuku</string>
+    <string name="battery_advanced_authorize">Authorize Able</string>
+    <string name="battery_advanced_failed">Could not read the battery fields. Check the Shizuku permission and try again.</string>
+    <string name="battery_advanced_empty">This device did not expose these battery fields.</string>
+    <string name="battery_advanced_design_capacity">Design capacity</string>
+    <string name="battery_advanced_full_capacity">Reported full capacity</string>
+    <string name="battery_advanced_soh">Capacity ratio</string>
+    <string name="battery_advanced_cycles">Kernel cycle count</string>
+    <string name="battery_advanced_manufacture">Manufacture date</string>
+    <string name="battery_advanced_first_use">First use</string>
+    <string name="battery_advanced_policy">Charging policy</string>
+    <string name="battery_advanced_raw_note">Values are shown as reported by the kernel. The capacity ratio is calculated from full and design capacity and is not a laboratory measurement.</string>
+
+    <!-- Diagnostics checklist (BAT-CHK-001, BAT-REV-001) -->
+    <string name="battery_diag_title">Battery anomaly checklist</string>
+    <string name="battery_diag_progress">Reviewed %1$d of %2$d</string>
+    <string name="battery_diag_battery_usage">Android battery usage</string>
+    <string name="battery_diag_reviewed">Reviewed</string>
+    <string name="battery_diag_not_reviewed">Not reviewed yet</string>
+    <string name="battery_diag_recent">Recent drain</string>
+    <string name="battery_diag_signal">Weak mobile signal</string>
+    <string name="battery_diag_signal_detail">A weak signal can increase radio activity and drain.</string>
+    <string name="battery_diag_hotspot">Hotspot use</string>
+    <string name="battery_diag_hotspot_detail">Check whether tethering is active or was left on.</string>
+    <string name="battery_diag_display">Screen time and brightness</string>
+    <string name="battery_diag_display_detail">Long screen-on time and high brightness increase active drain.</string>
+    <string name="battery_diag_apps">Background apps</string>
+    <string name="battery_diag_usage_rationale">To list app activity, Android requires Usage access for Able. It is used only on this device.</string>
+    <string name="battery_diag_usage_grant">Grant usage access</string>
+    <string name="battery_diag_usage_window">Last 24 hours, reported by Android</string>
+    <string name="battery_diag_usage_refresh">Refresh</string>
+    <string name="battery_diag_usage_row">Visible %1$s · foreground service %2$s</string>
+    <string name="battery_diag_usage_empty">Android reported no app activity for this window.</string>
+    <string name="battery_diag_usage_coverage">Coverage: Android usage statistics only. They do not include per-app battery use; tap an app to open its Android App info and battery settings.</string>
+
+    <!-- Snackbar messages -->
+    <string name="battery_msg_settings_failed">Android could not open that settings page.</string>
+    <string name="battery_msg_monitor_start_failed">Android did not allow the battery monitor to start.</string>
+    <string name="battery_msg_notification_denied">Monitor not started: notification permission was denied. The ongoing notification is needed to show its status and Stop action.</string>
+    <string name="battery_msg_alert_permission_denied">Alerts stay off because notification permission was denied. You can allow notifications in Android settings.</string>
+    <string name="battery_msg_history_deleted">Battery history deleted.</string>
+    <string name="battery_msg_note_saved">Note saved.</string>
+    <string name="battery_msg_stats_reset">Statistics reset.</string>
+    <string name="battery_msg_shizuku_missing">Shizuku is not installed on this device.</string>
+
+    <!-- Notifications -->
+    <string name="battery_channel_monitor">Battery monitor</string>
+    <string name="battery_channel_monitor_desc">Ongoing status while the optional battery monitor runs</string>
+    <string name="battery_channel_alerts">Battery alerts</string>
+    <string name="battery_channel_alerts_desc">Warm sessions and unusual idle drain, only when enabled</string>
+    <string name="battery_notif_title">Battery %1$s · %2$s</string>
+    <string name="battery_notif_screen_on">Screen on %1$s · %2$d%% used</string>
+    <string name="battery_notif_screen_off">Screen off %1$s · %2$d%% used</string>
+    <string name="battery_notif_temperature">Temperature %1$s</string>
+    <string name="battery_notif_current">Current %1$d mA (estimate)</string>
+    <string name="battery_notif_current_power">Current %1$d mA · power %2$s W (estimates)</string>
+    <string name="battery_notif_time_to_full">Estimated time to full %1$s</string>
+    <string name="battery_notif_profile">Active profiles: %1$s</string>
+    <string name="battery_alert_thermal_title">Battery temperature is high</string>
+    <string name="battery_alert_thermal_body">The battery reached %1$s. Able only records this and does not change charging behavior.</string>
+    <string name="battery_alert_idle_title">Unusual screen-off drain</string>
+    <string name="battery_alert_idle_threshold_body">A completed screen-off session used about %1$s over %2$s, above your threshold of %3$s. This does not identify a cause; open Able to review the data.</string>
+    <string name="battery_alert_idle_baseline_body">A completed screen-off session used about %1$s over %2$s, above your usual range (up to %3$s). This does not identify a cause; open Able to review the data.</string>
+
+    <!-- 2026-11-22 polish: triggers off by default (ADR-005), contextual help (UX-002) -->
+    <string name="battery_triggers_off_title">No automatic trigger is on</string>
+    <string name="battery_triggers_off_body">Nothing starts on its own. A profile becomes active only when you start it or turn on one of its triggers.</string>
+    <string name="battery_battery_triggers_title">Battery triggers</string>
+    <string name="battery_monitor_resume_title">Resume after restart</string>
+    <string name="battery_retention_more_title">What gets deleted</string>
+    <string name="battery_retention_more_summary">Notes and baseline go with the history</string>
+    <string name="battery_help_pause_triggers">What it does: every automatic trigger is ignored until you turn this off. Profiles you started by hand stay active; trigger settings stay saved.\n\nRisk: none. Battery, schedule and screen-off triggers will not react while paused.\n\nUndo: turn the switch off.</string>
+    <string name="battery_help_monitor">What it does: the live monitor runs as a foreground service, so Android shows an ongoing notification while it is on. It listens to battery and screen events and reads current at most every 5 minutes. Only session summaries are saved, on this device.\n\nCost: monitoring itself uses a little battery. Able does not claim savings from it.\n\nUndo: tap Stop here or in the notification.</string>
+    <string name="battery_help_resume">What it does: if the monitor was running when the phone restarts, Able starts it again after boot so tracking continues. If you stopped it, it stays off.\n\nRisk: the ongoing notification reappears after a restart.\n\nUndo: stop the monitor; it will not resume.</string>
+    <string name="battery_help_reset_rules">What it does: these rules set the live statistics back to zero on an event (charger connected, device restart, battery level). Saved sessions are not deleted.\n\nRisk: you lose the current since-reset totals.\n\nUndo: turn the rule off. A reset that already happened cannot be reversed.</string>
+    <string name="battery_help_delete_history">What it does: permanently removes saved sessions, their notes and the personal baseline, and resets the live statistics. Profiles and app rules are kept.\n\nRisk: this cannot be undone and Able keeps no copy. The baseline needs several new nights to rebuild.\n\nUndo: not possible. You will be asked to confirm first.</string>
+    <string name="battery_help_advanced">What it does: with Shizuku, Able runs a read-only command that reads battery files exposed by the kernel (capacity, cycles, dates). Nothing is written or changed.\n\nRisk: Shizuku gives apps elevated access; authorize only apps you trust. Many devices hide these fields or report approximate values.\n\nUndo: nothing to undo. You can revoke Able in Shizuku at any time.</string>
+    <string name="battery_monitor_details_title">How it works</string>
+    <string name="battery_monitor_details_summary">Battery use and restarts</string>
+    <string name="battery_live_details_title">About these values</string>
+    <string name="battery_stats_details_title">How rates are calculated</string>
+    <string name="battery_raw_value">Raw value: %1$s</string>
+    <string name="battery_policy_default">Standard</string>
+    <string name="battery_policy_adaptive_aon">Charge limit</string>
+    <string name="battery_policy_adaptive_ac">Adaptive charging</string>
+    <string name="battery_policy_adaptive_longlife">Long life (always plugged in)</string>
+    <string name="battery_policy_unknown">Not recognized</string>
+    <!-- Status tab and profiles (owner decision 2026-11-22: several active, most restrictive wins) -->
+    <string name="battery_active_now">Active now</string>
+    <string name="battery_active_none">No profile is active. Apps behave normally.</string>
+    <string name="battery_active_chip_cd">%1$s, active: %2$s. Opens the profile.</string>
+    <string name="battery_automation_paused_pill">Automation paused</string>
+    <string name="battery_automation_title">Automation and safety</string>
+    <string name="battery_applies_title">What would apply now</string>
+    <string name="battery_applies_none">The active profiles have no app rules.</string>
+    <string name="battery_applies_count">%1$d apps with an action, most restrictive first</string>
+    <string name="battery_applies_row">%1$s · from %2$s</string>
+    <string name="battery_saver_suggested">Android Battery Saver is suggested by: %1$s.</string>
+    <string name="battery_profile_new">New profile</string>
+    <string name="battery_profile_untitled">Untitled profile</string>
+    <string name="battery_profile_copy_name">Copy of %1$s</string>
+    <string name="battery_profile_activate">Activate now</string>
+    <string name="battery_profile_stop">Stop</string>
+    <string name="battery_profile_edit">Edit</string>
+    <string name="battery_profile_enabled_cd">Use profile %1$s</string>
+    <string name="battery_profile_status_on">On</string>
+    <string name="battery_profile_status_off">Off</string>
+    <string name="battery_profile_status_active">Active · %1$s</string>
+    <string name="battery_profile_status_ready">Waiting for a trigger</string>
+    <string name="battery_profile_status_idle">Starts only by hand</string>
+    <string name="battery_profile_manual_only">No trigger on · start it by hand</string>
+    <string name="battery_profile_disabled_summary">Switched off: it never becomes active</string>
+    <string name="battery_profile_rules_none">No app rules</string>
+    <plurals name="battery_profile_rules_count">
+        <item quantity="one">%1$d app rule</item>
+        <item quantity="other">%1$d app rules</item>
+    </plurals>
+    <string name="battery_reason_manual">Started by you</string>
+    <string name="battery_trigger_below_summary">Battery below %1$d%%</string>
+    <string name="battery_trigger_below_summary_unplugged">Below %1$d%% unplugged</string>
+    <string name="battery_trigger_schedule_summary">%1$s–%2$s</string>
+    <string name="battery_trigger_schedule_days_summary">%1$s, %2$d days</string>
+    <string name="battery_trigger_screen_off_summary">Screen off %1$d min</string>
+    <string name="battery_trigger_charging_summary">While charging</string>
+    <string name="battery_trigger_manual_summary">Manual</string>
+    <string name="battery_notif_profile_none">none</string>
+    <string name="battery_help_profiles">What it does: a profile groups triggers and app rules. Several profiles can be active at the same time: the ones you start by hand and those whose enabled trigger is met. Every trigger is off until you turn it on.\n\nWhen active profiles give one app different actions, the most restrictive wins (Osserva, then Limita in background, then Arresta quando esco). Protected apps are always excluded.\n\nIn this version profiles do not change any app yet.\n\nUndo: stop the profile or switch it off.</string>
+    <string name="battery_help_most_restrictive">Each row shows the action that would apply to the app and the profile that sets it. When several active profiles disagree, the most restrictive action wins. Protected apps never appear here.\n\nIn this version nothing is applied: this is a preview.</string>
+
+    <!-- Profile levels (BAT-003); same terms as Apps -->
+    <string name="battery_level_osserva">Osserva</string>
+    <string name="battery_level_osserva_desc">Only shows information. Nothing changes.</string>
+    <string name="battery_level_limita">Limita in background</string>
+    <string name="battery_level_limita_desc">Supported Android restriction while the profile is active. Sync and notifications may be delayed.</string>
+    <string name="battery_level_arresta">Arresta quando esco</string>
+    <string name="battery_level_arresta_desc">Force-stops the app after you leave it (requires Shizuku). Notifications and alarms may stop until you open it again.</string>
+
+    <!-- Profile icons and colors -->
+    <string name="battery_icon_battery">Battery</string>
+    <string name="battery_icon_night">Night</string>
+    <string name="battery_icon_saver">Saver</string>
+    <string name="battery_icon_alert">Alert</string>
+    <string name="battery_icon_pause">Pause</string>
+    <string name="battery_icon_work">Work</string>
+    <string name="battery_icon_home">Home</string>
+    <string name="battery_icon_travel">Travel</string>
+    <string name="battery_icon_game">Games</string>
+    <string name="battery_icon_focus">Focus</string>
+    <string name="battery_icon_charging">Charging</string>
+    <string name="battery_icon_leaf">Leaf</string>
+    <string name="battery_color_blue">Blue</string>
+    <string name="battery_color_indigo">Indigo</string>
+    <string name="battery_color_green">Green</string>
+    <string name="battery_color_orange">Orange</string>
+    <string name="battery_color_red">Red</string>
+    <string name="battery_color_purple">Purple</string>
+    <string name="battery_color_teal">Teal</string>
+    <string name="battery_color_grey">Grey</string>
+
+    <!-- Profile editor -->
+    <string name="battery_editor_new_title">New profile</string>
+    <string name="battery_editor_edit_title">Edit profile</string>
+    <string name="battery_editor_name">Name</string>
+    <string name="battery_editor_name_hint">Required</string>
+    <string name="battery_editor_name_builtin_hint">Leave empty to keep “%1$s”</string>
+    <string name="battery_editor_icon">Icon</string>
+    <string name="battery_editor_color">Color</string>
+    <string name="battery_editor_enabled">Use this profile</string>
+    <string name="battery_editor_enabled_body">When off, the profile never becomes active, not even by hand.</string>
+    <string name="battery_editor_triggers">Triggers</string>
+    <string name="battery_editor_no_triggers">No triggers. You can still start this profile by hand.</string>
+    <string name="battery_editor_add_trigger">Add trigger</string>
+    <string name="battery_editor_remove_trigger">Remove trigger</string>
+    <string name="battery_trigger_type_battery">Battery level</string>
+    <string name="battery_trigger_type_schedule">Daily schedule</string>
+    <string name="battery_trigger_type_screen_off">Screen off for a while</string>
+    <string name="battery_trigger_type_charging">Charging</string>
+    <string name="battery_trigger_off_pill">Off · ignored until you turn it on</string>
+    <string name="battery_trigger_activate_label">Starts below %1$d%%</string>
+    <string name="battery_trigger_reset_label">Ends above %1$d%%</string>
+    <string name="battery_trigger_only_unplugged">Only while unplugged</string>
+    <string name="battery_trigger_only_unplugged_body">Plugging in ends it right away.</string>
+    <string name="battery_trigger_schedule_overnight">Crosses midnight: it belongs to the day it starts.</string>
+    <string name="battery_trigger_charging_body">Active while the phone is connected to power.</string>
+    <string name="battery_help_triggers_editor">What it does: the profile is active while any trigger that is on is met, and it ends when none is. New triggers start off; nothing activates until you turn it on.\n\nRisk: in this version no app is changed. Later, a profile will run only the actions you reviewed; freezing or disabling apps is never automatic.\n\nUndo: turn the trigger off or remove it.</string>
+    <string name="battery_help_trigger_battery">What it does: starts when the battery drops below the start level and ends only above the end level, so the profile does not flip on and off. With “Only while unplugged”, charging ends it immediately.\n\nUndo: turn the trigger off.</string>
+    <string name="battery_help_trigger_schedule">What it does: active every chosen day between the start and end time. A window that crosses midnight belongs to the day it starts (Monday 22:00–06:00 includes early Tuesday).\n\nUndo: turn the trigger off.</string>
+    <string name="battery_help_trigger_screen_off">What it does: starts after the screen stays off for the chosen time and ends when the screen turns on. Able can measure this only while the live monitor runs.\n\nUndo: turn the trigger off.</string>
+    <string name="battery_help_trigger_charging">What it does: active while the phone is plugged in; it ends when you unplug it.\n\nUndo: turn the trigger off.</string>
+    <string name="battery_issue_name_required">Enter a name.</string>
+    <string name="battery_issue_percent_range">Choose a level from 1 to 100 percent.</string>
+    <string name="battery_issue_reset_above">The end level must be higher than the start level.</string>
+    <string name="battery_issue_schedule_empty">Start and end time must differ.</string>
+    <string name="battery_issue_no_days">Choose at least one day.</string>
+    <string name="battery_issue_screen_off_range">Choose between 1 and 240 minutes.</string>
+    <string name="battery_editor_offer_saver">Suggest Android Battery Saver</string>
+    <string name="battery_editor_offer_saver_body">While active, Able suggests Android\'s saver. Able never turns it on.</string>
+    <string name="battery_help_offer_saver">What it does: while this profile is active, the Status tab suggests opening Android Battery Saver. Android manages the saver; Able does not switch it on or off.\n\nUndo: turn the switch off.</string>
+    <string name="battery_editor_apps">App rules</string>
+    <string name="battery_help_app_levels">Osserva only shows information. Limita in background applies a supported Android restriction while the profile is active. Arresta quando esco force-stops the app after you leave it.\n\nRisk: notifications, sync and alarms can be delayed or missed.\n\nWhen several active profiles disagree, the most restrictive level wins. Protected apps are always excluded.\n\nUndo: set the rule back to Osserva.</string>
+    <string name="battery_editor_search_apps">Search apps</string>
+    <string name="battery_editor_only_rules">Only apps with a rule</string>
+    <string name="battery_editor_apps_loading">Loading apps…</string>
+    <string name="battery_editor_apps_empty">No apps match.</string>
+    <string name="battery_editor_app_protected">Protected · excluded from every profile</string>
+    <string name="battery_editor_level_title">Rule for %1$s</string>
+    <string name="battery_editor_level_note">Saved with the profile. In this version no app is changed yet.</string>
+    <string name="battery_editor_manage">Manage</string>
+    <string name="battery_editor_duplicate">Duplicate</string>
+    <string name="battery_editor_duplicate_body">Creates a custom copy of the saved profile with its triggers off.</string>
+    <string name="battery_editor_reset">Reset to default</string>
+    <string name="battery_editor_reset_row">Restore the original triggers, look and rules.</string>
+    <string name="battery_editor_reset_title">Reset this profile?</string>
+    <string name="battery_editor_reset_body">Name, icon, color, triggers and app rules go back to the original values, with every trigger off. This cannot be undone.</string>
+    <string name="battery_editor_builtin_note">Built-in profiles can be edited and reset but not deleted.</string>
+    <string name="battery_editor_delete">Delete profile</string>
+    <string name="battery_editor_delete_title">Delete %1$s?</string>
+    <string name="battery_editor_delete_body">The profile, its triggers and its app rules are removed. This cannot be undone.</string>
+    <string name="battery_editor_discard_title">Discard changes?</string>
+    <string name="battery_editor_discard_body">Your changes to this profile are not saved.</string>
+    <string name="battery_editor_discard">Discard</string>
+    <string name="battery_msg_profile_saved">Profile saved.</string>
+    <string name="battery_msg_profile_deleted">Profile deleted.</string>
+    <string name="battery_msg_profile_duplicated">Copy created with its triggers off.</string>
+    <string name="battery_msg_profile_reset">Profile reset to default.</string>
+    <string name="battery_msg_profile_not_found">That profile no longer exists.</string>
+
+    <!-- Diagnostics -->
+    <string name="battery_diag_checks_title">Quick checks</string>
+    <string name="battery_diag_checks_body">Common causes of high drain. Tick each one once reviewed.</string>
+    <string name="battery_help_checks">What it does: a short list of common causes of high drain. Each row opens the Android page where you can check it; the checkbox only helps you keep track and is not saved.\n\nAble opens Android settings and never changes them for you.</string>
+    <string name="battery_diag_action_open">Open</string>
+    <string name="battery_diag_action_monitor">Monitor</string>
+    <string name="battery_diag_action_apps">Apps</string>
+    <string name="battery_diag_recent_none_short">No session on battery yet. The live monitor records them.</string>
+    <string name="battery_diag_recent_value">Active %1$s · idle %2$s</string>
+    <string name="battery_diag_apps_short">Review app activity in Apps.</string>
+    <string name="battery_diag_usage_title">Battery usage by apps</string>
+    <string name="battery_diag_usage_needs_access">Needs Usage access</string>
+    <string name="battery_diag_usage_note">Observation only: it does not prove that an app caused drain. Tap an app for its Android App info.</string>
+    <string name="battery_diag_settings_title">Android settings</string>
+    <string name="battery_diag_settings_body">Pages managed by Android.</string>
+    <string name="battery_diag_diary">Session diary</string>
+    <string name="battery_diag_diary_body">Saved sessions and notes in the Monitor tab</string>
+</resources>

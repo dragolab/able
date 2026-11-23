@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="apps_title">Apps</string>
+    <plurals name="apps_count">
+        <item quantity="one">%d package</item>
+        <item quantity="other">%d packages</item>
+    </plurals>
+    <string name="apps_loading">Reading installed apps…</string>
+    <string name="apps_load_failed_title">Could not read installed apps</string>
+    <string name="apps_load_failed_message">Android did not return the app list. Try again.</string>
+    <string name="apps_retry">Try again</string>
+    <string name="apps_empty_title">No apps match</string>
+    <string name="apps_empty_message">Change the search or the filters.</string>
+    <string name="apps_search_hint">Search by name or package</string>
+    <string name="apps_search_clear">Clear search</string>
+    <string name="apps_filter_all">All</string>
+    <string name="apps_filter_user">User</string>
+    <string name="apps_filter_system">System</string>
+    <string name="apps_filter_protected">Protected</string>
+    <string name="apps_badge_protected">Protected</string>
+    <string name="apps_badge_system">System</string>
+    <string name="apps_badge_user">User app</string>
+    <string name="apps_badge_disabled">Disabled</string>
+    <string name="apps_value_unavailable">Not reported</string>
+    <string name="apps_settings_unavailable">This settings page is not available on this device.</string>
+    <string name="apps_cancel">Cancel</string>
+    <string name="apps_dismiss">OK</string>
+
+    <!-- Detail -->
+    <string name="apps_detail_placeholder_title">Select an app</string>
+    <string name="apps_detail_placeholder_message">Details, protection and profile rules appear here.</string>
+    <string name="apps_detail_missing_title">App not available</string>
+    <string name="apps_detail_missing_message">This app is no longer installed or visible to Able.</string>
+    <string name="apps_detail_version">Version %1$s (%2$d)</string>
+
+    <string name="apps_section_protection">Protection</string>
+    <string name="apps_protected_title">Protected app</string>
+    <string name="apps_protected_message">Battery profiles never act on protected apps. Use it for alarms, messaging, health and wearable companions.</string>
+
+    <string name="apps_section_profiles">Battery profile rules</string>
+    <string name="apps_profiles_protected_title">Excluded from battery profiles</string>
+    <string name="apps_profiles_protected_message">Turn off protection to configure profile rules for this app.</string>
+    <string name="apps_profile_excluded">Excluded (protected)</string>
+    <string name="apps_profiles_note">Rules are saved now. When a profile runs, Able applies them only if the required access is available and reports the real outcome.</string>
+    <string name="apps_profile_untitled">Untitled profile</string>
+    <string name="apps_profile_level_active">%1$s · profile active now</string>
+    <string name="apps_profile_level_off">%1$s · profile switched off</string>
+    <string name="apps_profile_effective_none">No active profile changes this app</string>
+    <string name="apps_profile_effective_title">Now: %1$s</string>
+    <string name="apps_profile_effective_message">Set by %1$s. When active profiles disagree, the most restrictive rule wins. Nothing is applied in this version yet.</string>
+    <string name="apps_level_picker_title">Rule in %1$s</string>
+    <string name="apps_level_osserva">Osserva</string>
+    <string name="apps_level_osserva_desc">Only shows available usage and system information. Nothing changes.</string>
+    <string name="apps_level_limita">Limita in background</string>
+    <string name="apps_level_limita_desc">Uses a supported Android restriction or an advanced Shizuku operation.</string>
+    <string name="apps_level_limita_consequence">Background work, sync and notifications may be delayed or missed while the profile is active.</string>
+    <string name="apps_level_arresta">Arresta quando esco</string>
+    <string name="apps_level_arresta_desc">Force-stops the app after it leaves the foreground (requires Shizuku).</string>
+    <string name="apps_level_arresta_consequence">Notifications, alarms, synchronization and push delivery may stop until you open the app again.</string>
+    <string name="apps_level_confirm_title">Use \"%1$s\"?</string>
+    <string name="apps_level_confirm_message">Affected app: %1$s, in the %2$s profile.\n\n%3$s\n\nYou can switch back to Osserva at any time.</string>
+    <string name="apps_level_confirm_action">Save rule</string>
+
+    <string name="apps_section_usage">Usage evidence</string>
+    <string name="apps_usage_access_title">Usage access required</string>
+    <string name="apps_usage_access_message">Allow Usage access in Android settings to see foreground time. Without it, Able shows no usage data.</string>
+    <string name="apps_usage_loading">Reading usage data…</string>
+    <string name="apps_usage_not_reported">Android reported no usage for this app in the last 7 days.</string>
+    <string name="apps_usage_foreground">In foreground %1$d h %2$d min in the last %3$d days</string>
+    <string name="apps_usage_last_used">Last used: %1$s</string>
+    <string name="apps_usage_note">Android estimate. Able does not infer battery drain from usage or memory.</string>
+
+    <!-- Actions -->
+    <string name="apps_section_actions">Actions</string>
+    <string name="apps_action_app_info">Open Android App info</string>
+    <string name="apps_action_app_info_message">Permissions, battery restrictions, storage, disable and uninstall</string>
+    <string name="apps_action_force_stop">Force stop</string>
+    <string name="apps_force_stop_message">Stops the app now through Shizuku.</string>
+    <string name="apps_force_stop_running">Stopping and checking the result…</string>
+    <string name="apps_force_stop_needs_permission">Allow Able in Shizuku to use force stop.</string>
+    <string name="apps_force_stop_needs_shizuku">Requires Shizuku running. You can also force stop from Android App info.</string>
+    <string name="apps_shizuku_grant">Allow</string>
+    <string name="apps_force_stop_confirm_title">Force stop %1$s?</string>
+    <string name="apps_force_stop_confirm_message">The app closes immediately. Its notifications, alarms, synchronization and background work may stop until you open it again. Unsaved data in the app may be lost. Able will not reopen it.</string>
+    <string name="apps_force_stop_confirm_action">Force stop</string>
+    <string name="apps_force_stop_result_stopped">%1$s stopped</string>
+    <string name="apps_force_stop_result_stopped_message">Android accepted the command and no process of the app is running now.</string>
+    <string name="apps_force_stop_result_running">%1$s is still running</string>
+    <string name="apps_force_stop_result_running_message">The command was accepted, but a process of the app is running again. A system component or another app may have restarted it.</string>
+    <string name="apps_force_stop_result_unconfirmed">%1$s: result not confirmed</string>
+    <string name="apps_force_stop_result_unconfirmed_message">The command was sent, but Able could not read back the process state.</string>
+    <string name="apps_force_stop_result_failed">Could not stop %1$s</string>
+    <string name="apps_force_stop_result_failed_message">The command was rejected or Shizuku did not respond. Nothing was changed.</string>
+    <string name="apps_action_disable">Disable app</string>
+    <string name="apps_action_uninstall">Uninstall</string>
+
+    <!-- Action history entries (stored in the action log) -->
+    <string name="apps_log_force_stop_success">Force stop of %1$s applied</string>
+    <string name="apps_log_force_stop_still_running">Force stop of %1$s sent, but the app is running again</string>
+    <string name="apps_log_force_stop_not_confirmed">Force stop of %1$s sent, result not confirmed</string>
+    <string name="apps_log_force_stop_failed">Force stop of %1$s failed</string>
+    <!-- List, search and filters (APP-001, APP-006) -->
+    <string name="apps_search_hint_all">Search name, package or description</string>
+    <string name="apps_results_count">%1$d of %2$d</string>
+    <string name="apps_results_count_description">Showing %1$d of %2$d packages</string>
+    <string name="apps_filters_clear">Clear filters</string>
+    <string name="apps_filters_more">More filters</string>
+    <string name="apps_filters_more_count">More filters (%1$d)</string>
+    <string name="apps_filters_sheet_title">Filter packages</string>
+    <string name="apps_filters_state">State</string>
+    <string name="apps_filters_type">Type</string>
+    <string name="apps_filters_list">Package list</string>
+    <string name="apps_filters_removal">Removal level</string>
+    <string name="apps_filters_done">Done</string>
+    <string name="apps_state_all">All</string>
+    <string name="apps_state_installed">Installed</string>
+    <string name="apps_state_disabled">Disabled</string>
+    <string name="apps_state_uninstalled">Uninstalled</string>
+    <string name="apps_state_archived_system">Archived by Android</string>
+    <string name="apps_state_able_archive">Able archive</string>
+    <string name="apps_state_able_archive_count">Able archive (%1$d)</string>
+    <string name="apps_state_not_found">Not found</string>
+    <string name="apps_badge_uninstalled">Uninstalled</string>
+    <string name="apps_badge_archived_system">Archived</string>
+    <string name="apps_badge_in_archive">In Able archive</string>
+    <string name="apps_list_oem">OEM</string>
+    <string name="apps_list_misc">Misc</string>
+    <string name="apps_list_aosp">AOSP</string>
+    <string name="apps_list_carrier">Carrier</string>
+    <string name="apps_list_google">Google</string>
+    <string name="apps_removal_recommended">Recommended</string>
+    <string name="apps_removal_advanced">Advanced</string>
+    <string name="apps_removal_expert">Expert</string>
+    <string name="apps_removal_unsafe">Unsafe</string>
+    <string name="apps_removal_not_listed">Not listed</string>
+    <string name="apps_row_open_details">Open details</string>
+
+    <!-- Package information (APP-006) -->
+    <string name="apps_section_info">About this package</string>
+    <string name="apps_info_loading">Loading package information…</string>
+    <string name="apps_info_unknown_title">No information for this package</string>
+    <string name="apps_info_unknown_message">The bundled package list has no entry for it. If it is a system package, other parts of Android may depend on it.</string>
+    <string name="apps_info_removal">Removal level</string>
+    <string name="apps_info_list">List</string>
+    <string name="apps_info_dependencies">Depends on</string>
+    <string name="apps_info_needed_by">Needed by</string>
+    <string name="apps_info_none">None listed</string>
+    <string name="apps_info_attribution">Package info: Universal Android Debloater (GPL-3.0)</string>
+    <string name="apps_removal_recommended_desc">Safe to remove for most people.</string>
+    <string name="apps_removal_advanced_desc">May break some features. Read the description first.</string>
+    <string name="apps_removal_expert_desc">Can break important functions. Only if you know what the package does.</string>
+    <string name="apps_removal_unsafe_desc">Can make the device unstable or unable to start. Do not remove.</string>
+    <string name="apps_removal_not_listed_desc">Able has no safety information for this package.</string>
+    <string name="apps_help_removal_title">Removal levels</string>
+    <string name="apps_help_removal_text">Levels come from the community list of Universal Android Debloater.\n\nRecommended: safe to remove for most people.\nAdvanced: may break some features.\nExpert: can break important functions.\nUnsafe: can stop the device from working or starting.\n\nThe list is a guide, not a guarantee. Every change made by Able can be undone from the Able archive.</string>
+
+    <!-- Package operations (APP-004) -->
+    <string name="apps_action_enable">Enable app</string>
+    <string name="apps_action_restore">Restore</string>
+    <string name="apps_action_uninstall_user">Uninstall for this user</string>
+    <string name="apps_disable_message">Hides the app and stops it from running. Data is kept.</string>
+    <string name="apps_enable_message">Makes the app available again.</string>
+    <string name="apps_uninstall_message">Removes the app for this user and keeps its data. Able keeps a copy of apps you installed, so they can be restored.</string>
+    <string name="apps_restore_message">Reinstalls the app for this user from the copy on the device or from Able\'s backup. Its data is kept.</string>
+    <string name="apps_operation_running">Applying and checking the result…</string>
+    <string name="apps_operation_needs_permission">Allow Able in Shizuku to change apps.</string>
+    <string name="apps_operation_needs_shizuku">Requires Shizuku. You can also use Android App info.</string>
+    <string name="apps_operation_blocked_self">Able does not disable or uninstall itself.</string>
+    <string name="apps_operation_blocked_shizuku">Able needs Shizuku to restore apps, so it does not change Shizuku.</string>
+    <string name="apps_operation_blocked_core">This is a core Android component. Able does not change it.</string>
+    <string name="apps_operation_archived_system">Android archived this app. Restore it from its icon or from the store that installed it.</string>
+    <string name="apps_operation_not_found">Android no longer reports this package. Able will try to reinstall it from the copy kept on the device.</string>
+
+    <string name="apps_archive_title">In the Able archive</string>
+    <string name="apps_archive_disabled_on">Disabled by Able %1$s</string>
+    <string name="apps_archive_uninstalled_on">Uninstalled by Able %1$s</string>
+
+    <string name="apps_disable_confirm_title">Disable %1$s?</string>
+    <string name="apps_disable_confirm_message">The app is hidden and cannot run, show notifications or sync. Its data is kept. Apps or features that depend on it may stop working.\n\nTo undo, open the Able archive and tap Restore, or enable it from Android App info.</string>
+    <string name="apps_disable_confirm_action">Disable</string>
+    <string name="apps_uninstall_confirm_title">Uninstall %1$s for this user?</string>
+    <string name="apps_uninstall_confirm_message">The app is removed for the current user and its data is kept. For system apps the copy on the device stays, so it can be restored from the Able archive.</string>
+    <string name="apps_uninstall_confirm_user_app">This is an app you installed: Android deletes its APK when it is removed. Able first saves a copy of the APK in its private storage so it can be restored with its data.</string>
+    <string name="apps_uninstall_confirm_action">Uninstall</string>
+    <string name="apps_confirm_protected">You marked this app as protected (for example alarms, messaging or health).</string>
+    <string name="apps_confirm_acknowledge">I understand this can break the device or important features</string>
+    <string name="apps_confirm_level">Removal level: %1$s. %2$s</string>
+
+    <string name="apps_operation_applied_disable">%1$s disabled</string>
+    <string name="apps_operation_applied_enable">%1$s enabled</string>
+    <string name="apps_operation_applied_uninstall">%1$s uninstalled for this user</string>
+    <string name="apps_operation_applied_restore">%1$s restored</string>
+    <string name="apps_operation_applied_message">Android confirms the new state.</string>
+    <string name="apps_operation_rejected">Android rejected the change to %1$s</string>
+    <string name="apps_operation_rejected_message">Nothing was changed.</string>
+    <string name="apps_operation_unconfirmed">%1$s: result not confirmed</string>
+    <string name="apps_operation_unconfirmed_message">The command was sent, but Android does not report the expected state. Check the app before relying on it.</string>
+
+    <!-- Contextual help (UX-002) -->
+    <string name="apps_help_force_stop_title">Force stop</string>
+    <string name="apps_help_force_stop_text">Closes every process of the app immediately, like Android\'s Force stop button.\n\nRisk: notifications, alarms and sync stop until the app is opened again; unsaved work may be lost.\n\nUndo: open the app again. Nothing is uninstalled.</string>
+    <string name="apps_help_disable_title">Disable</string>
+    <string name="apps_help_disable_text">Turns the app off for the current user: it disappears from the launcher, cannot run. Its data stays on the device.\n\nRisk: features or apps that depend on it may stop working.\n\nUndo: Able archive, Restore; or Android App info, Enable.</string>
+    <string name="apps_help_uninstall_title">Uninstall for this user</string>
+    <string name="apps_help_uninstall_text">Removes the app for the current user only (pm uninstall -k --user). Its data is kept.\n\nSystem apps: the APK stays on the system partition, so Restore reinstalls it without a download.\n\nApps you installed: Android deletes the APK when the app is removed for its only user. Able therefore copies the APK into its private storage first (the size is shown before you confirm). If the copy cannot be made, the app can only be reinstalled from the store; its data is still kept.\n\nRisk: removing system components can break features or, for Unsafe packages, prevent the device from starting.\n\nUndo: Able archive, Restore. A factory reset also restores system apps.</string>
+    <string name="apps_help_restore_title">Able archive and Restore</string>
+    <string name="apps_help_restore_text">Able remembers every app it disabled or uninstalled, even if Android no longer shows its name.\n\nSystem apps: Restore reinstalls the copy kept on the device.\n\nApps you installed: Restore reinstalls the APK backup Able saved before uninstalling. The backup is deleted only after Android confirms the restore, or when you delete it to free space.\n\nWithout a backup (for example apps uninstalled before Able kept copies), Android has already deleted the APK: use Reinstall from store. The data was kept, so the app comes back with it.\n\nIn every case Able enables the app again if it was enabled before.</string>
+    <string name="apps_help_levels_title">Battery profile rules</string>
+    <string name="apps_help_levels_text">Osserva only shows information. Limita in background applies a supported Android restriction while the profile is active. Arresta quando esco force-stops the app after you leave it.\n\nRisk: notifications, sync and alarms can be delayed or missed.\n\nUndo: set the rule back to Osserva at any time. Protected apps are always excluded.</string>
+    <string name="apps_help_shizuku_title">Why Shizuku?</string>
+    <string name="apps_help_shizuku_text">Android lets only system tools disable, uninstall or force-stop other apps. Shizuku is a separate app that gives Able that access after you start it with wireless debugging or root.\n\nWithout Shizuku, open Android App info for the same app: it offers Force stop and, for many apps, Disable or Uninstall.</string>
+
+    <!-- Action history entries (stored in the action log) -->
+    <string name="apps_log_disable">Disable %1$s</string>
+    <string name="apps_log_enable">Enable %1$s</string>
+    <string name="apps_log_uninstall">Uninstall %1$s for user</string>
+    <string name="apps_log_restore">Restore %1$s</string>
+    <string name="apps_log_outcome_applied">applied</string>
+    <string name="apps_log_outcome_not_confirmed">not confirmed</string>
+    <string name="apps_log_outcome_rejected">rejected</string>
+
+    <!-- APK backup and restore of user apps -->
+    <string name="apps_backup_checking">Checking the APK backup…</string>
+    <string name="apps_backup_will_create">Able will save a copy of the APK first: %1$s in Able\'s private storage.</string>
+    <string name="apps_backup_will_reuse">Able already has a copy of this version of the APK (%1$s).</string>
+    <string name="apps_backup_unavailable">Able cannot save a copy of the APK: %1$s. After uninstalling, the app can only be reinstalled from the store (its data is kept).</string>
+    <string name="apps_backup_accept_store_only">I understand that restore will only be possible from the store</string>
+    <string name="apps_backup_problem_not_found">Android does not report the APK files</string>
+    <string name="apps_backup_problem_not_readable">the APK files cannot be read</string>
+    <string name="apps_backup_problem_no_space">not enough free space</string>
+    <string name="apps_backup_problem_copy_failed">copying the files failed</string>
+    <string name="apps_backup_failed_title">%1$s was not uninstalled</string>
+    <string name="apps_backup_failed_message">The APK backup failed (%1$s), so Able did not uninstall the app. To uninstall anyway, tap Uninstall again and confirm that restore will only be possible from the store.</string>
+    <string name="apps_backup_failed_not_uninstalled">APK backup failed: %1$s. Nothing was uninstalled.</string>
+    <string name="apps_backup_present">APK backup: %1$s</string>
+    <string name="apps_backup_delete">Delete backup</string>
+    <string name="apps_backup_delete_confirm_title">Delete the APK backup?</string>
+    <string name="apps_backup_delete_confirm_message">Frees the space used by the copy of %1$s. Afterwards the app can only be reinstalled from the store. Its data is not affected.</string>
+    <string name="apps_action_reinstall_store">Reinstall from store</string>
+    <string name="apps_restore_store_needed_title">%1$s must be reinstalled from the store</string>
+    <string name="apps_restore_store_needed_message">Android deleted this app\'s APK when it was uninstalled and Able has no backup of it. Its data was kept: reinstall it from the store and it comes back with its data.</string>
+    <string name="apps_store_unavailable">No app store or browser can open this app\'s page.</string>
+    <string name="apps_log_outcome_store_required">APK removed by Android, reinstall from store</string>
+    <string name="apps_log_backup_failed">APK backup failed: %1$s</string>
+</resources>

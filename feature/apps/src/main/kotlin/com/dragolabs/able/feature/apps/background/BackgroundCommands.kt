@@ -1,0 +1,306 @@
+package com.dragolabs.able.feature.apps.background
+
+import com.dragolabs.able.feature.apps.data.PackageCommands
+
+/*
+ * Background-activity controls (APP-007 proposal). Verified 2026-11-22:
+ *
+ * - AOSP `AppOpsManager` (frameworks/base, main): `OP_RUN_IN_BACKGROUND` "Control whether an
+ *   application is allowed to run in the background" (`android:run_in_background`) and
+ *   `OP_RUN_ANY_IN_BACKGROUND` "Run jobs when in background" (`android:run_any_in_background`).
+ *   Mode names: "allow", "ignore", "deny", "default", "foreground".
+ *   https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/java/android/app/AppOpsManager.java
+ * - RUN_ANY_IN_BACKGROUND = ignore is the "Restricted" app battery usage setting; Android then
+ *   restricts jobs and alarms ("User manually restricts app battery").
+ *   https://developer.android.com/topic/performance/power/power-details
+ * - Standby buckets (active 10, working_set 20, frequent 30, rare 40, restricted 45 since API 31,
+ *   never 50, exempted 5) and `adb shell am get-standby-bucket PACKAGE_NAME`.
+ *   https://developer.android.com/topic/performance/appstandby
+ * - Reference app NoMoreBackground (adil192/no_more_background, lib/compute/adb.dart) uses
+ *   `cmd appops set <pkg> RUN_ANY_IN_BACKGROUND ignore|allow`, `cmd appops query-op
+ *   RUN_ANY_IN_BACKGROUND ignore` and `dumpsys deviceidle whitelist`.
+ *
+ * Output formats below were checked with `adb shell` on the API 36.1 emulator (2026-11-22).
+ */
+
+/** AppOps mode as printed by `cmd appops`. */
+enum class AppOpMode(val shellName: String) {
+    ALLOW("allow"),
+    IGNORE("ignore"),
+    DENY("deny"),
+    DEFAULT("default"),
+    FOREGROUND("foreground"),
+    ;
+
+    /** Whether this mode blocks the background op. `default` resolves to the op default (allow). */
+    val restricts: Boolean get() = this == IGNORE || this == DENY
+
+    companion object {
+        fun parse(value: String): AppOpMode? = entries.firstOrNull { it.shellName == value.trim().lowercase() }
+    }
+}
+
+/** App standby bucket (UsageStatsManager.STANDBY_BUCKET_*). */
+enum class StandbyBucket(val value: Int, val shellName: String?, val settable: Boolean) {
+    EXEMPTED(5, null, false),
+    ACTIVE(10, "active", true),
+    WORKING_SET(20, "working_set", true),
+    FREQUENT(30, "frequent", true),
+    RARE(40, "rare", true),
+    RESTRICTED(45, "restricted", true),
+    NEVER(50, null, false),
+    ;
+
+    companion object {
+        fun fromValue(value: Int): StandbyBucket? = entries.firstOrNull { it.value == value }
+        val SETTABLE: List<StandbyBucket> = entries.filter { it.settable }
+    }
+}
+
+/** Kind of entry in `dumpsys deviceidle whitelist`. */
+enum class PowerAllowlistKind {
+    /** `system-excidle`: exempt from app standby only, still subject to Doze. */
+    SYSTEM_EXCEPT_IDLE,
+    /** `system`: exempt from battery optimization by the system image. */
+    SYSTEM,
+    /** `user`: the user turned battery optimization off ("Unrestricted"). */
+    USER,
+}
+
+/** Summary shown as a pill (icon + text). */
+enum class BackgroundStatus { ALLOWED, RESTRICTED, PARTIAL, UNKNOWN }
+
+/** Background state of one package, as read back from the system. Null fields are unknown. */
+data class BackgroundSnapshot(
+    val runAnyInBackground: AppOpMode?,
+    val runInBackground: AppOpMode?,
+    val bucket: StandbyBucket?,
+    val bucketValue: Int? = bucket?.value,
+    val allowlist: PowerAllowlistKind?,
+    /** False when the allowlist could not be read; then [allowlist] is meaningless. */
+    val allowlistKnown: Boolean = true,
+) {
+    val status: BackgroundStatus get() = backgroundStatus(runAnyInBackground, runInBackground)
+
+    /** Exempt from battery optimization (Android "Unrestricted"), null if unknown. */
+    val batteryOptimizationExempt: Boolean?
+        get() = if (!allowlistKnown) null else allowlist == PowerAllowlistKind.SYSTEM || allowlist == PowerAllowlistKind.USER
+}
+
+/** A change the user can request. */
+sealed interface BackgroundChange {
+    /** `allowed = false` restricts both background ops; `true` restores them to `allow`. */
+    data class SetBackground(val allowed: Boolean) : BackgroundChange
+    data class SetBucket(val bucket: StandbyBucket) : BackgroundChange
+}
+
+fun backgroundStatus(runAny: AppOpMode?, runInBackground: AppOpMode?): BackgroundStatus = when {
+    runAny == null -> BackgroundStatus.UNKNOWN
+    runAny.restricts -> BackgroundStatus.RESTRICTED
+    runInBackground?.restricts == true -> BackgroundStatus.PARTIAL
+    else -> BackgroundStatus.ALLOWED
+}
+
+/**
+ * Builds the `cmd appops` / `am` / `dumpsys` commands for background controls and parses their
+ * output. Package names are validated with [PackageCommands.isValidPackageName] before being
+ * interpolated, and every other argument comes from a closed enum, so nothing user-controlled
+ * reaches the shell unchecked.
+ */
+object BackgroundCommands {
+
+    const val OP_RUN_ANY_IN_BACKGROUND = "RUN_ANY_IN_BACKGROUND"
+    const val OP_RUN_IN_BACKGROUND = "RUN_IN_BACKGROUND"
+    val BACKGROUND_OPS = listOf(OP_RUN_ANY_IN_BACKGROUND, OP_RUN_IN_BACKGROUND)
+
+    private fun valid(userId: Int, packageName: String) = userId >= 0 && PackageCommands.isValidPackageName(packageName)
+
+    private fun checkOp(op: String) = require(op in BACKGROUND_OPS) { "Unsupported op $op" }
+
+    fun getOp(userId: Int, packageName: String, op: String): String? {
+        checkOp(op)
+        return if (valid(userId, packageName)) "cmd appops get --user $userId $packageName $op" else null
+    }
+
+    fun setOp(userId: Int, packageName: String, op: String, mode: AppOpMode): String? {
+        checkOp(op)
+        return if (valid(userId, packageName)) "cmd appops set --user $userId $packageName $op ${mode.shellName}" else null
+    }
+
+    /** Every package of [userId] whose [op] is in [mode] (one package name per line). */
+    fun queryOp(userId: Int, op: String, mode: AppOpMode): String? {
+        checkOp(op)
+        return if (userId >= 0) "cmd appops query-op --user $userId $op ${mode.shellName}" else null
+    }
+
+    /** Bucket of one package (prints a number) or, with [packageName] null, of all (`pkg: n`). */
+    fun getStandbyBucket(userId: Int, packageName: String? = null): String? = when {
+        userId < 0 -> null
+        packageName == null -> "am get-standby-bucket --user $userId"
+        PackageCommands.isValidPackageName(packageName) -> "am get-standby-bucket --user $userId $packageName"
+        else -> null
+    }
+
+    fun setStandbyBucket(userId: Int, packageName: String, bucket: StandbyBucket): String? {
+        val name = bucket.shellName?.takeIf { bucket.settable } ?: return null
+        return if (valid(userId, packageName)) "am set-standby-bucket --user $userId $packageName $name" else null
+    }
+
+    const val POWER_ALLOWLIST = "dumpsys deviceidle whitelist"
+
+    /** Commands for [change], in order; null if any input is invalid. */
+    fun commandsFor(change: BackgroundChange, userId: Int, packageName: String): List<String>? = when (change) {
+        is BackgroundChange.SetBackground -> {
+            val mode = if (change.allowed) AppOpMode.ALLOW else AppOpMode.IGNORE
+            // Restrict the broad op first; restore it last so a partial failure errs on "restricted".
+            val ops = if (change.allowed) BACKGROUND_OPS.reversed() else BACKGROUND_OPS
+            ops.map { setOp(userId, packageName, it, mode) ?: return null }
+        }
+        is BackgroundChange.SetBucket -> listOf(setStandbyBucket(userId, packageName, change.bucket) ?: return null)
+    }
+
+    /** Whether the read-back [after] confirms [change]. */
+    fun isConfirmed(change: BackgroundChange, after: BackgroundSnapshot?): Boolean {
+        if (after == null) return false
+        return when (change) {
+            is BackgroundChange.SetBackground -> {
+                val any = after.runAnyInBackground ?: return false
+                val run = after.runInBackground ?: return false
+                if (change.allowed) !any.restricts && !run.restricts else any.restricts && run.restricts
+            }
+            is BackgroundChange.SetBucket -> after.bucketValue == change.bucket.value
+        }
+    }
+
+    // region Parsing
+
+    private val ERROR_LINE = Regex("""^(Error|Exception occurred|java\.lang\.)""")
+
+    /** True when `cmd`/`am` printed an error instead of a result (they sometimes exit 0). */
+    fun isErrorOutput(output: String): Boolean =
+        output.lineSequence().map(String::trim).any { ERROR_LINE.containsMatchIn(it) || it.startsWith("Unknown ") }
+
+    /**
+     * Effective mode of [op] from `cmd appops get <pkg> <op>`. Handles:
+     * `OP: ignore`, `OP: ignore; time=+1s`, `Uid mode: OP: ignore`, and
+     * `No operations.` followed by `Default mode: allow`. A non-default uid mode wins over the
+     * package mode (as AppOpsService evaluates it); `default` falls back to the op default.
+     * Returns null for errors or unparseable output.
+     */
+    fun parseOpMode(output: String, op: String): AppOpMode? {
+        if (isErrorOutput(output)) return null
+        var uidMode: AppOpMode? = null
+        var packageMode: AppOpMode? = null
+        var defaultMode: AppOpMode? = null
+        val opLine = Regex("""^${Regex.escape(op)}:\s*([a-z]+)""")
+        for (raw in output.lineSequence()) {
+            var line = raw.trim()
+            if (line.isEmpty()) continue
+            val isUid = line.startsWith("Uid mode:")
+            if (isUid) line = line.removePrefix("Uid mode:").trim()
+            if (line.startsWith("Default mode:")) {
+                defaultMode = AppOpMode.parse(line.removePrefix("Default mode:"))
+                continue
+            }
+            val match = opLine.find(line) ?: continue
+            val mode = AppOpMode.parse(match.groupValues[1]) ?: continue
+            if (isUid) uidMode = mode else packageMode = mode
+        }
+        val explicit = listOfNotNull(uidMode, packageMode).firstOrNull { it != AppOpMode.DEFAULT }
+        return explicit
+            ?: defaultMode
+            ?: if (uidMode == AppOpMode.DEFAULT || packageMode == AppOpMode.DEFAULT) AppOpMode.DEFAULT else null
+    }
+
+    /** Package names printed by `cmd appops query-op`; null on error output. */
+    fun parsePackageList(output: String): Set<String>? {
+        if (isErrorOutput(output)) return null
+        return output.lineSequence().map(String::trim).filter(PackageCommands::isValidPackageName).toSet()
+    }
+
+    /** Single bucket number from `am get-standby-bucket <pkg>`; null on error. */
+    fun parseStandbyBucket(output: String): Int? {
+        if (isErrorOutput(output)) return null
+        return output.trim().toIntOrNull()
+    }
+
+    /** `pkg: n` lines from `am get-standby-bucket` without a package; null on error. */
+    fun parseStandbyBuckets(output: String): Map<String, Int>? {
+        if (isErrorOutput(output)) return null
+        val result = HashMap<String, Int>()
+        for (line in output.lineSequence()) {
+            val parts = line.trim().split(':')
+            if (parts.size != 2) continue
+            val name = parts[0].trim()
+            val value = parts[1].trim().toIntOrNull() ?: continue
+            if (PackageCommands.isValidPackageName(name)) result[name] = value
+        }
+        return result
+    }
+
+    /**
+     * `dumpsys deviceidle whitelist` lines `kind,package,uid`. A package can appear more than
+     * once; the strongest kind wins (user > system > system-excidle). Null on error output.
+     */
+    fun parsePowerAllowlist(output: String): Map<String, PowerAllowlistKind>? {
+        if (isErrorOutput(output)) return null
+        val result = HashMap<String, PowerAllowlistKind>()
+        for (line in output.lineSequence()) {
+            val parts = line.trim().split(',')
+            if (parts.size < 2) continue
+            val kind = when (parts[0].trim()) {
+                "system-excidle" -> PowerAllowlistKind.SYSTEM_EXCEPT_IDLE
+                "system" -> PowerAllowlistKind.SYSTEM
+                "user" -> PowerAllowlistKind.USER
+                else -> continue
+            }
+            val name = parts[1].trim()
+            if (!PackageCommands.isValidPackageName(name)) continue
+            val previous = result[name]
+            if (previous == null || kind.ordinal > previous.ordinal) result[name] = kind
+        }
+        return result
+    }
+
+    // endregion
+}
+
+/** Bulk background state of all packages of a user, from four commands. */
+data class BackgroundOverview(
+    /** Packages with RUN_ANY_IN_BACKGROUND = ignore; null when the query failed. */
+    val runAnyRestricted: Set<String>?,
+    /** Packages with RUN_IN_BACKGROUND = ignore; null when the query failed. */
+    val runRestricted: Set<String>?,
+    val buckets: Map<String, Int>,
+    val allowlist: Map<String, PowerAllowlistKind>?,
+) {
+    fun statusOf(packageName: String): BackgroundStatus {
+        val any = runAnyRestricted ?: return BackgroundStatus.UNKNOWN
+        return when {
+            packageName in any -> BackgroundStatus.RESTRICTED
+            runRestricted?.contains(packageName) == true -> BackgroundStatus.PARTIAL
+            else -> BackgroundStatus.ALLOWED
+        }
+    }
+
+    fun snapshotOf(packageName: String): BackgroundSnapshot {
+        val status = statusOf(packageName)
+        val bucketValue = buckets[packageName]
+        return BackgroundSnapshot(
+            runAnyInBackground = when (status) {
+                BackgroundStatus.UNKNOWN -> null
+                BackgroundStatus.RESTRICTED -> AppOpMode.IGNORE
+                else -> AppOpMode.ALLOW
+            },
+            runInBackground = when {
+                runRestricted == null -> null
+                packageName in runRestricted -> AppOpMode.IGNORE
+                else -> AppOpMode.ALLOW
+            },
+            bucket = bucketValue?.let(StandbyBucket::fromValue),
+            bucketValue = bucketValue,
+            allowlist = allowlist?.get(packageName),
+            allowlistKnown = allowlist != null,
+        )
+    }
+}

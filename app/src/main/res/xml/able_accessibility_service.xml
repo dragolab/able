@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Able Accessibility service (LOCK-001/LOCK-002, APPLOCK-001, BTN-001). Baseline configuration;
+    AbleAccessibilityService adds at runtime, only while the matching feature is on:
+    - flagRequestFilterKeyEvents (button shortcuts; allowed by canRequestFilterKeyEvents);
+    - typeViewClicked|typeViewLongClicked|typeViewScrolled (experimental home-screen double tap).
+    Window content is retrieved only to recognise SystemUI scenes by view ID; window events carry
+    the foreground package for app lock; gestures are dispatched only to replay the user's own
+    swipes on the lock screen. No touch exploration, no motion-event interception. Nothing is
+    stored or sent.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged|typeWindowContentChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows|flagReportViewIds|flagIncludeNotImportantViews"
+    android:canPerformGestures="true"
+    android:canRequestFilterKeyEvents="true"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/lock_accessibility_service_description"
+    android:summary="@string/lock_accessibility_service_summary"
+    android:notificationTimeout="100" />

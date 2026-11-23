@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_label">Able: gesti e blocco app</string>
+    <string name="accessibility_service_description">Servizio facoltativo usato solo quando chiedi ad Able di bloccare lo schermo. Non legge il contenuto dello schermo.</string>
+
+    <!-- Riquadri Impostazioni rapide -->
+    <string name="tile_nfc_label">NFC</string>
+    <string name="tile_autobrightness_label">Luminosità automatica</string>
+    <string name="tile_usb_adb_label">Debug USB</string>
+    <string name="tile_wireless_adb_label">Debug wireless</string>
+    <string name="tile_private_dns_label">DNS privato</string>
+    <string name="tile_torch_label">Torcia</string>
+    <string name="tile_lock_label">Blocco schermo</string>
+    <string name="tile_custom1_label">Slot Able 1</string>
+    <string name="tile_custom2_label">Slot Able 2</string>
+    <string name="tile_custom3_label">Slot Able 3</string>
+    <string name="tile_custom4_label">Slot Able 4</string>
+
+    <!-- Widget (Glance) -->
+    <string name="widget_battery_name">Batteria e profilo Able</string>
+    <string name="widget_battery_description">Livello batteria, stato di carica e profilo Able selezionato. Si aggiorna agli eventi della batteria e raramente negli altri casi.</string>
+    <string name="widget_quick_actions_name">Azioni rapide Able</string>
+    <string name="widget_quick_actions_description">Scorciatoie per torcia, NFC, salvataggio GPS e blocco schermo.</string>
+    <string name="widget_battery_unavailable">Stato batteria non disponibile</string>
+    <string name="widget_battery_charging">In carica</string>
+    <string name="widget_battery_discharging">A batteria</string>
+    <string name="widget_battery_profile">Profilo: %1$s</string>
+    <string name="widget_updated_at">Aggiornato alle %1$s</string>
+</resources>
