@@ -65,11 +65,13 @@ class UpdateActions(
 )
 
 /**
- * The status card goes to the top of Settings while an update is known or an installation is
- * in progress, otherwise it stays inside the Updates section; it is never shown twice.
+ * Only an update found by the automatic check (not yet acted on) is announced at the top of
+ * Settings. Results of a manual check, downloads and installs stay inside the Updates section,
+ * right under the button the user tapped (it used to jump to the top, out of view, so a found
+ * update looked like nothing happened). The card is never shown twice.
  */
 internal val UpdaterState.isProminent: Boolean
-    get() = check is CheckState.Available || check is CheckState.KnownNewer || install != InstallState.Idle
+    get() = check is CheckState.KnownNewer && install == InstallState.Idle
 
 internal fun LazyListScope.updateTopCard(state: UpdaterState, actions: UpdateActions) {
     if (!state.isProminent) return
@@ -124,7 +126,7 @@ internal fun LazyListScope.updatesSection(state: UpdaterState, appVersion: Strin
             }
         }
     }
-    if (!state.isProminent && state.check != CheckState.Idle) {
+    if (!state.isProminent && (state.check != CheckState.Idle || state.install != InstallState.Idle)) {
         item(key = "updates_result") { UpdateStatusCard(state, actions) }
     }
 }
