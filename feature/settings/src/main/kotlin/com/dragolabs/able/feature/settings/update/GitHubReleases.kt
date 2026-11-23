@@ -16,6 +16,23 @@ import javax.net.ssl.SSLException
 object UpdateSource {
     const val OWNER_REPO = "dragolab/able"
     const val RELEASES_URL = "https://api.github.com/repos/$OWNER_REPO/releases?per_page=20"
+
+    /**
+     * Release manifest committed to the repository with every release (`docs/releases/latest.json`,
+     * same fields as a GitHub release object, in a one-element array). Served by
+     * raw.githubusercontent.com, which is not subject to the REST API's 60 requests/hour per IP
+     * limit (shared by everyone behind the same mobile-carrier or office IP). Primary source;
+     * the REST API is the fallback (ADR-051 revised 2026-11-23).
+     */
+    const val MANIFEST_URL = "https://raw.githubusercontent.com/$OWNER_REPO/main/docs/releases/latest.json"
+
+    /**
+     * Appends a per-minute cache-busting parameter: both endpoints are behind shared caches
+     * (`Cache-Control: public, max-age=60` on the API, about 5 minutes on raw), which returned a
+     * list without a release published moments earlier ("no updates").
+     */
+    fun fresh(url: String, nowMs: Long = System.currentTimeMillis()): String =
+        url + (if ('?' in url) "&" else "?") + "t=" + nowMs / 60_000
     const val RELEASES_PAGE = "https://github.com/$OWNER_REPO/releases"
 
     /** Generic client name only: no device, account or Able install identifiers. */
@@ -146,9 +163,30 @@ class UpdateException(val error: UpdateError) : Exception(error.toString())
 /** JDK-only HTTP client for the GitHub REST API (no third-party libraries, ADR-051). */
 class GitHubReleaseClient {
 
-    /** Blocking; call from an IO dispatcher. */
+    /**
+     * Blocking; call from an IO dispatcher. Reads the release manifest first and falls back to
+     * the REST API when the manifest is missing or unreadable; the API error is reported only
+     * when both fail.
+     */
     fun fetchReleases(): List<GitHubRelease> {
-        val connection = open(UpdateSource.RELEASES_URL, accept = "application/vnd.github+json")
+        val manifest = runCatching { fetchManifest() }.getOrNull()
+        if (!manifest.isNullOrEmpty()) return manifest
+        return fetchFromApi()
+    }
+
+    private fun fetchManifest(): List<GitHubRelease> {
+        val connection = open(UpdateSource.fresh(UpdateSource.MANIFEST_URL), accept = "application/json")
+        try {
+            if (connection.responseCode !in 200..299) throw UpdateException(UpdateError.Http(connection.responseCode))
+            val body = connection.inputStream.bufferedReader().use { it.readText() }
+            return ReleaseSelector.parse(body)
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun fetchFromApi(): List<GitHubRelease> {
+        val connection = open(UpdateSource.fresh(UpdateSource.RELEASES_URL), accept = "application/vnd.github+json")
         try {
             connection.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
             val code = connection.responseCode
@@ -201,6 +239,7 @@ class GitHubReleaseClient {
             useCaches = false
             setRequestProperty("Accept", accept)
             setRequestProperty("User-Agent", UpdateSource.USER_AGENT)
+            setRequestProperty("Cache-Control", "no-cache")
         }
     }
 }

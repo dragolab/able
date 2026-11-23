@@ -106,4 +106,23 @@ class ReleaseSelectorTest {
         assertEquals(InstallFailure.Aborted, AppUpdater.installFailure(android.content.pm.PackageInstaller.STATUS_FAILURE_ABORTED))
         assertEquals(InstallFailure.Generic, AppUpdater.installFailure(android.content.pm.PackageInstaller.STATUS_FAILURE))
     }
+
+    @Test
+    fun fresh_addsAPerMinuteCacheBuster() {
+        org.junit.Assert.assertEquals(
+            "https://example.org/a.json?t=2",
+            UpdateSource.fresh("https://example.org/a.json", nowMs = 120_500),
+        )
+        org.junit.Assert.assertEquals(
+            "https://example.org/r?per_page=20&t=1",
+            UpdateSource.fresh("https://example.org/r?per_page=20", nowMs = 60_000),
+        )
+    }
+
+    @Test
+    fun manifest_isAOneElementReleaseArray() {
+        val body = """[{"tag_name":"able-0.9.3-beta","name":"able-0.9.3-beta","assets":[{"name":"able-0.9.3-beta.apk","size":10,"browser_download_url":"https://github.com/dragolab/able/releases/download/able-0.9.3-beta/able-0.9.3-beta.apk"}]}]"""
+        val check = ReleaseSelector.select(ReleaseSelector.parse(body), AppVersion.parse("0.9.2-beta")!!)
+        org.junit.Assert.assertTrue(check is ReleaseCheck.Available)
+    }
 }

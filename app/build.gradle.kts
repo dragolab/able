@@ -16,8 +16,8 @@ android {
         applicationId = "com.dragolabs.able"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 11
-        versionName = "0.9.2-beta"
+        versionCode = 12
+        versionName = "0.9.3-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

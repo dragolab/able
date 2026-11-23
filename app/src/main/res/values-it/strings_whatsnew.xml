@@ -4,9 +4,8 @@
     <string name="whats_new_ok">Ho capito</string>
     <string name="whats_new_full_notes">Note complete</string>
     <string-array name="whats_new_items">
-        <item>I pop-up di aiuto ora scorrono, così le spiegazioni lunghe si leggono per intero.</item>
-        <item>Doppio tocco sulla Home: il tempo tra i tocchi ora va da 50 a 450 ms.</item>
-        <item>Dopo ogni aggiornamento questa finestra mostra cosa è cambiato.</item>
-        <item>I risultati degli aggiornamenti ora compaiono subito sotto “Cerca aggiornamenti”.</item>
+        <item>Gli aggiornamenti ora vengono trovati in modo affidabile: Able legge un piccolo file della release nel repository, che non ha il limite di richieste di GitHub e non viene mai servito vecchio.</item>
+        <item>Se non è raggiungibile, il controllo usa come prima l\'API di GitHub.</item>
+        <item>Dalla 0.9.2: i pop-up di aiuto scorrono, il tempo del doppio tocco va da 50 a 450 ms e questa finestra mostra le novità dopo ogni aggiornamento.</item>
     </string-array>
 </resources>
