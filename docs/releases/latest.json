@@ -1,17 +1,17 @@
 [
   {
-    "tag_name": "able-0.9.3-beta",
-    "name": "able-0.9.3-beta",
-    "body": "Able 0.9.3 beta.\n\n- The updater now finds new versions reliably: it reads a small release file from the repository, which is not subject to GitHub's API request limit (shared by everyone on the same mobile network) and is never served stale. The GitHub API remains as a fallback.\n\nIf Able 0.9.1 or 0.9.2 says the request limit was reached or that there are no updates, install this APK once manually; from 0.9.3 on, updates work from Settings → Updates.",
+    "tag_name": "able-0.9.4-beta",
+    "name": "able-0.9.4-beta",
+    "body": "Able 0.9.4 beta.\n\n- New Network section in Tools: Speed test, Hotspot, Private DNS (now its own tool) and Downdetector.\n- Speed test: ping, jitter, download and upload against Cloudflare, with a live gauge and local history.\n- Downdetector: opens the outage page of a service on your country's Downdetector site, with favourites.\n- Drinking fountains: map of public drinking-water points from OpenStreetMap (Overpass API), last tool in Measure & location. Public Overpass servers are sometimes overloaded: Able then says so and lets you retry.\n- Apps → Background: Restricted / Optimized / Unrestricted, block background mobile data, soft stop, and reviewed apps with change detection and restore (NoMoreBackground parity).\n- Home-screen double tap is less sensitive: taps on icons and page swipes no longer count.\n\nUpdate from Settings → Updates (0.9.3 or later), or install this APK over any earlier beta.",
     "draft": false,
     "prerelease": true,
-    "published_at": "2026-11-23T20:08:04Z",
-    "html_url": "https://github.com/dragolab/able/releases/tag/able-0.9.3-beta",
+    "published_at": "2026-11-23T23:47:29Z",
+    "html_url": "https://github.com/dragolab/able/releases/tag/able-0.9.4-beta",
     "assets": [
       {
-        "name": "able-0.9.3-beta.apk",
-        "size": 12864213,
-        "browser_download_url": "https://github.com/dragolab/able/releases/download/able-0.9.3-beta/able-0.9.3-beta.apk",
+        "name": "able-0.9.4-beta.apk",
+        "size": 13206918,
+        "browser_download_url": "https://github.com/dragolab/able/releases/download/able-0.9.4-beta/able-0.9.4-beta.apk",
         "content_type": "application/vnd.android.package-archive"
       }
     ]
