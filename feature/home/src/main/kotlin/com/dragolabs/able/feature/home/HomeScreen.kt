@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dragolabs.able.core.designsystem.component.AbleIconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.platform.LocalDensity
 import com.dragolabs.able.core.designsystem.component.AbleWordmark
 import com.dragolabs.able.core.designsystem.component.AbleTopLevelScaffold
 import com.dragolabs.able.core.designsystem.component.AbleSharedKeys
@@ -81,8 +83,13 @@ fun HomeScreen(
         modifier = modifier,
         onOpenSettings = actions.onOpenSettings,
         snackbarHostState = snackbarHostState,
-        // Expanded header: the "Able" title only; collapsed bar: the brand lockup (BRAND-001).
-        collapsedTitle = { AbleWordmark(height = 28.dp, contentDescription = null) },
+        // The brand lockup replaces the "Able" text in both the expanded header and the collapsed
+        // bar (BRAND-001), sized from the bar's title style for each state.
+        titleContent = {
+            val fontSize = LocalTextStyle.current.fontSize
+            val height = with(LocalDensity.current) { fontSize.toDp() } * 1.15f
+            AbleWordmark(height = height, contentDescription = null)
+        },
         actions = {
             AbleIconButton(onClick = { showCustomize = true }) {
                 Icon(Icons.Rounded.DashboardCustomize, contentDescription = stringResource(R.string.home_customize))

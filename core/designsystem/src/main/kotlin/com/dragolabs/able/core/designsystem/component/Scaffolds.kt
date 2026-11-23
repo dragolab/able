@@ -26,7 +26,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -71,7 +70,12 @@ fun AbleTopLevelScaffold(
     actions: @Composable RowScope.() -> Unit = {},
     snackbarHostState: SnackbarHostState? = null,
     floatingActionButton: @Composable () -> Unit = {},
-    collapsedTitle: (@Composable () -> Unit)? = null,
+    /**
+     * Replaces the title text in both the expanded header and the collapsed bar (e.g. the brand
+     * lockup on Home). Sized from `LocalTextStyle`, which the bar sets per state. Exposed to
+     * accessibility as a heading named [title].
+     */
+    titleContent: (@Composable () -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -81,10 +85,16 @@ fun AbleTopLevelScaffold(
         topBar = {
             LargeFlexibleTopAppBar(
                 title = {
-                    if (collapsedTitle == null) {
+                    if (titleContent == null) {
                         Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     } else {
-                        CrossfadingTitle(title, collapsedTitle) { scrollBehavior.state.collapsedFraction }
+                        Box(
+                            modifier = Modifier.clearAndSetSemantics {
+                                heading()
+                                contentDescription = title
+                            },
+                            contentAlignment = Alignment.CenterStart,
+                        ) { titleContent() }
                     }
                 },
                 subtitle = subtitle?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
@@ -110,39 +120,6 @@ fun AbleTopLevelScaffold(
         floatingActionButton = floatingActionButton,
         content = content,
     )
-}
-
-/**
- * Title that shows [title] text while the header is expanded and crossfades to [collapsedTitle]
- * (for example the brand mark) as the bar collapses. The fraction is read in the draw phase
- * only, so scrolling does not recompose. Exposed to accessibility as one heading named [title].
- */
-@Composable
-private fun CrossfadingTitle(
-    title: String,
-    collapsedTitle: @Composable () -> Unit,
-    collapsedFraction: () -> Float,
-) {
-    Box(
-        modifier = Modifier.clearAndSetSemantics {
-            heading()
-            contentDescription = title
-        },
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        Text(
-            title,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.graphicsLayer { alpha = 1f - collapsedFraction().coerceIn(0f, 1f) },
-        )
-        Box(
-            modifier = Modifier.graphicsLayer { alpha = collapsedFraction().coerceIn(0f, 1f) },
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            collapsedTitle()
-        }
-    }
 }
 
 /** Opaque colors so scrolled content never shows through the collapsed title (NFR-ACC-002). */

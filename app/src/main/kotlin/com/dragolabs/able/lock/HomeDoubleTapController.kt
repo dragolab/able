@@ -7,7 +7,6 @@ import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
-import android.os.SystemClock
 import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
@@ -16,31 +15,28 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
+import android.view.inputmethod.InputMethodManager
 import com.dragolabs.able.applock.ForegroundPackages
 import com.dragolabs.able.feature.tools.lock.HomeDoubleTapStatus
 import com.dragolabs.able.feature.tools.lock.HomeTapAttempt
 import com.dragolabs.able.feature.tools.lock.LockGestureSettings
 
 /**
- * Home-screen double tap (LOCK-001), modelled on how "Double Tap Screen Off" (jamworks) does it
- * (decompiled reference build v1.22 analysed 2026-11-23): Able never holds, replays or delays a
- * touch, so the launcher's page scrolling is untouched.
+ * Home-screen double tap (LOCK-001, ADR-053): the same logic as the reference app the owner
+ * provided, "Double Tap Screen Off" (jamworks, decompiled build v1.22: `PixelService`, `d30`,
+ * `c30` case 8), which works reliably on the owner's Pixel 8 Pro. Re-implemented, not copied.
  *
- * - While the feature is on and the screen is on and unlocked, a 1×1 px transparent
- *   `TYPE_ACCESSIBILITY_OVERLAY` with `FLAG_NOT_FOCUSABLE | FLAG_NOT_TOUCH_MODAL |
- *   FLAG_WATCH_OUTSIDE_TOUCH` stays attached. Android delivers one `ACTION_OUTSIDE` per touch that
- *   starts outside it ("only the location of the first down as an ACTION_OUTSIDE",
- *   WindowManager.LayoutParams#FLAG_WATCH_OUTSIDE_TOUCH) and the touch itself still goes to the
- *   app below. Android withholds the position of touches on other apps' windows, so only the
- *   timing is used. The watcher no longer depends on window-change events to know whether the
- *   launcher is in front (those were missed when returning home with a gesture, which is why
- *   the gesture used to work only sometimes).
- * - [HomeTapClassifier] pairs the touch-downs and rejects pairs where the launcher reported a
- *   click, long click or scroll.
- * - At decision time Able checks live, from the window list, that the default launcher is the
- *   active app window, that its home pages (`id/workspace` on Launcher3-based launchers such as
- *   Pixel Launcher) are visible and the app list is not, and that SystemUI shows no shade.
- *   Outside the launcher nothing happens.
+ * - While the feature is on, a 1×1 px transparent `TYPE_ACCESSIBILITY_OVERLAY` at the top-left
+ *   corner with `FLAG_NOT_FOCUSABLE | FLAG_NOT_TOUCH_MODAL | FLAG_WATCH_OUTSIDE_TOUCH |
+ *   FLAG_HARDWARE_ACCELERATED` stays attached for the whole life of the service, as in the
+ *   reference app (it is not removed and re-added on screen or lock changes). Android sends it one
+ *   `ACTION_OUTSIDE` per touch-down anywhere else; the touch itself still goes to the app below.
+ * - [HomeTapClassifier] applies the reference timing rule and decides at the second touch-down.
+ * - Then, as the reference app does at that moment: the phone must be unlocked, no keyboard
+ *   window may be on screen, and the *focused* application window must be the default launcher
+ *   showing its home pages (its `id/workspace` visible, checked on a refreshed node tree;
+ *   launchers without that ID are accepted on the package check alone).
+ * - Then the screen is locked (`GLOBAL_ACTION_LOCK_SCREEN`), after the optional haptic.
  */
 internal class HomeDoubleTapController(
     private val service: AccessibilityService,
@@ -52,16 +48,15 @@ internal class HomeDoubleTapController(
     private val windowManager = service.getSystemService(WindowManager::class.java)
     private val keyguard = service.getSystemService(KeyguardManager::class.java)
     private val power = service.getSystemService(PowerManager::class.java)
+    private val inputMethods = service.getSystemService(InputMethodManager::class.java)
     private val classifier = HomeTapClassifier()
 
     private var enabled = false
     private var timeoutMs = LockGestureSettings.DEFAULT_TIMEOUT_MS
     private var view: View? = null
 
-    private val decideRunnable = Runnable { decide() }
-
-    /** True while the feature wants the launcher's click/scroll events. */
-    val wantsInteractionEvents: Boolean get() = enabled
+    /** The reference app needs no click/scroll events for this; neither does Able any more. */
+    val wantsInteractionEvents: Boolean get() = false
 
     val attachedView: View? get() = view
 
@@ -71,33 +66,21 @@ internal class HomeDoubleTapController(
         enabled = config.homeEnabled
         if (enabled && !wasEnabled) settings.reportHomeStatus(HomeDoubleTapStatus.UNKNOWN)
         timeoutMs = config.timeoutMs
-        if (enabled && packages.launcherPackage == null) packages.refresh()
+        if (enabled) packages.refresh()
         if (enabled && packages.launcherPackage == null) settings.reportHomeStatus(HomeDoubleTapStatus.NO_LAUNCHER)
         update()
     }
 
-    /**
-     * The foreground app changed. Nothing to do: the launcher is checked live at decision time,
-     * and resetting here cancelled real double taps when SystemUI briefly reported a window.
-     */
     @Suppress("UNUSED_PARAMETER")
     fun onForeground(pkg: String) = Unit
 
-    /** Launcher click, long click or scroll: the touches were not on empty space. */
-    fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (!enabled || view == null) return
-        if (event.packageName?.toString() != packages.launcherPackage) return
-        when (event.eventType) {
-            AccessibilityEvent.TYPE_VIEW_CLICKED,
-            AccessibilityEvent.TYPE_VIEW_LONG_CLICKED,
-            -> classifier.onLauncherClick(event.eventTime)
-            AccessibilityEvent.TYPE_VIEW_SCROLLED -> classifier.onLauncherScroll(event.eventTime)
-        }
-    }
+    @Suppress("UNUSED_PARAMETER")
+    fun onAccessibilityEvent(event: AccessibilityEvent) = Unit
 
     fun onScreenStateChanged() {
         classifier.reset()
-        handler.removeCallbacks(decideRunnable)
+        // The default launcher can change while the screen is off.
+        if (enabled && power?.isInteractive == true) packages.refresh()
         update()
     }
 
@@ -107,16 +90,13 @@ internal class HomeDoubleTapController(
         handler.removeCallbacksAndMessages(null)
     }
 
-    private fun screenUsable(): Boolean = power?.isInteractive == true && keyguard?.isKeyguardLocked != true
-
     private fun update() {
-        if (enabled && screenUsable()) {
+        if (enabled) {
             if (view == null) {
                 val added = add()
                 settings.reportHomeStatus(if (added) HomeDoubleTapStatus.WATCHING else HomeDoubleTapStatus.FAILED)
             }
         } else {
-            handler.removeCallbacks(decideRunnable)
             view?.let { runCatching { windowManager?.removeView(it) } }
             view = null
         }
@@ -146,39 +126,77 @@ internal class HomeDoubleTapController(
             wm.addView(watcher, params)
             view = watcher
             true
-        }.getOrDefault(false)
+        }.onFailure { Log.w(TAG, "watcher not added", it) }.getOrDefault(false)
     }
 
     private fun onOutsideTouch(eventTimeMs: Long) {
-        val decideAt = classifier.onTouchDown(eventTimeMs, timeoutMs)
-        if (decideAt == null) {
-            val slow = classifier.lastSlowGapMs
-            if (slow > 0 && launcherInFrontQuick()) report(HomeTapAttempt.TOO_SLOW, slow)
+        if (!enabled || power?.isInteractive != true || keyguard?.isKeyguardLocked == true) {
+            classifier.reset()
             return
         }
-        handler.removeCallbacks(decideRunnable)
-        handler.postAtTime(decideRunnable, decideAt.coerceAtLeast(SystemClock.uptimeMillis()))
+        when (val result = classifier.onTouchDown(eventTimeMs, timeoutMs)) {
+            HomeTapClassifier.Result.None -> Unit
+            is HomeTapClassifier.Result.TooSlow -> {
+                if (focusedLauncherRoot() != null) report(HomeTapAttempt.TOO_SLOW, result.gapMs)
+            }
+            is HomeTapClassifier.Result.DoubleTap -> onDoubleTapCandidate(result.gapMs)
+        }
     }
 
-    private fun decide() {
-        if (!enabled || !screenUsable()) return
-        val gap = classifier.lastPairGapMs
-        val decision = classifier.decideDetailed()
-        if (decision == HomeTapClassifier.Decision.NONE) return
+    private fun onDoubleTapCandidate(gapMs: Long) {
         val windows = runCatching { service.windows }.getOrNull().orEmpty()
-        val home = launcherHomeVisible(windows)
-        // Pairs outside the launcher are none of Able's business: not reported.
-        if (home == HomeCheck.OTHER_APP) return
-        when {
-            decision == HomeTapClassifier.Decision.LAUNCHER_INTERACTION -> report(HomeTapAttempt.ICON_OR_SWIPE, gap)
-            home == HomeCheck.NOT_HOME_PAGES -> report(HomeTapAttempt.NOT_HOME_PAGES, gap)
-            runCatching { SystemUiLockState.read(windows, keyguardLocked = false) }
-                .getOrDefault(SystemUiLockState.Scene.UNKNOWN) == SystemUiLockState.Scene.PANEL_OR_BOUNCER ->
-                report(HomeTapAttempt.SHADE_OPEN, gap)
-            else -> {
-                report(HomeTapAttempt.LOCKED, gap)
-                onDoubleTap(view)
-            }
+        if (keyboardShown(windows)) {
+            classifier.cancelTrigger()
+            return
+        }
+        val root = focusedLauncherRoot(windows)
+        if (root == null) {
+            // Another app (or SystemUI) is focused: not Able's business, nothing reported.
+            classifier.cancelTrigger()
+            return
+        }
+        if (!homePagesVisible(root)) {
+            classifier.cancelTrigger()
+            report(HomeTapAttempt.NOT_HOME_PAGES, gapMs)
+            return
+        }
+        report(HomeTapAttempt.LOCKED, gapMs)
+        onDoubleTap(view)
+    }
+
+    /** Root of the focused application window when it belongs to the default launcher. */
+    private fun focusedLauncherRoot(
+        windows: List<AccessibilityWindowInfo> = runCatching { service.windows }.getOrNull().orEmpty(),
+    ): AccessibilityNodeInfo? {
+        val launcher = packages.launcherPackage ?: return null
+        for (window in windows) {
+            if (window.type != AccessibilityWindowInfo.TYPE_APPLICATION && window.type != AccessibilityWindowInfo.TYPE_SYSTEM) continue
+            if (!window.isFocused) continue
+            val root = runCatching { window.root }.getOrNull() ?: continue
+            if (root.packageName?.toString() == launcher) return root
+        }
+        // Fallback when the window list is not available yet.
+        val active = runCatching { service.rootInActiveWindow }.getOrNull() ?: return null
+        return active.takeIf { it.packageName?.toString() == launcher }
+    }
+
+    /** The reference app's check: the launcher's `id/workspace` is visible to the user. */
+    private fun homePagesVisible(root: AccessibilityNodeInfo): Boolean {
+        val launcher = packages.launcherPackage ?: return false
+        runCatching { root.refresh() }
+        val workspace = runCatching { root.findAccessibilityNodeInfosByViewId("$launcher:id/workspace") }
+            .getOrNull().orEmpty()
+        return workspace.isEmpty() || workspace.any(AccessibilityNodeInfo::isVisibleToUser)
+    }
+
+    /** As in the reference app: no double tap while a keyboard window is on screen. */
+    private fun keyboardShown(windows: List<AccessibilityWindowInfo>): Boolean {
+        if (windows.any { it.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD }) return true
+        val imePackages = runCatching { inputMethods?.enabledInputMethodList?.map { it.packageName }?.toSet() }
+            .getOrNull().orEmpty()
+        if (imePackages.isEmpty()) return false
+        return windows.any { window ->
+            runCatching { window.root?.packageName?.toString() }.getOrNull() in imePackages
         }
     }
 
@@ -186,38 +204,6 @@ internal class HomeDoubleTapController(
         Log.i(TAG, "home double tap: $attempt gap=${gapMs}ms timeout=${timeoutMs}ms")
         settings.reportHomeAttempt(attempt, gapMs.toInt())
     }
-
-    /** Cheap check used only to decide whether a slow pair is worth reporting. */
-    private fun launcherInFrontQuick(): Boolean {
-        val launcher = packages.launcherPackage ?: return false
-        return runCatching { service.rootInActiveWindow?.packageName?.toString() == launcher }.getOrDefault(false)
-    }
-
-    private enum class HomeCheck { HOME_PAGES, NOT_HOME_PAGES, OTHER_APP }
-
-    /**
-     * True when the default launcher is the active application window and shows its home pages.
-     * Launchers without the Launcher3 view IDs are accepted on the package check alone.
-     */
-    private fun launcherHomeVisible(windows: List<AccessibilityWindowInfo>): HomeCheck {
-        val launcher = packages.launcherPackage ?: return HomeCheck.OTHER_APP
-        val candidates = windows.filter { it.type == AccessibilityWindowInfo.TYPE_APPLICATION }
-        val app = candidates.firstOrNull { it.isActive || it.isFocused } ?: candidates.firstOrNull()
-        val root = runCatching { app?.root }.getOrNull()
-            ?: runCatching { service.rootInActiveWindow }.getOrNull()
-            ?: return HomeCheck.OTHER_APP
-        if (root.packageName?.toString() != launcher) return HomeCheck.OTHER_APP
-        if (anyVisible(root, "$launcher:id/apps_view")) return HomeCheck.NOT_HOME_PAGES
-        val workspace = root.findAccessibilityNodeInfosByViewId("$launcher:id/workspace").orEmpty()
-        return if (workspace.isEmpty() || workspace.any(AccessibilityNodeInfo::isVisibleToUser)) {
-            HomeCheck.HOME_PAGES
-        } else {
-            HomeCheck.NOT_HOME_PAGES
-        }
-    }
-
-    private fun anyVisible(root: AccessibilityNodeInfo, id: String): Boolean =
-        root.findAccessibilityNodeInfosByViewId(id).orEmpty().any(AccessibilityNodeInfo::isVisibleToUser)
 
     private companion object {
         const val TAG = "AbleHomeTap"

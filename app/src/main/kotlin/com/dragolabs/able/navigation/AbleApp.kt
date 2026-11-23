@@ -20,6 +20,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
@@ -150,8 +151,9 @@ fun AbleApp(
     val backStack by navController.currentBackStack.collectAsState()
     val currentSection = backStack.lastOrNull { it.sectionIndex() != null }
         ?.sectionIndex()?.let { TopLevelDestination.entries[it] }
-    val onTopLevel = backStackEntry?.let { it.sectionIndex() != null || it.destination.hasRoute<ToolDetailRoute>() } == true
-    val isSelected: (TopLevelDestination) -> Boolean = { onTopLevel && currentSection == it }
+    // The bar is persistent (SHELL-001, revised 2026-11-23): the section that owns the current
+    // stack stays highlighted on every screen, including tools, Settings and Search.
+    val isSelected: (TopLevelDestination) -> Boolean = { currentSection == it }
     val showChrome = currentDestination?.hasRoute<OnboardingRoute>() != true &&
         currentDestination?.hasRoute<TourRoute>() != true
 
@@ -190,9 +192,10 @@ fun AbleApp(
             // Floating bar (SHELL-001): content runs edge to edge underneath the translucent,
             // blurred bar; screens get the space it covers through LocalAbleBottomBarPadding.
             val hazeState = rememberHazeState()
-            // The floating bar shows only on section roots: tool screens (and other details) get the
-            // full height, so the bar never covers their own controls (e.g. Fake GPS Start).
-            val showBar = showChrome && backStackEntry?.sectionIndex() != null
+            // The floating bar is persistent (owner request 2026-11-23): it stays fully visible on
+            // every screen after onboarding; screens keep their controls above it through
+            // LocalAbleBottomBarPadding. Re-tapping the current section returns to its start.
+            val showBar = showChrome
             val navigationInset = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
             val navigationPadding = navigationInset.asPaddingValues().calculateBottomPadding()
             val barPadding = if (showBar) navigationPadding + FloatingNavigationBarDefaults.Reserved else 0.dp
@@ -480,7 +483,10 @@ private inline fun <reified T : Any> NavGraphBuilder.ableComposable(
 private const val SECTION_SCRIM_ALPHA = 0.22f
 
 /** Section slides move by 1/[SECTION_SLIDE_FRACTION] of the width (shared-axis X). */
-private const val SECTION_SLIDE_FRACTION = 5
+private const val SECTION_SLIDE_FRACTION = 4
+
+/** Sections recede to / grow from this scale while switching. */
+private const val SECTION_SCALE = 0.92f
 private val SectionScrimSpec = spring<Float>(dampingRatio = 1f, stiffness = 380f)
 
 /** Switches section, saving the current section's stack and restoring the target's. */
@@ -496,8 +502,9 @@ private fun NavHostController.navigateToSection(route: Any) {
 
 /**
  * Chooses the NavHost transition for a pair of destinations:
- * - section ↔ section: shared-axis X — a short slide following the [TopLevelDestination] order
- *   on a lightly underdamped spring, with a quick fade-out / delayed fade-in;
+ * - section ↔ section: shared-axis X with depth — a quarter-width slide following the
+ *   [TopLevelDestination] order plus a 92 % scale, on lightly underdamped springs (a small,
+ *   visible settle), with a quick fade-out / delayed fade-in;
  * - section ↔ tool opened from one of its cards: the card's shared bounds do the app-open/close
  *   motion; the NavHost runs no competing slide/scale (the section is only dimmed);
  * - anything else: forward/back slide with fade.
@@ -508,12 +515,13 @@ private class AbleNavMotion(
     private val effects: FiniteAnimationSpec<Float>,
 ) {
     private val sectionSpring = spring(
-        dampingRatio = 0.86f,
-        stiffness = Spring.StiffnessMedium,
+        dampingRatio = 0.78f,
+        stiffness = 420f,
         visibilityThreshold = IntOffset.VisibilityThreshold,
     )
-    private val sectionFadeIn = tween<Float>(durationMillis = 210, delayMillis = 60, easing = LinearOutSlowInEasing)
-    private val sectionFadeOut = tween<Float>(durationMillis = 90, easing = FastOutLinearInEasing)
+    private val sectionScaleSpring = spring<Float>(dampingRatio = 0.72f, stiffness = 380f)
+    private val sectionFadeIn = tween<Float>(durationMillis = 240, delayMillis = 70, easing = LinearOutSlowInEasing)
+    private val sectionFadeOut = tween<Float>(durationMillis = 110, easing = FastOutLinearInEasing)
 
     fun enter(initial: NavBackStackEntry, target: NavBackStackEntry, pop: Boolean): EnterTransition {
         if (!ValueAnimator.areAnimatorsEnabled()) return EnterTransition.None
@@ -525,7 +533,10 @@ private class AbleNavMotion(
                 // screens across the display (and re-blurring the bar under them) every frame was
                 // the heaviest part of switching sections.
                 val direction = if (to > from) 1 else -1
+                // The incoming section glides in from the tab's side, grows from slightly behind
+                // and settles with a light spring overshoot, while the old one recedes.
                 slideInHorizontally(sectionSpring) { width -> direction * width / SECTION_SLIDE_FRACTION } +
+                    scaleIn(sectionScaleSpring, initialScale = SECTION_SCALE) +
                     fadeIn(sectionFadeIn)
             }
             // Tool screen grows out of its card: everything is drawn by the shared bounds.
@@ -546,6 +557,7 @@ private class AbleNavMotion(
             from != null && to != null -> {
                 val direction = if (to > from) 1 else -1
                 slideOutHorizontally(sectionSpring) { width -> -direction * width / SECTION_SLIDE_FRACTION } +
+                    scaleOut(sectionScaleSpring, targetScale = SECTION_SCALE) +
                     fadeOut(sectionFadeOut)
             }
             // No NavHost animation on either end: both stay composed (and still) while the

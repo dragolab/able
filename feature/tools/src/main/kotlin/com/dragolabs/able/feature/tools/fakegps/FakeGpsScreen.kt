@@ -66,6 +66,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dragolabs.able.core.designsystem.component.AbleButton
+import com.dragolabs.able.core.designsystem.component.LocalAbleBottomBarPadding
 import com.dragolabs.able.core.designsystem.component.AbleButtonFlow
 import com.dragolabs.able.core.designsystem.component.AbleFilterChip
 import com.dragolabs.able.core.designsystem.component.AbleHaptic
@@ -154,7 +155,8 @@ internal fun FakeGpsScreen(
     val darkTiles = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
     BottomSheetScaffold(
-        modifier = modifier,
+        // The persistent floating bar stays on screen (SHELL-001): the sheet rests above it.
+        modifier = modifier.padding(bottom = LocalAbleBottomBarPadding.current),
         scaffoldState = sheetState,
         sheetPeekHeight = SheetPeekHeight,
         snackbarHost = { SnackbarHost(snackbarHostState) },

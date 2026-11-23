@@ -1,81 +1,63 @@
 package com.dragolabs.able.lock
 
+import com.dragolabs.able.lock.HomeTapClassifier.Result
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HomeTapClassifierTest {
     private val timeout = 300
 
     @Test
-    fun twoQuickTouchesWithoutLauncherEvents_isDoubleTap() {
-        val c = HomeTapClassifier(settleMs = 300)
-        assertNull(c.onTouchDown(1_000, timeout))
-        assertEquals(1_500L, c.onTouchDown(1_200, timeout))
-        assertTrue(c.decide())
+    fun twoQuickTouches_areADoubleTapAtTheSecondTouch() {
+        val c = HomeTapClassifier()
+        assertEquals(Result.None, c.onTouchDown(1_000, timeout))
+        assertEquals(Result.DoubleTap(200), c.onTouchDown(1_200, timeout))
     }
 
     @Test
-    fun slowTouches_areNotADoubleTap() {
+    fun firstTapDuration_isAllowedOnTopOfTheTimeout() {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
-        assertNull(c.onTouchDown(1_500, timeout))
-        assertEquals(500L, c.lastSlowGapMs)
-        assertFalse(c.decide())
+        assertEquals(Result.DoubleTap(420), c.onTouchDown(1_420, timeout))
+    }
+
+    @Test
+    fun slowTouches_areReportedTooSlow() {
+        val c = HomeTapClassifier()
+        c.onTouchDown(1_000, timeout)
+        assertEquals(Result.TooSlow(500), c.onTouchDown(1_500, timeout))
+    }
+
+    @Test
+    fun verySlowTouches_areNothing() {
+        val c = HomeTapClassifier()
+        c.onTouchDown(1_000, timeout)
+        assertEquals(Result.None, c.onTouchDown(3_000, timeout))
     }
 
     @Test
     fun bounce_isIgnored() {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
-        assertNull(c.onTouchDown(1_010, timeout))
+        assertEquals(Result.None, c.onTouchDown(1_050, timeout))
     }
 
     @Test
-    fun iconClickDuringPair_cancels() {
+    fun thirdQuickTouch_doesNotTriggerAgain() {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
-        c.onLauncherInteraction(1_080)
-        c.onTouchDown(1_200, timeout)
-        assertFalse(c.decide())
+        assertEquals(Result.DoubleTap(150), c.onTouchDown(1_150, timeout))
+        assertEquals(Result.None, c.onTouchDown(1_300, timeout))
     }
 
     @Test
-    fun lateScrollEventAfterSecondTouch_cancels() {
+    fun cancelledTrigger_allowsAnImmediateRetry() {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
-        c.onTouchDown(1_200, timeout)
-        c.onLauncherInteraction(1_350)
-        assertFalse(c.decide())
-    }
-
-    @Test
-    fun oldInteraction_doesNotCancel() {
-        val c = HomeTapClassifier()
-        c.onLauncherInteraction(500)
-        c.onTouchDown(1_000, timeout)
-        c.onTouchDown(1_200, timeout)
-        assertTrue(c.decide())
-    }
-
-    @Test
-    fun thirdTouchBeforeDecision_cancels() {
-        val c = HomeTapClassifier()
-        c.onTouchDown(1_000, timeout)
-        c.onTouchDown(1_200, timeout)
-        c.onTouchDown(1_350, timeout)
-        assertFalse(c.decide())
-    }
-
-    @Test
-    fun decisionConsumesThePair() {
-        val c = HomeTapClassifier()
-        c.onTouchDown(1_000, timeout)
-        c.onTouchDown(1_200, timeout)
-        assertTrue(c.decide())
-        assertFalse(c.decide())
+        c.onTouchDown(1_150, timeout)
+        c.cancelTrigger()
+        c.onTouchDown(1_300, timeout)
+        assertEquals(Result.DoubleTap(150), c.onTouchDown(1_450, timeout))
     }
 
     @Test
@@ -83,50 +65,6 @@ class HomeTapClassifierTest {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
         c.reset()
-        assertNull(c.onTouchDown(1_200, timeout))
-    }
-
-    @Test
-    fun afterADoubleTap_aQuickThirdPairIsIgnored() {
-        val c = HomeTapClassifier()
-        c.onTouchDown(1_000, timeout)
-        c.onTouchDown(1_200, timeout)
-        assertTrue(c.decide())
-        assertNull(c.onTouchDown(1_300, timeout))
-        assertNull(c.onTouchDown(1_400, timeout))
-    }
-
-    @Test
-    fun settleDefault_isShortAfterSecondTouch() {
-        val c = HomeTapClassifier()
-        c.onTouchDown(1_000, timeout)
-        assertEquals(1_200L + HomeTapClassifier.DEFAULT_SETTLE_MS, c.onTouchDown(1_200, timeout))
-    }
-
-    @Test
-    fun firstTapDuration_isAllowedOnTopOfTheTimeout() {
-        val c = HomeTapClassifier()
-        c.onTouchDown(1_000, timeout)
-        // 380 ms down-to-down = ~100 ms tap + 280 ms gap: within a 300 ms double-tap time.
-        assertEquals(1_380L + HomeTapClassifier.DEFAULT_SETTLE_MS, c.onTouchDown(1_380, timeout))
-        assertTrue(c.decide())
-    }
-
-    @Test
-    fun scrollAfterTheSecondTouch_doesNotCancel() {
-        val c = HomeTapClassifier()
-        c.onTouchDown(1_000, timeout)
-        c.onTouchDown(1_200, timeout)
-        c.onLauncherScroll(1_300)
-        assertTrue(c.decide())
-    }
-
-    @Test
-    fun scrollBetweenTheTouches_cancels() {
-        val c = HomeTapClassifier()
-        c.onTouchDown(1_000, timeout)
-        c.onLauncherScroll(1_100)
-        c.onTouchDown(1_200, timeout)
-        assertEquals(HomeTapClassifier.Decision.LAUNCHER_INTERACTION, c.decideDetailed())
+        assertEquals(Result.None, c.onTouchDown(1_200, timeout))
     }
 }

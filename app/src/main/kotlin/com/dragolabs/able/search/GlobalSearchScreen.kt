@@ -33,6 +33,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import com.dragolabs.able.core.designsystem.component.LocalAbleBottomBarPadding
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Surface
@@ -151,7 +152,8 @@ fun GlobalSearchScreen(
     val paneTitle = stringResource(R.string.search_title)
     Scaffold(
         modifier = modifier.semantics { this.paneTitle = paneTitle },
-        contentWindowInsets = WindowInsets(0),
+        // The persistent floating bar stays visible here too (SHELL-001): keep results above it.
+        contentWindowInsets = WindowInsets(bottom = LocalAbleBottomBarPadding.current),
         topBar = {
             SearchTopBar(
                 textState = textState,

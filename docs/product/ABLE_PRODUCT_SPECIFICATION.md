@@ -1,7 +1,7 @@
 # Able Android Toolbox Product Specification
 
 **Owner:** Drago Labs  
-**Version:** 0.21  
+**Version:** 0.22  
 **Status:** Working draft; product interview in progress  
 **Last updated:** 23 November 2026
 
@@ -59,6 +59,11 @@ Able is an Android toolbox for quick device actions, app and background manageme
   - **App-wide options search** (SEARCH-001, ADR-032) from the top bar of every primary destination.
   - **Motion and haptics revisions** (UX-003, UX-004), **readable card headers and human-formatted system values** (NFR-ACC-002).
   - **APK backup before uninstalling a user app** (APP-004 revised, ADR-033) after a verified restore failure on the Android 16 emulator.
+- Owner requests of 23 November 2026, fourth round (spec v0.22, app 0.9.1-beta):
+  - **Home double tap = reference app logic** (LOCK-003, ADR-053): decided at the second touch-down with the reference app's timing rule and live focused-window/`id/workspace` check; no launcher-event heuristics; watcher attached for the whole service life.
+  - **Persistent floating bar** (SHELL-001 revised): the bar stays fully visible on every screen after onboarding (tools, Settings, Search); the owning section stays highlighted; re-tapping it returns to the section's start.
+  - **Home header** (HOME-001, BRAND-001): the Able lockup replaces the "Able" text in both the expanded header and the collapsed bar.
+  - **Section transitions** (UX-004): shared-axis X with depth (quarter-width slide, 92 % scale, lightly underdamped springs, cross-fade).
 - Owner requests of 23 November 2026, third round (spec v0.21):
   - **Home double tap tolerance and diagnostics** (LOCK-003 revised, ADR-050 revised): the double-tap time is applied from touch-down to touch-down plus the first tap's duration (150 ms), late scroll events no longer cancel a pair, and the tool shows the outcome of the last attempt (locked, too slow, icon/swipe, not on the home pages, shade open).
   - **Smoother, smaller app** (NFR-PERF-001, ADR-052): distributed APKs are R8-optimised release builds (about 12 MB instead of about 90 MB); section transitions use a shared-axis slide with cross-fade.
