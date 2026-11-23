@@ -11,7 +11,7 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 The names **"Able"** and **"Drago Labs"**, the Able logo and mark, the launcher icon and other
 brand assets (including `app/src/main/res/drawable/ic_launcher_*`, the Able mark drawn by
-`core/designsystem/.../component/AbleLogo.kt`) are reserved by
+`core/designsystem/.../component/AbleLogo.kt`, and `docs/assets/able-icon.svg`) are reserved by
 Drago Labs and are **not** licensed under the GPL (ADR-011). Forks and redistributions must use a
 different name and different branding and must keep attribution to Drago Labs.
 
