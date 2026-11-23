@@ -47,7 +47,7 @@
 
 ## Download
 
-Get the latest APK from **[Releases](https://github.com/dragolab/able/releases)**. Able is in **beta** (current: 0.9.2) — expect rough edges and please report issues. From 0.9, Able can update itself from Settings → Updates.
+Get the latest APK from **[Releases](https://github.com/dragolab/able/releases)**. Able is in **beta** (current: 0.9.3) — expect rough edges and please report issues. From 0.9, Able can update itself from Settings → Updates.
 
 ---
 
