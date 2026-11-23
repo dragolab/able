@@ -41,13 +41,13 @@
 - Shortcut Maker · Activity Launcher · Command shell
 - GPS points catalog · Fake GPS on a map · Spirit level · Screen ruler · Compass
 
-**Everywhere** · custom Quick Settings tiles and widgets, app-wide search, Material 3 Expressive design with dynamic colors, haptics, Italian and English, phone / tablet / Android TV layouts, local `.ablebackup` export and import.
+**Everywhere** · custom Quick Settings tiles and widgets, app-wide search, in-app updates from GitHub, Material 3 Expressive design with dynamic colors, haptics, Italian and English, phone / tablet / Android TV layouts, local `.ablebackup` export and import.
 
 > Some features need [Shizuku](https://shizuku.rikka.app/) or an Accessibility service. Able asks only when you open the feature that needs it, and tells you honestly when a device or Android version doesn't support something.
 
 ## Download
 
-Get the latest APK from **[Releases](https://github.com/dragolab/able/releases)**. Able is in **beta** (current: 0.7) — expect rough edges and please report issues.
+Get the latest APK from **[Releases](https://github.com/dragolab/able/releases)**. Able is in **beta** (current: 0.9) — expect rough edges and please report issues. From 0.9, Able can update itself from Settings → Updates.
 
 ---
 
