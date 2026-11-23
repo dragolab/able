@@ -1,6 +1,9 @@
 package com.dragolabs.able.core.designsystem.component
 
 import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -32,7 +35,7 @@ fun ConfirmationDialog(
         onDismissRequest = onDismiss,
         icon = icon?.let { { Icon(it, contentDescription = null) } },
         title = { Text(title) },
-        text = { Text(message) },
+        text = { ScrollableDialogText(message) },
         confirmButton = {
             Button(
                 onClick = { if (destructive) haptics.reject() else haptics.confirm(); onConfirm() },
@@ -48,4 +51,13 @@ fun ConfirmationDialog(
         },
         dismissButton = { TextButton(onClick = { haptics.click(); onDismiss() }) { Text(dismissLabel) } },
     )
+}
+
+/**
+ * Dialog body text that scrolls when it is taller than the dialog allows (long "?" help and
+ * explanations were cut off on small screens and with large font sizes).
+ */
+@Composable
+fun ScrollableDialogText(text: String, modifier: Modifier = Modifier) {
+    Text(text, modifier = modifier.verticalScroll(rememberScrollState()))
 }

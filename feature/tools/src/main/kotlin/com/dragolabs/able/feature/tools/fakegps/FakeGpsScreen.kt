@@ -761,7 +761,7 @@ private fun SavePointDialog(draft: SavePointDraft, availableTags: List<String>, 
         icon = { Icon(Icons.Rounded.BookmarkAdd, contentDescription = null) },
         title = { Text(stringResource(R.string.fakegps_save_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
                 Text(draft.position.format(), style = MaterialTheme.typography.bodyMedium)
                 OutlinedTextField(
                     value = draft.label,

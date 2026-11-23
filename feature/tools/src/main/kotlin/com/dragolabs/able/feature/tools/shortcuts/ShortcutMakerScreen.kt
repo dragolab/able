@@ -1,5 +1,7 @@
 package com.dragolabs.able.feature.tools.shortcuts
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -585,7 +587,7 @@ private fun DeleteNonEmptyCollectionDialog(
         icon = { Icon(Icons.Rounded.Delete, contentDescription = null) },
         title = { Text(stringResource(R.string.shortcuts_collection_delete_title, collection.name)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
                 Text(stringResource(R.string.shortcuts_collection_delete_nonempty, count))
                 listOf(
                     CollectionDeletionPolicy.MOVE_TO_UNSORTED to (R.string.shortcuts_collection_delete_move to R.string.shortcuts_collection_delete_move_summary),

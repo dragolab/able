@@ -88,7 +88,9 @@ data class UserPreferences(
     /** UPD-001: newest release version seen by the last successful check (e.g. `0.9.0-beta`). */
     val updateLatestSeenVersion: String? = null,
     /** UPD-001: newest version already announced with the app-start snackbar, so it is shown once. */
-    val updateNotifiedVersion: String? = null
+    val updateNotifiedVersion: String? = null,
+    /** UPD-002: versionCode whose "What's new" dialog was already shown (or skipped); 0 = never. */
+    val whatsNewSeenVersionCode: Int = 0,
 )
 
 class UserPreferencesRepository(private val context: Context) {
@@ -139,6 +141,7 @@ class UserPreferencesRepository(private val context: Context) {
         val UPDATE_LAST_CHECK = longPreferencesKey("update_last_check_epoch_ms")
         val UPDATE_LATEST_SEEN = stringPreferencesKey("update_latest_seen_version")
         val UPDATE_NOTIFIED = stringPreferencesKey("update_notified_version")
+        val WHATS_NEW_SEEN = intPreferencesKey("whats_new_seen_version_code")
     }
 
     val userPreferencesFlow: Flow<UserPreferences> = context.dataStore.data.map { preferences ->
@@ -203,7 +206,8 @@ class UserPreferencesRepository(private val context: Context) {
             updateAutoCheck = preferences[PreferencesKeys.UPDATE_AUTO_CHECK] ?: true,
             updateLastCheckEpochMs = preferences[PreferencesKeys.UPDATE_LAST_CHECK] ?: 0L,
             updateLatestSeenVersion = preferences[PreferencesKeys.UPDATE_LATEST_SEEN],
-            updateNotifiedVersion = preferences[PreferencesKeys.UPDATE_NOTIFIED]
+            updateNotifiedVersion = preferences[PreferencesKeys.UPDATE_NOTIFIED],
+            whatsNewSeenVersionCode = preferences[PreferencesKeys.WHATS_NEW_SEEN] ?: 0,
         )
     }
 
@@ -414,6 +418,11 @@ class UserPreferencesRepository(private val context: Context) {
 
     suspend fun setTourCompleted(completed: Boolean) {
         context.dataStore.edit { it[PreferencesKeys.TOUR_COMPLETED] = completed }
+    }
+
+    /** UPD-002: marks the "What's new" dialog of [versionCode] as seen. */
+    suspend fun setWhatsNewSeen(versionCode: Int) {
+        context.dataStore.edit { it[PreferencesKeys.WHATS_NEW_SEEN] = versionCode }
     }
 
     // --- In-app updater (UPD-001, ADR-051) -------------------------------------------------

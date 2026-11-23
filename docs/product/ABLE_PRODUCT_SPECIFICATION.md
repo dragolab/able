@@ -1,7 +1,7 @@
 # Able Android Toolbox Product Specification
 
 **Owner:** Drago Labs  
-**Version:** 0.22  
+**Version:** 0.23  
 **Status:** Working draft; product interview in progress  
 **Last updated:** 23 November 2026
 
@@ -59,6 +59,10 @@ Able is an Android toolbox for quick device actions, app and background manageme
   - **App-wide options search** (SEARCH-001, ADR-032) from the top bar of every primary destination.
   - **Motion and haptics revisions** (UX-003, UX-004), **readable card headers and human-formatted system values** (NFR-ACC-002).
   - **APK backup before uninstalling a user app** (APP-004 revised, ADR-033) after a verified restore failure on the Android 16 emulator.
+- Owner requests of 23 November 2026, fifth round (spec v0.23, app 0.9.2-beta):
+  - **Scrollable dialogs** (NFR-ACC-002): "?" help pop-ups, confirmation dialogs and other long dialog bodies scroll instead of being cut off.
+  - **Double-tap time** (LOCK-001, LOCK-003): 50–450 ms in 50 ms steps (was 200–600 ms).
+  - **What's new after an update** (UPD-002): a one-time dialog with the highlights of the installed version.
 - Owner requests of 23 November 2026, fourth round (spec v0.22, app 0.9.1-beta):
   - **Home double tap = reference app logic** (LOCK-003, ADR-053): decided at the second touch-down with the reference app's timing rule and live focused-window/`id/workspace` check; no launcher-event heuristics; watcher attached for the whole service life.
   - **Persistent floating bar** (SHELL-001 revised): the bar stays fully visible on every screen after onboarding (tools, Settings, Search); the owning section stays highlighted; re-tapping it returns to the section's start.
@@ -616,6 +620,7 @@ This section turns the agreed product direction into requirements that can be im
 | BRAND-001 | MUST | Provide Able brand assets: adaptive and monochrome launcher icon, in-app logo, and a curated Quick Settings tile icon set. Decided 2026-11-23: concept "Pulse" (lowercase "a" of a ring plus a stem doubling as a level indicator with a mint segment; ink `#101418`, mint `#1FC98E`; Google Sans Flex wght 650, ROND 0; calm, precise), ADR-027 revised. | Launcher icon renders as adaptive and themed (monochrome) icon; the color icon shows the ring and stem with the mint level segment and the monochrome icon the ring and stem only; colors match `#101418` and `#1FC98E` where the theme does not tint them; the wordmark uses Google Sans Flex at weight 650 and ROND 0 under a font license confirmed before release; logo and tile icons are legible in light, dark, and dynamic color themes and at small tile sizes; assets are original Drago Labs work and not copied from inspiration apps. |
 | TOOLS-001 | MUST | Show the Strumenti hub as a grid of equal-size tool tiles, each with icon, label, and capability state (added 2026-11-23, ADR-048). | In a given window size every tile has the same width and height regardless of label length, badge, or availability; labels wrap to at most two lines or ellipsize, with the full name available to TalkBack; unavailable tools keep the same tile size with an unavailable state and reason; the grid adapts its column count to the window, not the tile size; at font scale up to 200% tiles stay uniform (all taller, not one); the container transform (UX-004) starts and ends at the uniform tile bounds; D-pad focus moves predictably across the grid on TV. |
 | UPD-001 | MUST | Offer an in-app updater in Settings → Updates that checks the public GitHub Releases of `dragolab/able` (pre-releases included), shows the installed and newest version with release notes, publication date, and size, and downloads and installs the APK only after the user taps "Download and install", through the Android `PackageInstaller` confirmation; an automatic check (default on, can be turned off) runs at app start at most once every 24 h and never downloads (added 2026-11-23, ADR-051). | Version tags `able-<major>.<minor>[.<patch>]-beta` and `v<x.y.z>-beta` are parsed and compared with the installed `versionName` (`0.9` equals `0.9.0`; a final release ranks above its betas); only `api.github.com`, `github.com`, and GitHub's download CDN (`*.githubusercontent.com`) are contacted, with a generic User-Agent and no user data; offline, timeout, rate limit (HTTP 403/429), missing APK asset, size mismatch, and non-Able APK each show their own message and install nothing; with "Install unknown apps" off, Able explains it and opens `Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES` for Able; the system confirmation dialog always appears; a different signing key or older build (`STATUS_FAILURE_CONFLICT`/`STATUS_FAILURE_INCOMPATIBLE`) is reported as a signature mismatch requiring uninstall; an automatic check that finds a newer version shows a one-time snackbar and a card at the top of Settings; a "?" help explains what is contacted and downloaded. |
+| UPD-002 | SHOULD | After Able is updated (installed versionCode higher than the last one acknowledged), show once a "What's new" dialog listing the installed version's highlights, with a link to the full release notes on GitHub; never on a fresh install (the version is only recorded) and never twice for the same version (added 2026-11-23). | Updating from 0.9.1 to 0.9.2 shows the dialog on the next launch; dismissing it or opening the notes records the version and it does not appear again; a fresh install that completes onboarding shows nothing until the next update; text scrolls when long. |
 
 #### Battery profiles and app background controls
 

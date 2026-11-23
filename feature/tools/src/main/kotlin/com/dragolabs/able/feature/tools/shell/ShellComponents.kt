@@ -1,5 +1,7 @@
 package com.dragolabs.able.feature.tools.shell
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -80,6 +82,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.dragolabs.able.core.designsystem.component.ScrollableDialogText
 import com.dragolabs.able.core.designsystem.component.HelpButton
 import com.dragolabs.able.core.designsystem.component.SectionHeader
 import com.dragolabs.able.core.designsystem.component.StatusLevel
@@ -573,7 +576,7 @@ internal fun ShellWarningDialog(onAccept: () -> Unit, onLeave: () -> Unit) {
         onDismissRequest = onLeave,
         icon = { Icon(Icons.Rounded.Warning, contentDescription = null) },
         title = { Text(stringResource(R.string.shell_warning_title)) },
-        text = { Text(stringResource(R.string.shell_warning_text)) },
+        text = { ScrollableDialogText(stringResource(R.string.shell_warning_text)) },
         confirmButton = { Button(onClick = onAccept) { Text(stringResource(R.string.shell_warning_accept)) } },
         dismissButton = { TextButton(onClick = onLeave) { Text(stringResource(R.string.shell_warning_leave)) } },
     )
@@ -594,7 +597,7 @@ internal fun ShellDangerDialog(confirmation: DangerConfirmation, onConfirm: () -
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
                 Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHighest) {
                     Text(
                         confirmation.command,
@@ -637,7 +640,7 @@ internal fun ShellSnippetEditor(
             Text(stringResource(if (snippet == null) R.string.shell_snippet_new_title else R.string.shell_snippet_edit_title))
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
                 OutlinedTextField(
                     value = label,
                     onValueChange = { label = it },

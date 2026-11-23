@@ -485,7 +485,7 @@ private fun AddDnsDialog(onAdd: (String, String) -> Unit, onDismiss: () -> Unit)
         icon = { Icon(Icons.Rounded.Dns, contentDescription = null) },
         title = { Text(stringResource(R.string.tools_dns_add_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it.take(40) },

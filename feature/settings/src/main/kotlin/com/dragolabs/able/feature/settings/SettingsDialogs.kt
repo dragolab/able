@@ -218,7 +218,7 @@ private fun ProgressDialog(message: String) {
         onDismissRequest = {},
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
         text = {
-            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
                 LoadingIndicator()
                 DialogText(message)
             }
@@ -473,7 +473,7 @@ fun CopyFallbackDialog(value: String, onCopy: () -> Unit, onDismiss: () -> Unit)
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.settings_no_handler_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
                 DialogText(stringResource(R.string.settings_no_handler_body))
                 Text(value, style = MaterialTheme.typography.bodyLarge, fontFamily = FontFamily.Monospace)
             }

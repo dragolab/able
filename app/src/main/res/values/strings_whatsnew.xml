@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- UPD-002: shown once after an update. Update the items with every release. -->
+    <string name="whats_new_title">What\'s new in Able %1$s</string>
+    <string name="whats_new_ok">Got it</string>
+    <string name="whats_new_full_notes">Full notes</string>
+    <string-array name="whats_new_items">
+        <item>Help pop-ups now scroll, so long explanations can be read in full.</item>
+        <item>Home-screen double tap: the time between taps now goes from 50 to 450 ms.</item>
+        <item>After each update, this window shows what changed.</item>
+        <item>Update results now appear right under “Check for updates”.</item>
+    </string-array>
+</resources>

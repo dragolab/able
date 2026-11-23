@@ -67,7 +67,7 @@ data class LockGestureConfig(
  *   home-screen space.
  *   Detected by a timing-only watcher that never holds a touch (`HomeDoubleTapController`).
  *   The former `home_mode` / `home_area` keys (Precise touch overlay, removed in 0.8) are ignored.
- * - [KEY_TIMEOUT_MS] `double_tap_timeout_ms` Int, default 300, range 200..600: max gap between taps.
+ * - [KEY_TIMEOUT_MS] `double_tap_timeout_ms` Int, default 300, range 50..450 in 50 ms steps (revised 2026-11-23): max gap between taps.
  * - [KEY_HAPTIC] `haptic_on_lock` Boolean, default true: short vibration before locking.
  * - [KEY_RECOGNITION] `lock_screen_recognition` String ([LockScreenRecognition] name), written by
  *   the service only: whether the SystemUI lock-screen layout was recognised the last time the
@@ -157,7 +157,7 @@ class LockGestureSettings(context: Context) {
         const val KEY_RECOGNITION = "lock_screen_recognition"
 
         const val DEFAULT_TIMEOUT_MS = 300
-        const val MIN_TIMEOUT_MS = 200
-        const val MAX_TIMEOUT_MS = 600
+        const val MIN_TIMEOUT_MS = 50
+        const val MAX_TIMEOUT_MS = 450
     }
 }

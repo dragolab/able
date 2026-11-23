@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="whats_new_title">Novità di Able %1$s</string>
+    <string name="whats_new_ok">Ho capito</string>
+    <string name="whats_new_full_notes">Note complete</string>
+    <string-array name="whats_new_items">
+        <item>I pop-up di aiuto ora scorrono, così le spiegazioni lunghe si leggono per intero.</item>
+        <item>Doppio tocco sulla Home: il tempo tra i tocchi ora va da 50 a 450 ms.</item>
+        <item>Dopo ogni aggiornamento questa finestra mostra cosa è cambiato.</item>
+        <item>I risultati degli aggiornamenti ora compaiono subito sotto “Cerca aggiornamenti”.</item>
+    </string-array>
+</resources>

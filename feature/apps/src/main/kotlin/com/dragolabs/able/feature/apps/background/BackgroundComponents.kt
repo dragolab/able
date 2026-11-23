@@ -254,7 +254,7 @@ internal fun AllowConfirmDialog(summary: BulkSummary, onConfirm: () -> Unit, onD
         icon = { Icon(Icons.Rounded.CheckCircle, contentDescription = null) },
         title = { Text(pluralStringResource(R.plurals.apps_bg_allow_confirm_title, summary.changeable, summary.changeable)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
                 Text(stringResource(R.string.apps_bg_allow_consequences))
                 if (summary.skipped > 0) {
                     Text(pluralStringResource(R.plurals.apps_bg_skipped, summary.skipped, summary.skipped), style = MaterialTheme.typography.bodyMedium)

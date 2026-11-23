@@ -70,7 +70,7 @@ fun HelpButton(
             onDismissRequest = { open = false },
             icon = { Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = null) },
             title = { Text(title) },
-            text = { Text(text) },
+            text = { ScrollableDialogText(text) },
             confirmButton = { AbleTextButton(onClick = { open = false }) { Text(stringResource(R.string.ds_got_it)) } },
         )
     }

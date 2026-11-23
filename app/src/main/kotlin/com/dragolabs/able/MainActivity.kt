@@ -32,6 +32,9 @@ import com.dragolabs.able.core.model.ThemeMode
 import com.dragolabs.able.feature.settings.R as SettingsR
 import com.dragolabs.able.feature.settings.update.AppUpdater
 import com.dragolabs.able.navigation.AbleApp
+import androidx.compose.runtime.rememberCoroutineScope
+import com.dragolabs.able.whatsnew.shouldShowWhatsNew
+import com.dragolabs.able.whatsnew.WhatsNewDialog
 import com.dragolabs.able.navigation.EXTRA_ROUTE
 import com.dragolabs.able.navigation.SettingsRoute
 import com.dragolabs.able.navigation.routeFromDeepLink
@@ -41,6 +44,8 @@ import com.dragolabs.able.widget.QuickActionsWidget
 import androidx.glance.appwidget.updateAll
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+
+private const val RELEASES_URL = "https://github.com/dragolab/able/releases"
 
 class MainActivity : ComponentActivity() {
 
@@ -73,6 +78,7 @@ class MainActivity : ComponentActivity() {
                 dynamicColor = it.useDynamicColor,
                 haptics = it.hapticsEnabled,
                 hapticsIntensity = it.hapticsIntensity,
+                whatsNewSeenVersionCode = it.whatsNewSeenVersionCode,
             )
         }
 
@@ -103,6 +109,29 @@ class MainActivity : ComponentActivity() {
                         SnackbarHost(
                             updateSnackbar,
                             Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.statusBars),
+                        )
+                    }
+                    // UPD-002: after an update, show once what changed. A fresh install (onboarding not
+                    // done) only records the version, so the first "What's new" comes with the next update.
+                    val currentVersionCode = BuildConfig.VERSION_CODE
+                    if (!loaded.onboardingCompleted && loaded.whatsNewSeenVersionCode < currentVersionCode) {
+                        LaunchedEffect(currentVersionCode) { container.preferences.setWhatsNewSeen(currentVersionCode) }
+                    }
+                    if (deepLink == null && shouldShowWhatsNew(loaded.onboardingCompleted, loaded.whatsNewSeenVersionCode, currentVersionCode)) {
+                        val scope = rememberCoroutineScope()
+                        val markSeen: () -> Unit = { scope.launch { container.preferences.setWhatsNewSeen(currentVersionCode) } }
+                        WhatsNewDialog(
+                            versionName = BuildConfig.VERSION_NAME.removeSuffix("-beta").let { "$it beta" },
+                            onDismiss = markSeen,
+                            onOpenReleaseNotes = {
+                                markSeen()
+                                runCatching {
+                                    startActivity(
+                                        Intent(Intent.ACTION_VIEW, android.net.Uri.parse(RELEASES_URL))
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                    )
+                                }
+                            },
                         )
                     }
                     if (savedInstanceState == null) {
@@ -156,4 +185,5 @@ private data class ShellPreferences(
     val dynamicColor: Boolean,
     val haptics: Boolean,
     val hapticsIntensity: com.dragolabs.able.core.model.HapticsIntensity,
+    val whatsNewSeenVersionCode: Int,
 )
