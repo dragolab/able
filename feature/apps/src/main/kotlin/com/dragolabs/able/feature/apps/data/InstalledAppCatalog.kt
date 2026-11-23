@@ -46,6 +46,8 @@ data class InstalledApp(
     val hasLauncherEntry: Boolean,
     val firstInstallTimeMs: Long,
     val lastUpdateTimeMs: Long,
+    /** Linux UID for the current user (`ApplicationInfo.uid`); -1 when unknown. */
+    val uid: Int = -1,
 ) {
     val state: AppInstallState
         get() = when {
@@ -131,6 +133,7 @@ class InstalledAppCatalog(private val context: Context) {
             hasLauncherEntry = packageName in launcherPackages,
             firstInstallTimeMs = info.firstInstallTime,
             lastUpdateTimeMs = info.lastUpdateTime,
+            uid = appInfo.uid,
         )
     }
 

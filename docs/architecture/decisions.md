@@ -380,3 +380,13 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Decision:** Every release also commits `docs/releases/latest.json` (a one-element array with the release object: `tag_name`, `name`, `body`, `published_at`, `html_url`, `assets[name,size,browser_download_url]`). The updater reads it from raw.githubusercontent.com first (not subject to the REST API limit) and falls back to the REST API only when the manifest is missing or unreadable. Both requests carry a per-minute cache-busting query parameter and `Cache-Control: no-cache`. APK downloads keep using the release asset URL on github.com.
 - **Consequence:** Release procedure: publish the GitHub release, then update and push the manifest. Network contacts stay GitHub-only (raw.githubusercontent.com added to the list in ADR-051 and the help text).
 
+### ADR-055 — Online data sources for the network and map tools
+
+- **Status:** Accepted (owner requests, 2026-11-24)
+- **Decision:** Drinking fountains (MAP-001) use OpenStreetMap data through the public Overpass API (`overpass-api.de`, fallback `overpass.kumi.systems`), respecting its usage policy (identifying User-Agent, debounced requests at least 4 s apart, back-off on 429/5xx, 24 h area cache) and showing "© OpenStreetMap contributors"; the fontanelle.org database is proprietary and has no public API, so it is not used. The speed test (NET-001) uses Cloudflare's public speed-test endpoints (`speed.cloudflare.com`). Downdetector (NET-002) is only opened in the browser: it offers no public API, its robots.txt disallows generic automated access and it blocks non-browser clients (checked 2026-11-24). Private DNS becomes its own tool (SYS-004).
+- **Consequence:** Each feature contacts its server only when the user opens it; the "?" help names the server and what is sent. The manifest's INTERNET note lists all destinations.
+
+### ADR-053 revision (2026-11-24) — Less sensitive home double tap
+
+The owner found the reference-app logic too sensitive. A pair is now ignored when the launcher reported a click, long click or scroll from shortly before the first touch until the second touch-down (events requested with no notification delay while the feature is on), so recognition stays immediate; the tap allowance drops to 100 ms and the minimum gap rises to 90 ms.
+

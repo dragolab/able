@@ -73,7 +73,12 @@ import com.dragolabs.able.feature.tools.common.startFirstAvailable
 import com.dragolabs.able.core.designsystem.R as DsR
 
 @Composable
-fun SystemTogglesRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+/**
+ * System toggles (SYS-001–SYS-003). With [privateDnsOnly] the same screen and state serve the
+ * separate Private DNS tool in the Network section (SYS-004, 2026-11-24); the toggles screen then
+ * no longer shows the DNS section.
+ */
+fun SystemTogglesRoute(onBack: () -> Unit, modifier: Modifier = Modifier, privateDnsOnly: Boolean = false) {
     val viewModel: SystemTogglesViewModel = viewModel(
         factory = ableViewModelFactory { container ->
             SystemTogglesViewModel(
@@ -143,6 +148,7 @@ fun SystemTogglesRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
         onDismissPending = viewModel::dismissPending,
         onMessageConsumed = viewModel::consumeMessage,
         modifier = modifier,
+        privateDnsOnly = privateDnsOnly,
     )
 }
 
@@ -169,12 +175,13 @@ fun SystemTogglesScreen(
     onDismissPending: () -> Unit,
     onMessageConsumed: () -> Unit,
     modifier: Modifier = Modifier,
+    privateDnsOnly: Boolean = false,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     MessageEffect(state.message, snackbarHostState, onMessageConsumed)
 
     AbleDetailScaffold(
-        title = stringResource(R.string.tools_toggles_title),
+        title = stringResource(if (privateDnsOnly) R.string.tools_privatedns_title else R.string.tools_toggles_title),
         onBack = onBack,
         snackbarHostState = snackbarHostState,
         modifier = modifier,
@@ -199,6 +206,7 @@ fun SystemTogglesScreen(
                     }
                 }
 
+                if (!privateDnsOnly) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     SectionHeader(stringResource(R.string.tools_toggles_section_connectivity), modifier = Modifier.weight(1f))
                     HelpButton(
@@ -329,8 +337,11 @@ fun SystemTogglesScreen(
                     }
                 }
 
-                SectionHeader(stringResource(R.string.tools_dns_section))
-                DnsSection(state, onApplyDns, onOpenPrivateDnsSettings, onShowAddDns, onDeleteDns)
+                }
+                if (privateDnsOnly) {
+                    SectionHeader(stringResource(R.string.tools_dns_section))
+                    DnsSection(state, onApplyDns, onOpenPrivateDnsSettings, onShowAddDns, onDeleteDns)
+                }
             }
         }
     }

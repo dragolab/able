@@ -23,7 +23,7 @@
     <string name="apps_bg_exempt_pill">Batteria senza limiti</string>
     <string name="apps_bg_exempt_yes">Ottimizzazione batteria: disattivata</string>
     <string name="apps_bg_exempt_no">Ottimizzazione batteria: attiva</string>
-    <string name="apps_bg_exempt_note">Questa app è esclusa dall\'ottimizzazione della batteria (\"Senza limitazioni\" in Android). Able non cambia questa esclusione; puoi cambiarla nelle impostazioni batteria dell\'app in Android.</string>
+    <string name="apps_bg_exempt_note">Questa app è esclusa dall\'ottimizzazione della batteria (\"Senza limitazioni\" in Android): Doze e lo standby delle app non la limitano.</string>
     <string name="apps_bg_blocked_pill">Non modificata da Able</string>
 
     <string name="apps_bg_shizuku_missing_title">Serve Shizuku</string>
@@ -50,7 +50,7 @@
     </plurals>
     <string name="apps_bg_restrict_confirm_title_one">Limitare l\'attività in background di %1$s?</string>
     <string name="apps_bg_restrict_consequences">Android interrompe i job in background e limita le sveglie mentre l\'app non è in uso. Notifiche, sveglie e promemoria possono arrivare in ritardo o non arrivare, sincronizzazione e backup possono fermarsi e i widget possono smettere di aggiornarsi.</string>
-    <string name="apps_bg_restrict_undo">Puoi annullare in qualsiasi momento con Consenti, qui o in Info app di Android → Utilizzo batteria app.</string>
+    <string name="apps_bg_restrict_undo">Puoi annullare in qualsiasi momento scegliendo Ottimizzata o Senza limitazioni, qui o in Info app di Android → Utilizzo batteria app.</string>
     <string name="apps_bg_restrict_action">Limita</string>
     <plurals name="apps_bg_warn_protected">
         <item quantity="one">%d app selezionata è protetta in Able.</item>
@@ -83,7 +83,7 @@
     <string name="apps_bg_card_title">Stato in background</string>
     <string name="apps_bg_state_allowed_message">Android consente a questa app job e sveglie in background entro i normali limiti della batteria.</string>
     <string name="apps_bg_state_restricted_message">L\'attività in background è limitata: job in background e gran parte delle sveglie non vengono eseguiti mentre l\'app non è in uso.</string>
-    <string name="apps_bg_state_partial_message">Solo una parte dei controlli in background è limitata. Usa l\'interruttore per consentirli o limitarli entrambi.</string>
+    <string name="apps_bg_state_partial_message">Solo una parte dei controlli in background è limitata. Scegli Con limitazioni, Ottimizzata o Senza limitazioni per impostarli in modo coerente.</string>
     <string name="apps_bg_state_unknown_message">Android mostra lo stato in background delle altre app solo tramite Shizuku.</string>
     <string name="apps_bg_state_failed_message">Android non ha riportato lo stato in background di questa app.</string>
     <string name="apps_bg_switch_title">Consenti attività in background</string>
@@ -124,7 +124,7 @@
     <string name="apps_bucket_system_may_change">Android può spostare l\'app in un altro gruppo quando la usi.</string>
 
     <string name="apps_help_background_title">Attività in background</string>
-    <string name="apps_help_background_text">Limita imposta i controlli Android RUN_ANY_IN_BACKGROUND e RUN_IN_BACKGROUND su \"ignore\", come \"Con limitazioni\" in Utilizzo batteria app di Android. Android interrompe quindi i job in background dell\'app e ne limita le sveglie mentre non la usi.\n\nRischio: notifiche, sveglie, promemoria, sincronizzazione, backup e widget possono fermarsi o arrivare in ritardo. Non limitare app di messaggistica, sveglie, salute o sicurezza su cui fai affidamento.\n\nAnnulla: Consenti riporta entrambi i controlli su \"allow\". Able non limita mai sé stessa, Shizuku o i componenti principali di Android e non applica mai queste modifiche in automatico.</string>
+    <string name="apps_help_background_text">Able offre le stesse tre scelte di Utilizzo batteria app di Android:\n\n• Con limitazioni: RUN_ANY_IN_BACKGROUND e RUN_IN_BACKGROUND su \"ignore\" e app rimossa dalla lista di esclusione dall\'ottimizzazione della batteria. Android interrompe i job in background e limita le sveglie mentre non usi l\'app.\n• Ottimizzata (predefinita di Android): entrambi i controlli su \"allow\", app non esclusa. Android la limita con Doze e lo standby delle app.\n• Senza limitazioni: entrambi i controlli su \"allow\" e app aggiunta alla lista di esclusione dall\'ottimizzazione (Doze non la limita). Può consumare più batteria.\n\nLe app nella lista di esclusione di sistema restano senza limitazioni per scelta di Android; Able non può cambiarlo.\n\nRischio: Con limitazioni può fermare o ritardare notifiche, sveglie, promemoria, sincronizzazione, backup e widget. Non limitare app di messaggistica, sveglie, salute o sicurezza su cui fai affidamento.\n\nAnnulla: scegli un\'altra opzione quando vuoi. Able non limita mai sé stessa, Shizuku o i componenti principali di Android e non applica mai queste modifiche in automatico.</string>
     <string name="apps_help_bucket_title">Gruppo di standby app</string>
     <string name="apps_help_bucket_text">Android assegna ogni app a un gruppo di standby in base a quanto spesso e quanto di recente la usi, e limita di conseguenza job, sveglie e accesso alla rete (Limitata è il più restrittivo).\n\nRischio: un gruppo più basso può ritardare notifiche e sincronizzazione.\n\nAnnulla: scegli Attiva, oppure apri l\'app: Android la riporta in alto quando la usi.</string>
     <string name="apps_help_bg_shizuku_text">Android consente solo agli strumenti di sistema di leggere e cambiare i controlli in background delle altre app. Shizuku dà questo accesso ad Able dopo averlo avviato con il debug wireless o il root.\n\nSenza Shizuku apri Info app di Android → Utilizzo batteria app per la stessa app.</string>
@@ -133,4 +133,79 @@
     <string name="apps_log_background_restrict">Limita attività in background di %1$s</string>
     <string name="apps_log_background_allow">Consenti attività in background di %1$s</string>
     <string name="apps_log_standby_bucket">Imposta il gruppo di standby di %1$s su %2$s</string>
+
+    <!-- Modalità in background a tre stati (parità con NoMoreBackground, 2026-11-24) -->
+    <string name="apps_bg_mode_title">Utilizzo batteria</string>
+    <string name="apps_bg_mode_restricted">Con limitazioni</string>
+    <string name="apps_bg_mode_optimized">Ottimizzata</string>
+    <string name="apps_bg_mode_unrestricted">Senza limitazioni</string>
+    <string name="apps_bg_mode_custom">Personalizzata</string>
+    <string name="apps_bg_mode_restricted_desc">Nessun job in background; sveglie limitate mentre non usi l\'app.</string>
+    <string name="apps_bg_mode_optimized_desc">Predefinita di Android: limitata da Doze e dallo standby delle app.</string>
+    <string name="apps_bg_mode_unrestricted_desc">Non limitata dall\'ottimizzazione della batteria. Può consumare più batteria.</string>
+    <string name="apps_bg_mode_custom_desc">L\'app è esclusa dall\'ottimizzazione della batteria ma la sua attività in background è limitata. Scegli un\'opzione per rendere coerenti le impostazioni.</string>
+    <string name="apps_bg_mode_unknown_desc">Android non ha riportato tutte le impostazioni necessarie per mostrare l\'opzione di utilizzo batteria.</string>
+    <string name="apps_bg_mode_system_allowlisted">Android mantiene questa app senza limitazioni (lista di esclusione di sistema). Able non può renderla Ottimizzata o Con limitazioni.</string>
+    <string name="apps_bg_mode_system_excidle">Android esclude questa app dallo standby delle app (lista di sistema); Doze si applica comunque.</string>
+    <string name="apps_bg_mode_pill">Batteria: %1$s</string>
+    <string name="apps_bg_change_mode">Utilizzo batteria %1$s</string>
+    <string name="apps_bg_restrict_allowlist_note">Se un\'app è senza limitazioni, Able la rimuove anche dalla lista di esclusione dall\'ottimizzazione della batteria. Per le app che Android mantiene senza limitazioni viene limitata solo l\'attività in background.</string>
+
+    <!-- Dati mobili in background (cmd netpolicy restrict-background) -->
+    <string name="apps_bg_data_title">Blocca dati mobili in background</string>
+    <string name="apps_bg_data_message">Blocca i dati mobili solo mentre l\'app è in background. Wi-Fi e uso in primo piano non sono interessati.</string>
+    <string name="apps_bg_data_unavailable">Android non ha riportato l\'impostazione dei dati in background di questa app.</string>
+    <string name="apps_bg_data_pill">Dati in background bloccati</string>
+    <string name="apps_bg_filter_data_blocked">Dati in background bloccati</string>
+    <string name="apps_bg_change_data_block">Blocca dati mobili in background</string>
+    <string name="apps_bg_change_data_allow">Consenti dati mobili in background</string>
+    <string name="apps_help_bg_data_title">Dati mobili in background</string>
+    <string name="apps_help_bg_data_text">Aggiunge l\'app alla limitazione dei dati in background di Android (come disattivare \"Dati in background\" in Info app → Dati mobili). La limitazione vale per l\'UID dell\'app, quindi le app che condividono un UID sono interessate insieme.\n\nRischio: con i dati mobili, sincronizzazione, messaggi e notifiche che richiedono la rete possono arrivare solo quando apri l\'app o ti colleghi al Wi-Fi.\n\nAnnulla: disattiva l\'interruttore. Wi-Fi e uso in primo piano non vengono mai bloccati.</string>
+
+    <!-- App verificate -->
+    <string name="apps_bg_review_mark">Segna come verificata</string>
+    <string name="apps_bg_review_mark_message">Salva queste impostazioni in background su questo dispositivo. Able ti avvisa se un aggiornamento dell\'app o Android le cambiano.</string>
+    <string name="apps_bg_review_mark_unavailable">Disponibile quando Android riporta le impostazioni in background attuali tramite Shizuku.</string>
+    <string name="apps_bg_reviewed_title">Verificata</string>
+    <string name="apps_bg_reviewed_message">Verificata il %1$s. Le impostazioni attuali corrispondono.</string>
+    <string name="apps_bg_review_changed_row">Verificata il %1$s. Le impostazioni attuali sono diverse.</string>
+    <string name="apps_bg_review_update">Aggiorna</string>
+    <string name="apps_bg_review_forget">Dimentica</string>
+    <string name="apps_bg_review_save_failed">Able non è riuscita a salvare la verifica su questo dispositivo. Riprova.</string>
+    <string name="apps_bg_reviewed_pill">Verificata</string>
+    <string name="apps_bg_changed_pill">Cambiata dopo la verifica</string>
+    <string name="apps_bg_review_changed_title">Cambiata dopo la verifica</string>
+    <string name="apps_bg_review_changed_message">Ora diversi: %1$s. Un aggiornamento dell\'app o Android potrebbero averli reimpostati.</string>
+    <string name="apps_bg_review_restore">Ripristina impostazioni verificate</string>
+    <string name="apps_bg_review_keep">Mantieni attuali</string>
+    <string name="apps_bg_review_field_run_any">job e sveglie in background (RUN_ANY_IN_BACKGROUND)</string>
+    <string name="apps_bg_review_field_run">esecuzione in background (RUN_IN_BACKGROUND)</string>
+    <string name="apps_bg_review_field_allowlist">esclusione dall\'ottimizzazione della batteria</string>
+    <string name="apps_bg_review_field_data">dati mobili in background</string>
+    <string name="apps_bg_review_separator">, </string>
+    <string name="apps_bg_change_review_restore">Ripristino impostazioni verificate</string>
+    <string name="apps_bg_filter_hide_reviewed">Nascondi verificate</string>
+    <plurals name="apps_bg_changed_banner_title">
+        <item quantity="one">%d app verificata è cambiata</item>
+        <item quantity="many">%d app verificate sono cambiate</item>
+        <item quantity="other">%d app verificate sono cambiate</item>
+    </plurals>
+    <string name="apps_bg_changed_banner_message">Le loro impostazioni in background non corrispondono più alla verifica. Un aggiornamento dell\'app o Android potrebbero averle reimpostate.</string>
+    <string name="apps_bg_restore_all">Ripristina tutte</string>
+    <plurals name="apps_bg_restore_all_confirm_title">
+        <item quantity="one">Ripristinare le impostazioni verificate di %d app?</item>
+        <item quantity="many">Ripristinare le impostazioni verificate di %d app?</item>
+        <item quantity="other">Ripristinare le impostazioni verificate di %d app?</item>
+    </plurals>
+    <string name="apps_bg_restore_all_confirm_message">Able riapplica solo le impostazioni diverse dalla verifica e rilegge ogni app. Le app che avevi limitato al momento della verifica verranno limitate di nuovo.</string>
+    <string name="apps_bg_restore_all_action">Ripristina</string>
+    <string name="apps_bg_bulk_running_restore">Ripristino delle impostazioni verificate…</string>
+    <string name="apps_bg_bulk_done_restore">Ripristino impostazioni verificate: completato</string>
+    <string name="apps_help_bg_review_title">App verificate</string>
+    <string name="apps_help_bg_review_text">Segnare un\'app come verificata salva solo su questo dispositivo l\'impostazione di job e sveglie in background, l\'esecuzione in background, l\'esclusione dall\'ottimizzazione della batteria e i dati mobili in background. Il gruppo di standby non viene salvato perché Android lo cambia da solo.\n\nSe in seguito le impostazioni attuali sono diverse, Able mostra \"Cambiata dopo la verifica\" e propone di ripristinarle. Nulla viene ripristinato in automatico.\n\nAnnulla: Dimentica rimuove la verifica salvata; le impostazioni restano come sono.</string>
+
+    <string name="apps_log_background_mode">Imposta l\'utilizzo batteria di %1$s su %2$s</string>
+    <string name="apps_log_bg_data_block">Blocca dati mobili in background di %1$s</string>
+    <string name="apps_log_bg_data_allow">Consenti dati mobili in background di %1$s</string>
+    <string name="apps_log_review_restore">Ripristina impostazioni in background verificate di %1$s</string>
 </resources>

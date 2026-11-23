@@ -5,8 +5,11 @@
     <string name="whats_new_ok">Got it</string>
     <string name="whats_new_full_notes">Full notes</string>
     <string-array name="whats_new_items">
-        <item>Updates are now found reliably: Able reads a small release file from the repository, which is not subject to GitHub\'s request limit and is never served stale.</item>
-        <item>If GitHub is unreachable, the check falls back to the GitHub API as before.</item>
-        <item>From 0.9.2: help pop-ups scroll, the double-tap time goes from 50 to 450 ms, and this window shows what changed after each update.</item>
+        <item>New Network section in Tools: Speed test, Hotspot, Private DNS (now its own tool) and Downdetector.</item>
+        <item>Speed test: ping, jitter, download and upload with a live gauge and local history.</item>
+        <item>Downdetector: opens the outage page of a service for your country, with favourites.</item>
+        <item>Drinking fountains: a map of public drinking-water points from OpenStreetMap, the last tool in Measure &amp; location.</item>
+        <item>Apps → Background: Restricted / Optimized / Unrestricted, block background mobile data, soft stop and reviewed apps with restore, like NoMoreBackground.</item>
+        <item>Home double tap is less sensitive: taps on icons and page swipes no longer count.</item>
     </string-array>
 </resources>

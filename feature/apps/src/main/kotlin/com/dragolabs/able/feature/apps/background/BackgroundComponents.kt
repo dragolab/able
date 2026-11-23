@@ -14,7 +14,12 @@ import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.BatterySaver
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.MobiledataOff
+import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Warning
@@ -95,9 +100,72 @@ internal fun StandbyBucket.descriptionRes(): Int = when (this) {
     StandbyBucket.NEVER -> R.string.apps_bucket_never_desc
 }
 
+internal fun BackgroundMode.labelRes(): Int = when (this) {
+    BackgroundMode.RESTRICTED -> R.string.apps_bg_mode_restricted
+    BackgroundMode.OPTIMIZED -> R.string.apps_bg_mode_optimized
+    BackgroundMode.UNRESTRICTED -> R.string.apps_bg_mode_unrestricted
+    BackgroundMode.CUSTOM -> R.string.apps_bg_mode_custom
+}
+
+internal fun BackgroundMode.descriptionRes(): Int = when (this) {
+    BackgroundMode.RESTRICTED -> R.string.apps_bg_mode_restricted_desc
+    BackgroundMode.OPTIMIZED -> R.string.apps_bg_mode_optimized_desc
+    BackgroundMode.UNRESTRICTED -> R.string.apps_bg_mode_unrestricted_desc
+    BackgroundMode.CUSTOM -> R.string.apps_bg_mode_custom_desc
+}
+
+internal fun BackgroundMode.level(): StatusLevel = when (this) {
+    BackgroundMode.RESTRICTED -> StatusLevel.WARNING
+    BackgroundMode.OPTIMIZED -> StatusLevel.SUCCESS
+    BackgroundMode.UNRESTRICTED -> StatusLevel.INFO
+    BackgroundMode.CUSTOM -> StatusLevel.WARNING
+}
+
+internal fun BackgroundMode.icon(): ImageVector = when (this) {
+    BackgroundMode.RESTRICTED -> Icons.Rounded.Block
+    BackgroundMode.OPTIMIZED -> Icons.Rounded.BatterySaver
+    BackgroundMode.UNRESTRICTED -> Icons.Rounded.BatteryChargingFull
+    BackgroundMode.CUSTOM -> Icons.Rounded.Tune
+}
+
+internal fun ReviewField.labelRes(): Int = when (this) {
+    ReviewField.RUN_ANY_IN_BACKGROUND -> R.string.apps_bg_review_field_run_any
+    ReviewField.RUN_IN_BACKGROUND -> R.string.apps_bg_review_field_run
+    ReviewField.ALLOWLIST -> R.string.apps_bg_review_field_allowlist
+    ReviewField.BACKGROUND_DATA -> R.string.apps_bg_review_field_data
+}
+
 // endregion
 
 // region Pills
+
+/** Battery-usage mode pill (Restricted / Optimized / Unrestricted / Custom): icon + text. */
+@Composable
+internal fun BackgroundModePill(mode: BackgroundMode, modifier: Modifier = Modifier) {
+    val colors = statusColors(mode.level())
+    MiniPill(stringResource(mode.labelRes()), mode.icon(), colors.container, colors.content, colors.accent, modifier)
+}
+
+@Composable
+internal fun BackgroundDataBlockedPill(modifier: Modifier = Modifier) {
+    val colors = statusColors(StatusLevel.WARNING)
+    MiniPill(stringResource(R.string.apps_bg_data_pill), Icons.Rounded.MobiledataOff, colors.container, colors.content, colors.accent, modifier)
+}
+
+@Composable
+internal fun ReviewPill(state: ReviewState, modifier: Modifier = Modifier) {
+    when (state) {
+        ReviewState.NONE -> Unit
+        ReviewState.REVIEWED -> {
+            val colors = statusColors(StatusLevel.SUCCESS)
+            MiniPill(stringResource(R.string.apps_bg_reviewed_pill), Icons.Rounded.Verified, colors.container, colors.content, colors.accent, modifier)
+        }
+        ReviewState.CHANGED -> {
+            val colors = statusColors(StatusLevel.WARNING)
+            MiniPill(stringResource(R.string.apps_bg_changed_pill), Icons.Rounded.Restore, colors.container, colors.content, colors.accent, modifier)
+        }
+    }
+}
 
 /** Background status pill: icon + text, never color alone. */
 @Composable
@@ -192,6 +260,7 @@ internal fun RestrictConfirmDialog(
                 verticalArrangement = Arrangement.spacedBy(AbleSpacing.md),
             ) {
                 Text(stringResource(R.string.apps_bg_restrict_consequences))
+                Text(stringResource(R.string.apps_bg_restrict_allowlist_note), style = MaterialTheme.typography.bodyMedium)
                 Text(stringResource(R.string.apps_bg_restrict_undo), style = MaterialTheme.typography.bodyMedium)
                 if (summary.protectedCount > 0) {
                     WarningBox(
@@ -279,6 +348,27 @@ private fun WarningBox(text: String, level: StatusLevel) {
             Text(text, style = MaterialTheme.typography.bodyMedium)
         }
     }
+}
+
+/** Confirmation before re-applying the reviewed settings of every changed app. */
+@Composable
+internal fun RestoreAllConfirmDialog(count: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Rounded.Restore, contentDescription = null) },
+        title = { Text(pluralStringResource(R.plurals.apps_bg_restore_all_confirm_title, count, count)) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(stringResource(R.string.apps_bg_restore_all_confirm_message))
+            }
+        },
+        confirmButton = {
+            AbleButton(onClick = onConfirm, enabled = count > 0, haptic = AbleHaptic.Confirm) {
+                Text(stringResource(R.string.apps_bg_restore_all_action))
+            }
+        },
+        dismissButton = { AbleTextButton(onClick = onDismiss) { Text(stringResource(R.string.apps_cancel)) } },
+    )
 }
 
 /** Standby bucket picker (detail pane). The system may move the app again based on usage. */

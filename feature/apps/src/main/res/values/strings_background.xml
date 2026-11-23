@@ -23,7 +23,7 @@
     <string name="apps_bg_exempt_pill">Battery unrestricted</string>
     <string name="apps_bg_exempt_yes">Battery optimization: off</string>
     <string name="apps_bg_exempt_no">Battery optimization: on</string>
-    <string name="apps_bg_exempt_note">This app is exempt from battery optimization (Android \"Unrestricted\"). Able does not change this exemption; change it in Android\'s app battery settings.</string>
+    <string name="apps_bg_exempt_note">This app is exempt from battery optimization (Android \"Unrestricted\"): Doze and app standby do not limit it.</string>
     <string name="apps_bg_blocked_pill">Not changed by Able</string>
 
     <string name="apps_bg_shizuku_missing_title">Shizuku is required</string>
@@ -50,7 +50,7 @@
     </plurals>
     <string name="apps_bg_restrict_confirm_title_one">Restrict background activity of %1$s?</string>
     <string name="apps_bg_restrict_consequences">Android stops background jobs and limits alarms while the app is not in use. Notifications, alarms and reminders may arrive late or not at all, sync and backups may stop, and widgets may stop updating.</string>
-    <string name="apps_bg_restrict_undo">Undo at any time with Allow, here or in Android App info → App battery usage.</string>
+    <string name="apps_bg_restrict_undo">Undo at any time by choosing Optimized or Unrestricted, here or in Android App info → App battery usage.</string>
     <string name="apps_bg_restrict_action">Restrict</string>
     <plurals name="apps_bg_warn_protected">
         <item quantity="one">%d selected app is protected in Able.</item>
@@ -83,7 +83,7 @@
     <string name="apps_bg_card_title">Background state</string>
     <string name="apps_bg_state_allowed_message">Android lets this app run background jobs and alarms within the usual battery limits.</string>
     <string name="apps_bg_state_restricted_message">Background activity is restricted: background jobs and most alarms do not run while the app is not in use.</string>
-    <string name="apps_bg_state_partial_message">Only part of the background controls is restricted. Use the switch to allow or restrict both.</string>
+    <string name="apps_bg_state_partial_message">Only part of the background controls is restricted. Choose Restricted, Optimized or Unrestricted to set them consistently.</string>
     <string name="apps_bg_state_unknown_message">Android shows the background state of other apps only through Shizuku.</string>
     <string name="apps_bg_state_failed_message">Android did not report the background state of this app.</string>
     <string name="apps_bg_switch_title">Allow background activity</string>
@@ -124,7 +124,7 @@
     <string name="apps_bucket_system_may_change">Android may move the app to another bucket when you use it.</string>
 
     <string name="apps_help_background_title">Background activity</string>
-    <string name="apps_help_background_text">Restrict sets the Android controls RUN_ANY_IN_BACKGROUND and RUN_IN_BACKGROUND to \"ignore\", the same as \"Restricted\" in Android App battery usage. Android then stops the app\'s background jobs and limits its alarms while you are not using it.\n\nRisk: notifications, alarms, reminders, sync, backups and widgets may stop or arrive late. Do not restrict messaging, alarm, health or security apps you rely on.\n\nUndo: Allow sets both controls back to \"allow\". Able never restricts itself, Shizuku or core Android components, and never applies these changes automatically.</string>
+    <string name="apps_help_background_text">Able offers the same three choices as Android App battery usage:\n\n• Restricted: RUN_ANY_IN_BACKGROUND and RUN_IN_BACKGROUND set to \"ignore\" and the app removed from the battery-optimization allowlist. Android stops background jobs and limits alarms while you are not using the app.\n• Optimized (Android default): both controls \"allow\", not on the allowlist. Android limits the app with Doze and app standby.\n• Unrestricted: both controls \"allow\" and the app added to the battery-optimization allowlist (Doze does not limit it). This can use more battery.\n\nApps on the system allowlist are kept unrestricted by Android; Able cannot change that.\n\nRisk: Restricted can stop or delay notifications, alarms, reminders, sync, backups and widgets. Do not restrict messaging, alarm, health or security apps you rely on.\n\nUndo: choose another option at any time. Able never restricts itself, Shizuku or core Android components, and never applies these changes automatically.</string>
     <string name="apps_help_bucket_title">App standby bucket</string>
     <string name="apps_help_bucket_text">Android places every app in a standby bucket based on how recently and often you use it, and limits jobs, alarms and network access accordingly (Restricted is the strongest).\n\nRisk: a lower bucket can delay notifications and sync.\n\nUndo: choose Active, or simply open the app: Android moves apps back up when you use them.</string>
     <string name="apps_help_bg_shizuku_text">Android lets only system tools read and change the background controls of other apps. Shizuku gives Able that access after you start it with wireless debugging or root.\n\nWithout Shizuku, open Android App info → App battery usage for the same app.</string>
@@ -133,4 +133,77 @@
     <string name="apps_log_background_restrict">Restrict background activity of %1$s</string>
     <string name="apps_log_background_allow">Allow background activity of %1$s</string>
     <string name="apps_log_standby_bucket">Set standby bucket of %1$s to %2$s</string>
+
+    <!-- Three-state background mode (NoMoreBackground parity, 2026-11-24) -->
+    <string name="apps_bg_mode_title">Battery usage</string>
+    <string name="apps_bg_mode_restricted">Restricted</string>
+    <string name="apps_bg_mode_optimized">Optimized</string>
+    <string name="apps_bg_mode_unrestricted">Unrestricted</string>
+    <string name="apps_bg_mode_custom">Custom</string>
+    <string name="apps_bg_mode_restricted_desc">No background jobs; alarms limited while the app is not in use.</string>
+    <string name="apps_bg_mode_optimized_desc">Android default: limited by Doze and app standby.</string>
+    <string name="apps_bg_mode_unrestricted_desc">Not limited by battery optimization. May use more battery.</string>
+    <string name="apps_bg_mode_custom_desc">The app is on the battery-optimization allowlist but its background activity is restricted. Choose an option to make the settings consistent.</string>
+    <string name="apps_bg_mode_unknown_desc">Android did not report all settings needed to show the battery usage option.</string>
+    <string name="apps_bg_mode_system_allowlisted">Android keeps this app unrestricted (system allowlist). Able cannot make it Optimized or Restricted.</string>
+    <string name="apps_bg_mode_system_excidle">Android exempts this app from app standby (system list); Doze still applies.</string>
+    <string name="apps_bg_mode_pill">Battery: %1$s</string>
+    <string name="apps_bg_change_mode">Battery usage %1$s</string>
+    <string name="apps_bg_restrict_allowlist_note">If an app is unrestricted, Able also removes it from the battery-optimization allowlist. Apps kept unrestricted by Android only get their background activity restricted.</string>
+
+    <!-- Background mobile data (cmd netpolicy restrict-background) -->
+    <string name="apps_bg_data_title">Block background mobile data</string>
+    <string name="apps_bg_data_message">Blocks mobile data only while the app is in the background. Wi-Fi and use in the foreground are not affected.</string>
+    <string name="apps_bg_data_unavailable">Android did not report the background data setting of this app.</string>
+    <string name="apps_bg_data_pill">Background data blocked</string>
+    <string name="apps_bg_filter_data_blocked">Background data blocked</string>
+    <string name="apps_bg_change_data_block">Block background mobile data</string>
+    <string name="apps_bg_change_data_allow">Allow background mobile data</string>
+    <string name="apps_help_bg_data_title">Background mobile data</string>
+    <string name="apps_help_bg_data_text">Adds the app to Android\'s background data restriction (the same as turning off \"Background data\" in App info → Mobile data). The restriction applies to the app\'s UID, so apps sharing a UID are affected together.\n\nRisk: on mobile data, sync, messages and notifications that need the network may arrive only when you open the app or connect to Wi-Fi.\n\nUndo: turn the switch off. Wi-Fi and foreground use are never blocked.</string>
+
+    <!-- Reviewed apps -->
+    <string name="apps_bg_review_mark">Mark as reviewed</string>
+    <string name="apps_bg_review_mark_message">Saves these background settings on this device. Able warns you if an app update or Android changes them.</string>
+    <string name="apps_bg_review_mark_unavailable">Available when Android reports the current background settings through Shizuku.</string>
+    <string name="apps_bg_reviewed_title">Reviewed</string>
+    <string name="apps_bg_reviewed_message">Reviewed on %1$s. The current settings match.</string>
+    <string name="apps_bg_review_changed_row">Reviewed on %1$s. The current settings differ.</string>
+    <string name="apps_bg_review_update">Update</string>
+    <string name="apps_bg_review_forget">Forget</string>
+    <string name="apps_bg_review_save_failed">Able could not save the review on this device. Try again.</string>
+    <string name="apps_bg_reviewed_pill">Reviewed</string>
+    <string name="apps_bg_changed_pill">Changed since review</string>
+    <string name="apps_bg_review_changed_title">Changed since review</string>
+    <string name="apps_bg_review_changed_message">Different now: %1$s. An app update or Android may have reset them.</string>
+    <string name="apps_bg_review_restore">Restore reviewed settings</string>
+    <string name="apps_bg_review_keep">Keep current</string>
+    <string name="apps_bg_review_field_run_any">background jobs and alarms (RUN_ANY_IN_BACKGROUND)</string>
+    <string name="apps_bg_review_field_run">background running (RUN_IN_BACKGROUND)</string>
+    <string name="apps_bg_review_field_allowlist">battery-optimization allowlist</string>
+    <string name="apps_bg_review_field_data">background mobile data</string>
+    <string name="apps_bg_review_separator">, </string>
+    <string name="apps_bg_change_review_restore">Restore reviewed settings</string>
+    <string name="apps_bg_filter_hide_reviewed">Hide reviewed</string>
+    <plurals name="apps_bg_changed_banner_title">
+        <item quantity="one">%d reviewed app changed</item>
+        <item quantity="other">%d reviewed apps changed</item>
+    </plurals>
+    <string name="apps_bg_changed_banner_message">Their background settings no longer match your review. An app update or Android may have reset them.</string>
+    <string name="apps_bg_restore_all">Restore all changed</string>
+    <plurals name="apps_bg_restore_all_confirm_title">
+        <item quantity="one">Restore reviewed settings of %d app?</item>
+        <item quantity="other">Restore reviewed settings of %d apps?</item>
+    </plurals>
+    <string name="apps_bg_restore_all_confirm_message">Able re-applies only the settings that differ from your review and reads each app back. Apps you restricted when reviewing will be restricted again.</string>
+    <string name="apps_bg_restore_all_action">Restore</string>
+    <string name="apps_bg_bulk_running_restore">Restoring reviewed settings…</string>
+    <string name="apps_bg_bulk_done_restore">Restore reviewed settings: finished</string>
+    <string name="apps_help_bg_review_title">Reviewed apps</string>
+    <string name="apps_help_bg_review_text">Marking an app as reviewed saves its background jobs and alarms setting, background running, battery-optimization allowlist and background mobile data on this device only. The standby bucket is not saved because Android changes it on its own.\n\nIf the live settings later differ, Able shows \"Changed since review\" and offers to restore them. Nothing is restored automatically.\n\nUndo: Forget removes the saved review; your settings stay as they are.</string>
+
+    <string name="apps_log_background_mode">Set battery usage of %1$s to %2$s</string>
+    <string name="apps_log_bg_data_block">Block background mobile data of %1$s</string>
+    <string name="apps_log_bg_data_allow">Allow background mobile data of %1$s</string>
+    <string name="apps_log_review_restore">Restore reviewed background settings of %1$s</string>
 </resources>

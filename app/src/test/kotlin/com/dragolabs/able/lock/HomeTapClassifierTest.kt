@@ -18,7 +18,7 @@ class HomeTapClassifierTest {
     fun firstTapDuration_isAllowedOnTopOfTheTimeout() {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
-        assertEquals(Result.DoubleTap(420), c.onTouchDown(1_420, timeout))
+        assertEquals(Result.DoubleTap(380), c.onTouchDown(1_380, timeout))
     }
 
     @Test

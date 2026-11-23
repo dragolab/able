@@ -53,6 +53,9 @@ class PackageCommandsTest {
         )
         assertEquals("am force-stop --user 0 $pkg", PackageCommands.forceStop(0, pkg))
         assertEquals("pidof $pkg || true", PackageCommands.pidOf(pkg))
+        assertEquals("am stop-app --user 0 $pkg", PackageCommands.stopApp(0, pkg))
+        assertEquals(true, PackageCommands.isSoftStopSupported(33))
+        assertEquals(false, PackageCommands.isSoftStopSupported(32))
     }
 
     @Test
@@ -60,6 +63,8 @@ class PackageCommandsTest {
         assertNull(PackageCommands.command(PackageAction.DISABLE, 0, "com.example;reboot"))
         assertNull(PackageCommands.command(PackageAction.DISABLE, -1, "com.example.app"))
         assertNull(PackageCommands.forceStop(0, "x"))
+        assertNull(PackageCommands.stopApp(0, "com.example;reboot"))
+        assertNull(PackageCommands.stopApp(-1, "com.example.app"))
         assertNull(PackageCommands.pidOf("com.example app"))
     }
 

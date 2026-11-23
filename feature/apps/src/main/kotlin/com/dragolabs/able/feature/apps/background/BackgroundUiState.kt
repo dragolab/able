@@ -15,8 +15,12 @@ data class BackgroundFilters(
     val query: String = "",
     val type: AppTypeFilter = AppTypeFilter.ALL,
     val restrictedOnly: Boolean = false,
+    /** Only apps whose background mobile data is blocked. */
+    val backgroundDataBlockedOnly: Boolean = false,
+    /** Hides reviewed apps that still match their review (changed ones stay visible). */
+    val hideReviewed: Boolean = false,
 ) {
-    val isDefault: Boolean get() = type == AppTypeFilter.ALL && !restrictedOnly
+    val isDefault: Boolean get() = type == AppTypeFilter.ALL && !restrictedOnly && !backgroundDataBlockedOnly && !hideReviewed
 }
 
 @Immutable
@@ -32,6 +36,11 @@ data class BackgroundRow(
     val blockReason: BlockReason?,
     /** Expert/Unsafe (or unlisted system) package: changing it needs an explicit acknowledgement. */
     val risky: Boolean,
+    val mode: BackgroundMode? = null,
+    /** On the system battery-optimization allowlist: cannot be made Optimised or Restricted. */
+    val systemAllowlisted: Boolean = false,
+    val backgroundDataBlocked: Boolean? = null,
+    val review: ReviewState = ReviewState.NONE,
 )
 
 sealed interface OverviewLoad {
@@ -42,11 +51,14 @@ sealed interface OverviewLoad {
     data class Loaded(val overview: BackgroundOverview) : OverviewLoad
 }
 
+/** What a bulk run does. */
+enum class BulkKind { RESTRICT, ALLOW, RESTORE_REVIEWED }
+
 sealed interface BulkUi {
     data object Idle : BulkUi
-    data class Running(val restrict: Boolean, val done: Int, val total: Int) : BulkUi
+    data class Running(val kind: BulkKind, val done: Int, val total: Int) : BulkUi
     data class Done(
-        val restrict: Boolean,
+        val kind: BulkKind,
         val applied: Int,
         val rejected: Int,
         val notConfirmed: Int,
@@ -61,6 +73,8 @@ data class BackgroundListUiState(
     val rows: List<BackgroundRow> = emptyList(),
     val totalRows: Int = 0,
     val restrictedCount: Int = 0,
+    /** Reviewed apps whose live settings differ from the review. */
+    val changedCount: Int = 0,
     val selectionMode: Boolean = false,
     val selected: Set<String> = emptySet(),
     val bulk: BulkUi = BulkUi.Idle,
@@ -96,4 +110,16 @@ data class BackgroundDetailUi(
     val isProtected: Boolean,
     val removal: RemovalLevel?,
     val risky: Boolean,
-)
+    val review: ReviewedSettings? = null,
+    /** Fields that differ from [review] in the current reading. */
+    val reviewDiff: Set<ReviewField> = emptySet(),
+    /** Last review save/forget failed (file write error). */
+    val reviewSaveFailed: Boolean = false,
+) {
+    val reviewState: ReviewState
+        get() = when {
+            review == null -> ReviewState.NONE
+            reviewDiff.isNotEmpty() -> ReviewState.CHANGED
+            else -> ReviewState.REVIEWED
+        }
+}

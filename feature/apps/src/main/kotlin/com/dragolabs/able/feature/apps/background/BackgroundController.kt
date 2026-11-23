@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 class BackgroundController(
     private val appContext: Context,
     private val repository: BackgroundRepository,
+    private val reviewStore: BackgroundReviewStore,
     private val actionLog: ActionLogRepository,
     private val ownPackage: String,
     private val userId: () -> Int,
@@ -47,6 +48,8 @@ class BackgroundController(
         val apps: Map<String, InstalledApp>,
         val knowledge: Map<String, PackageKnowledge>,
         val protectedSet: Set<String>,
+        /** Reviews of the current user, keyed by package. */
+        val reviews: Map<String, ReviewedSettings>,
     )
 
     private data class Selection(val selectionMode: Boolean = false, val selected: Set<String> = emptySet())
@@ -55,6 +58,7 @@ class BackgroundController(
         val packageName: String? = null,
         val reading: DetailReading = DetailReading.Loading,
         val operation: BackgroundOperationUi = BackgroundOperationUi.Idle,
+        val reviewSaveFailed: Boolean = false,
     )
 
     private val load = MutableStateFlow<OverviewLoad>(OverviewLoad.Unavailable)
@@ -65,8 +69,12 @@ class BackgroundController(
     private val shizuku = MutableStateFlow(ShizukuConnectionState.NOT_AVAILABLE)
     private var visible = false
 
-    private val context = combine(apps, knowledge, protectedSet) { list, info, protected ->
-        Inputs(list.filter { it.isInstalledForUser }.associateBy { it.packageName }, info.orEmpty(), protected)
+    private val context = combine(apps, knowledge, protectedSet, reviewStore.reviews) { list, info, protected, reviews ->
+        val prefix = BackgroundReviewStore.key(userId(), "")
+        val mine = reviews.orEmpty().entries
+            .filter { it.key.startsWith(prefix) }
+            .associate { it.key.removePrefix(prefix) to it.value }
+        Inputs(list.filter { it.isInstalledForUser }.associateBy { it.packageName }, info.orEmpty(), protected, mine)
     }
 
     private val allRows = combine(context, load) { ctx, loaded -> buildRows(ctx, (loaded as? OverviewLoad.Loaded)?.overview) }
@@ -79,6 +87,7 @@ class BackgroundController(
             rows = filterBackgroundRows(rows, filter),
             totalRows = rows.size,
             restrictedCount = rows.count { it.status == BackgroundStatus.RESTRICTED },
+            changedCount = rows.count { it.review == ReviewState.CHANGED && it.blockReason == null },
             selectionMode = sel.selectionMode,
             selected = sel.selected,
             bulk = bulkUi,
@@ -90,6 +99,8 @@ class BackgroundController(
         val pkg = sel.packageName ?: return@combine null
         val app = ctx.apps[pkg]
         val removal = ctx.knowledge[pkg]?.removal
+        val review = ctx.reviews[pkg]
+        val live = (sel.reading as? DetailReading.Loaded)?.snapshot
         BackgroundDetailUi(
             packageName = pkg,
             label = app?.label ?: pkg,
@@ -101,10 +112,14 @@ class BackgroundController(
             isProtected = pkg in ctx.protectedSet,
             removal = removal,
             risky = requiresAcknowledgement(removal, app?.isSystem ?: false),
+            review = review,
+            reviewDiff = if (review != null && live != null) reviewDiff(review, live) else emptySet(),
+            reviewSaveFailed = sel.reviewSaveFailed,
         )
     }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), null)
 
     init {
+        scope.launch { reviewStore.load() }
         scope.launch {
             shizukuState.distinctUntilChanged().collect { state ->
                 shizuku.value = state
@@ -153,6 +168,8 @@ class BackgroundController(
     fun setQuery(query: String) = filters.update { it.copy(query = query) }
     fun setType(type: AppTypeFilter) = filters.update { it.copy(type = type) }
     fun setRestrictedOnly(value: Boolean) = filters.update { it.copy(restrictedOnly = value) }
+    fun setBackgroundDataBlockedOnly(value: Boolean) = filters.update { it.copy(backgroundDataBlockedOnly = value) }
+    fun setHideReviewed(value: Boolean) = filters.update { it.copy(hideReviewed = value) }
     fun clearFilters() = filters.update { BackgroundFilters(query = it.query) }
 
     fun setSelectionMode(enabled: Boolean) = selection.update {
@@ -192,27 +209,56 @@ class BackgroundController(
     private var lastRows: List<BackgroundRow> = emptyList()
     private fun rowsByName(): Map<String, BackgroundRow> = lastRows.associateBy { it.packageName }
 
-    /** Restricts (or allows) every selected package, one at a time, reading each one back. */
+    /**
+     * Restricts (or allows) every selected package, one at a time, reading each one back.
+     * Restrict also leaves the user battery-optimization allowlist (Android "Restricted"); a
+     * system-allowlisted app only gets its background ops restricted. Allow touches the ops only.
+     */
     fun runBulk(restrict: Boolean) {
-        if (bulk.value is BulkUi.Running) return
         val byName = rowsByName()
-        val chosen = selection.value.selected.toList()
-        val targets = chosen.filter { pkg ->
+        val kind = if (restrict) BulkKind.RESTRICT else BulkKind.ALLOW
+        runBulk(kind, selection.value.selected.toList(), byName) { pkg ->
+            when {
+                !restrict -> BackgroundChange.SetBackground(allowed = true)
+                byName[pkg]?.systemAllowlisted == true -> BackgroundChange.SetBackground(allowed = false)
+                else -> BackgroundChange.SetMode(BackgroundMode.RESTRICTED)
+            }
+        }
+    }
+
+    /** Re-applies the reviewed settings of every app flagged "Changed since review". */
+    fun restoreAllChanged() {
+        val byName = rowsByName()
+        val reviews = reviewsOfCurrentUser()
+        val changed = lastRows.filter { it.review == ReviewState.CHANGED }.map { it.packageName }
+        runBulk(BulkKind.RESTORE_REVIEWED, changed, byName) { pkg ->
+            reviews[pkg]?.let(BackgroundChange::RestoreReview)
+        }
+    }
+
+    private fun runBulk(
+        kind: BulkKind,
+        chosen: List<String>,
+        byName: Map<String, BackgroundRow>,
+        changeFor: (String) -> BackgroundChange?,
+    ) {
+        if (bulk.value is BulkUi.Running) return
+        val targets = chosen.mapNotNull { pkg ->
             val row = byName[pkg]
-            row != null && row.blockReason == null && PackageCommands.isValidPackageName(pkg)
+            if (row == null || row.blockReason != null || !PackageCommands.isValidPackageName(pkg)) return@mapNotNull null
+            changeFor(pkg)?.let { pkg to it }
         }
         val skipped = chosen.size - targets.size
         if (targets.isEmpty()) {
-            bulk.value = BulkUi.Done(restrict, 0, 0, 0, skipped)
+            bulk.value = BulkUi.Done(kind, 0, 0, 0, skipped)
             return
         }
-        bulk.value = BulkUi.Running(restrict, 0, targets.size)
+        bulk.value = BulkUi.Running(kind, 0, targets.size)
         applicationScope.launch {
             var applied = 0
             var rejected = 0
             var notConfirmed = 0
-            val change = BackgroundChange.SetBackground(allowed = !restrict)
-            targets.forEachIndexed { index, pkg ->
+            targets.forEachIndexed { index, (pkg, change) ->
                 val result = runCatching { repository.apply(userId(), pkg, change) }
                     .getOrElse { BackgroundChangeResult(PackageActionOutcome.NOT_CONFIRMED, null, null, it.message) }
                 when (result.outcome) {
@@ -221,13 +267,47 @@ class BackgroundController(
                     PackageActionOutcome.NOT_CONFIRMED -> notConfirmed++
                 }
                 log(pkg, byName[pkg]?.label ?: pkg, change, result)
-                bulk.value = BulkUi.Running(restrict, index + 1, targets.size)
+                bulk.value = BulkUi.Running(kind, index + 1, targets.size)
             }
-            bulk.value = BulkUi.Done(restrict, applied, rejected, notConfirmed, skipped)
-            selection.value = Selection()
+            bulk.value = BulkUi.Done(kind, applied, rejected, notConfirmed, skipped)
+            if (kind != BulkKind.RESTORE_REVIEWED) selection.value = Selection()
             refreshOverviewNow()
             detail.value.packageName?.let(::loadDetail)
         }
+    }
+
+    private fun reviewsOfCurrentUser(): Map<String, ReviewedSettings> {
+        val prefix = BackgroundReviewStore.key(userId(), "")
+        return reviewStore.reviews.value.orEmpty().entries
+            .filter { it.key.startsWith(prefix) }
+            .associate { it.key.removePrefix(prefix) to it.value }
+    }
+
+    /**
+     * Stores the current reading of [packageName] as its reviewed settings. Only possible when
+     * the ops and the allowlist were read through Shizuku.
+     */
+    fun markReviewed(packageName: String) {
+        if (!PackageCommands.isValidPackageName(packageName)) return
+        val snapshot = (detail.value.reading as? DetailReading.Loaded)?.snapshot?.takeIf { detail.value.packageName == packageName } ?: return
+        val review = reviewOf(snapshot, System.currentTimeMillis()) ?: return
+        scope.launch {
+            val saved = reviewStore.put(userId(), packageName, review)
+            detail.update { if (it.packageName == packageName) it.copy(reviewSaveFailed = !saved) else it }
+        }
+    }
+
+    fun forgetReview(packageName: String) {
+        scope.launch {
+            val saved = reviewStore.remove(userId(), packageName)
+            detail.update { if (it.packageName == packageName) it.copy(reviewSaveFailed = !saved) else it }
+        }
+    }
+
+    /** Re-applies the reviewed settings of [packageName] (only differing fields) and verifies them. */
+    fun restoreReview(packageName: String, label: String) {
+        val review = reviewsOfCurrentUser()[packageName] ?: return
+        apply(packageName, label, BackgroundChange.RestoreReview(review))
     }
 
     /** Synced with the list-detail navigator. */
@@ -295,6 +375,16 @@ class BackgroundController(
                 label,
                 appContext.getString(change.bucket.labelRes()),
             )
+            is BackgroundChange.SetMode -> appContext.getString(
+                R.string.apps_log_background_mode,
+                label,
+                appContext.getString(change.mode.labelRes()),
+            )
+            is BackgroundChange.SetBackgroundData -> appContext.getString(
+                if (change.blocked) R.string.apps_log_bg_data_block else R.string.apps_log_bg_data_allow,
+                label,
+            )
+            is BackgroundChange.RestoreReview -> appContext.getString(R.string.apps_log_review_restore, label)
         }
         val outcome = appContext.getString(
             when (result.outcome) {
@@ -308,6 +398,9 @@ class BackgroundController(
                 actionId = when (change) {
                     is BackgroundChange.SetBackground -> if (change.allowed) ACTION_ALLOW else ACTION_RESTRICT
                     is BackgroundChange.SetBucket -> ACTION_BUCKET
+                    is BackgroundChange.SetMode -> ACTION_MODE
+                    is BackgroundChange.SetBackgroundData -> ACTION_BG_DATA
+                    is BackgroundChange.RestoreReview -> ACTION_REVIEW_RESTORE
                 },
                 status = status,
                 detail = "$action – $outcome",
@@ -319,7 +412,7 @@ class BackgroundController(
 
     private fun buildRows(ctx: Inputs, overview: BackgroundOverview?): List<BackgroundRow> =
         ctx.apps.values.map { app ->
-            val snapshot = overview?.snapshotOf(app.packageName)
+            val snapshot = overview?.snapshotOf(app.packageName, app.uid.takeIf { it >= 0 })
             val removal = ctx.knowledge[app.packageName]?.removal
             BackgroundRow(
                 packageName = app.packageName,
@@ -332,6 +425,10 @@ class BackgroundController(
                 removal = removal,
                 blockReason = blockReasonFor(app.packageName, ownPackage),
                 risky = requiresAcknowledgement(removal, app.isSystem),
+                mode = snapshot?.mode,
+                systemAllowlisted = snapshot?.systemAllowlisted ?: false,
+                backgroundDataBlocked = snapshot?.backgroundDataBlocked,
+                review = reviewStateOf(ctx.reviews[app.packageName], snapshot),
             )
         }.also { lastRows = it }
 
@@ -339,6 +436,9 @@ class BackgroundController(
         const val ACTION_RESTRICT = "app_background_restrict"
         const val ACTION_ALLOW = "app_background_allow"
         const val ACTION_BUCKET = "app_standby_bucket"
+        const val ACTION_MODE = "app_background_mode"
+        const val ACTION_BG_DATA = "app_background_data"
+        const val ACTION_REVIEW_RESTORE = "app_background_review_restore"
     }
 }
 
@@ -352,6 +452,8 @@ internal fun filterBackgroundRows(rows: List<BackgroundRow>, filters: Background
             AppTypeFilter.SYSTEM -> row.isSystem
         } &&
             (!filters.restrictedOnly || row.status == BackgroundStatus.RESTRICTED || row.status == BackgroundStatus.PARTIAL) &&
+            (!filters.backgroundDataBlockedOnly || row.backgroundDataBlocked == true) &&
+            (!filters.hideReviewed || row.review != ReviewState.REVIEWED) &&
             (query.isEmpty() || row.label.lowercase().contains(query) || row.packageName.lowercase().contains(query))
     }
 }

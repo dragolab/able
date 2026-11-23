@@ -46,8 +46,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <!--
-        In-app updater (UPD-001, ADR-051): INTERNET reaches only api.github.com and the GitHub
-        release download (github.com → *.githubusercontent.com). REQUEST_INSTALL_PACKAGES lets the
+        INTERNET is used only by features the user opens: the in-app updater (UPD-001, ADR-051/054:
+        raw.githubusercontent.com, api.github.com, GitHub release downloads), map tiles for Fake GPS
+        and Drinking fountains (OpenStreetMap tile servers), the fountains data query (Overpass API,
+        MAP-001: visible map area only) and the speed test (speed.cloudflare.com, NET-001).
+        Downdetector (NET-002) only opens the browser. No analytics, no account.
+        REQUEST_INSTALL_PACKAGES lets the
         user install the downloaded update through Android's confirmation dialog; Android asks the
         user to allow "Install unknown apps" for Able first. Not eligible for Google Play builds.
     -->

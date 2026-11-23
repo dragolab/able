@@ -55,8 +55,15 @@ internal class HomeDoubleTapController(
     private var timeoutMs = LockGestureSettings.DEFAULT_TIMEOUT_MS
     private var view: View? = null
 
-    /** The reference app needs no click/scroll events for this; neither does Able any more. */
-    val wantsInteractionEvents: Boolean get() = false
+    /**
+     * Launcher click, long-click and scroll events (requested only while the feature is on) let
+     * Able ignore a pair whose first touch opened an icon or swiped a page: checked at the second
+     * touch-down, so recognition stays immediate (owner report 2026-11-24: "too sensitive").
+     */
+    val wantsInteractionEvents: Boolean get() = enabled
+
+    @Volatile
+    private var lastLauncherInteractionMs = 0L
 
     val attachedView: View? get() = view
 
@@ -74,8 +81,17 @@ internal class HomeDoubleTapController(
     @Suppress("UNUSED_PARAMETER")
     fun onForeground(pkg: String) = Unit
 
-    @Suppress("UNUSED_PARAMETER")
-    fun onAccessibilityEvent(event: AccessibilityEvent) = Unit
+    /** Launcher click, long click or scroll: the touch that caused it was not on empty space. */
+    fun onAccessibilityEvent(event: AccessibilityEvent) {
+        if (!enabled) return
+        if (event.packageName?.toString() != packages.launcherPackage) return
+        when (event.eventType) {
+            AccessibilityEvent.TYPE_VIEW_CLICKED,
+            AccessibilityEvent.TYPE_VIEW_LONG_CLICKED,
+            AccessibilityEvent.TYPE_VIEW_SCROLLED,
+            -> if (event.eventTime > lastLauncherInteractionMs) lastLauncherInteractionMs = event.eventTime
+        }
+    }
 
     fun onScreenStateChanged() {
         classifier.reset()
@@ -139,7 +155,16 @@ internal class HomeDoubleTapController(
             is HomeTapClassifier.Result.TooSlow -> {
                 if (focusedLauncherRoot() != null) report(HomeTapAttempt.TOO_SLOW, result.gapMs)
             }
-            is HomeTapClassifier.Result.DoubleTap -> onDoubleTapCandidate(result.gapMs)
+            is HomeTapClassifier.Result.DoubleTap -> {
+                val firstDownMs = eventTimeMs - result.gapMs
+                if (lastLauncherInteractionMs >= firstDownMs - HomeTapClassifier.INTERACTION_MARGIN_MS) {
+                    // The first touch tapped an icon/widget, long-pressed or swiped a page.
+                    classifier.cancelTrigger()
+                    report(HomeTapAttempt.ICON_OR_SWIPE, result.gapMs)
+                } else {
+                    onDoubleTapCandidate(result.gapMs)
+                }
+            }
         }
     }
 

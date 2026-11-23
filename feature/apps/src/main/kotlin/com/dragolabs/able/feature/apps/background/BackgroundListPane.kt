@@ -22,6 +22,8 @@ import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Checklist
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.MobiledataOff
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -82,6 +84,9 @@ internal class BackgroundListActions(
     val onQueryChange: (String) -> Unit,
     val onTypeChange: (AppTypeFilter) -> Unit,
     val onRestrictedOnlyChange: (Boolean) -> Unit,
+    val onBackgroundDataBlockedOnlyChange: (Boolean) -> Unit,
+    val onHideReviewedChange: (Boolean) -> Unit,
+    val onRestoreAllChanged: () -> Unit,
     val onClearFilters: () -> Unit,
     val onRetry: () -> Unit,
     val onRequestShizukuPermission: () -> Unit,
@@ -113,6 +118,7 @@ internal fun BackgroundListPane(
     val haptics = rememberAbleHaptics()
     var confirmRestrict by rememberSaveable { mutableStateOf(false) }
     var confirmAllow by rememberSaveable { mutableStateOf(false) }
+    var confirmRestoreAll by rememberSaveable { mutableStateOf(false) }
     val loaded = state.load as? OverviewLoad.Loaded
     val subtitle = if (loaded != null) {
         pluralStringResource(R.plurals.apps_bg_restricted_count, state.restrictedCount, state.restrictedCount)
@@ -180,6 +186,17 @@ internal fun BackgroundListPane(
             item(key = "filters", contentType = "filters") { FilterRow(state.filters, actions) }
             item(key = "count", contentType = "count") { SelectionRow(state, canChange, actions) }
             bulkBanner(state.bulk, actions)
+            if (state.changedCount > 0 && canChange && state.shizuku == ShizukuConnectionState.READY) {
+                item(key = "changed", contentType = "changed") {
+                    StatusBanner(
+                        level = StatusLevel.WARNING,
+                        title = pluralStringResource(R.plurals.apps_bg_changed_banner_title, state.changedCount, state.changedCount),
+                        message = stringResource(R.string.apps_bg_changed_banner_message),
+                        actionLabel = stringResource(R.string.apps_bg_restore_all),
+                        onAction = { confirmRestoreAll = true },
+                    )
+                }
+            }
             when (state.load) {
                 OverviewLoad.Loading -> item(key = "loading") { LoadingState(message = stringResource(R.string.apps_bg_loading)) }
                 OverviewLoad.Failed -> item(key = "failed") {
@@ -227,6 +244,16 @@ internal fun BackgroundListPane(
                 actions.onRunBulk(true)
             },
             onDismiss = { confirmRestrict = false },
+        )
+    }
+    if (confirmRestoreAll) {
+        RestoreAllConfirmDialog(
+            count = state.changedCount,
+            onConfirm = {
+                confirmRestoreAll = false
+                actions.onRestoreAllChanged()
+            },
+            onDismiss = { confirmRestoreAll = false },
         )
     }
     if (confirmAllow) {
@@ -280,6 +307,18 @@ private fun FilterRow(filters: BackgroundFilters, actions: BackgroundListActions
             label = { Text(stringResource(R.string.apps_bg_filter_restricted)) },
             leadingIcon = { Icon(Icons.Rounded.Block, contentDescription = null, modifier = Modifier.size(18.dp)) },
         )
+        AbleFilterChip(
+            selected = filters.backgroundDataBlockedOnly,
+            onClick = { actions.onBackgroundDataBlockedOnlyChange(!filters.backgroundDataBlockedOnly) },
+            label = { Text(stringResource(R.string.apps_bg_filter_data_blocked)) },
+            leadingIcon = { Icon(Icons.Rounded.MobiledataOff, contentDescription = null, modifier = Modifier.size(18.dp)) },
+        )
+        AbleFilterChip(
+            selected = filters.hideReviewed,
+            onClick = { actions.onHideReviewedChange(!filters.hideReviewed) },
+            label = { Text(stringResource(R.string.apps_bg_filter_hide_reviewed)) },
+            leadingIcon = { Icon(Icons.Rounded.Verified, contentDescription = null, modifier = Modifier.size(18.dp)) },
+        )
     }
 }
 
@@ -326,7 +365,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.bulkBanner(bulk: Bulk
         is BulkUi.Running -> item(key = "bulk") {
             StatusBanner(
                 level = StatusLevel.INFO,
-                title = stringResource(if (bulk.restrict) R.string.apps_bg_bulk_running_restrict else R.string.apps_bg_bulk_running_allow),
+                title = stringResource(
+                    when (bulk.kind) {
+                        BulkKind.RESTRICT -> R.string.apps_bg_bulk_running_restrict
+                        BulkKind.ALLOW -> R.string.apps_bg_bulk_running_allow
+                        BulkKind.RESTORE_REVIEWED -> R.string.apps_bg_bulk_running_restore
+                    },
+                ),
                 message = stringResource(R.string.apps_bg_bulk_progress, bulk.done, bulk.total),
             )
         }
@@ -338,7 +383,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.bulkBanner(bulk: Bulk
                     failed > 0 || bulk.skipped > 0 -> StatusLevel.WARNING
                     else -> StatusLevel.SUCCESS
                 },
-                title = stringResource(if (bulk.restrict) R.string.apps_bg_bulk_done_restrict else R.string.apps_bg_bulk_done_allow),
+                title = stringResource(
+                    when (bulk.kind) {
+                        BulkKind.RESTRICT -> R.string.apps_bg_bulk_done_restrict
+                        BulkKind.ALLOW -> R.string.apps_bg_bulk_done_allow
+                        BulkKind.RESTORE_REVIEWED -> R.string.apps_bg_bulk_done_restore
+                    },
+                ),
                 message = stringResource(R.string.apps_bg_bulk_result, bulk.applied, bulk.rejected, bulk.notConfirmed, bulk.skipped),
                 actionLabel = stringResource(R.string.apps_dismiss),
                 onAction = actions.onDismissBulkResult,
@@ -387,7 +438,7 @@ private fun BackgroundAppRow(
     val haptics = rememberAbleHaptics()
     val scheme = MaterialTheme.colorScheme
     val blocked = row.blockReason != null
-    val statusText = stringResource(row.status.labelRes())
+    val statusText = row.mode?.let { stringResource(it.labelRes()) } ?: stringResource(row.status.labelRes())
     val openLabel = stringResource(R.string.apps_row_open_details)
     val selectLabel = stringResource(R.string.apps_bg_row_select)
     val interaction = if (selectionMode) {
@@ -424,9 +475,13 @@ private fun BackgroundAppRow(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(row.packageName, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    BackgroundStatusPill(row.status)
+                    val mode = row.mode
+                    if (mode != null) BackgroundModePill(mode)
+                    if (mode == null || row.status == BackgroundStatus.PARTIAL) BackgroundStatusPill(row.status)
+                    if (row.backgroundDataBlocked == true) BackgroundDataBlockedPill()
+                    ReviewPill(row.review)
                     row.bucket?.let { BucketPill(it) }
-                    if (row.batteryOptimizationExempt == true) BatteryExemptPill()
+                    if (mode == null && row.batteryOptimizationExempt == true) BatteryExemptPill()
                     if (row.isProtected) ProtectedPill()
                     if (row.risky && row.removal != null) RemovalPill(row.removal)
                     if (blocked) {

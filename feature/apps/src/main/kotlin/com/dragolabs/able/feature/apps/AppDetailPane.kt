@@ -93,6 +93,9 @@ internal class AppDetailActions(
     val onRequestShizukuPermission: () -> Unit,
     val onForceStop: () -> Unit,
     val onDismissForceStopResult: () -> Unit,
+    /** Soft stop (`am stop-app`): keeps scheduled alarms and jobs. */
+    val onSoftStop: () -> Unit = {},
+    val onDismissSoftStopResult: () -> Unit = {},
     val onOperation: (PackageOperation) -> Unit,
     val onDismissOperationResult: () -> Unit,
     /** Loads the APK backup preview for the uninstall confirmation. */
@@ -122,6 +125,7 @@ internal fun AppDetailPane(
     var pendingProfile by rememberSaveable(detail.packageName) { mutableStateOf<String?>(null) }
     var pendingLevel by rememberSaveable(detail.packageName) { mutableStateOf<AppInterventionLevel?>(null) }
     var confirmForceStop by rememberSaveable(detail.packageName) { mutableStateOf(false) }
+    var confirmSoftStop by rememberSaveable(detail.packageName) { mutableStateOf(false) }
     var confirmOperation by rememberSaveable(detail.packageName) { mutableStateOf<PackageOperation?>(null) }
     var confirmDeleteBackup by rememberSaveable(detail.packageName) { mutableStateOf(false) }
 
@@ -132,6 +136,14 @@ internal fun AppDetailPane(
             PackageActionOutcome.APPLIED -> haptics.confirm()
             PackageActionOutcome.REJECTED, PackageActionOutcome.NOT_CONFIRMED -> haptics.reject()
             null -> Unit
+        }
+    }
+    val softStopDone = detail.softStop as? ForceStopUi.Done
+    LaunchedEffect(softStopDone) {
+        when (softStopDone?.outcome) {
+            ForceStopOutcome.STOPPED -> haptics.confirm()
+            null -> Unit
+            else -> haptics.reject()
         }
     }
     val forceStopDone = detail.forceStop as? ForceStopUi.Done
@@ -188,6 +200,7 @@ internal fun AppDetailPane(
 
             // Actions (APP-003, APP-004)
             SectionHeader(stringResource(R.string.apps_section_actions), Modifier.padding(top = AbleSpacing.sm))
+            SoftStopResult(detail.softStop, detail.label, actions.onDismissSoftStopResult)
             ForceStopResult(detail.forceStop, detail.label, actions.onDismissForceStopResult)
             OperationResult(detail.operation, detail.label, detail.restoreRoute, actions.onOpenStore, actions.onDismissOperationResult)
             ActionsGroup(
@@ -195,6 +208,7 @@ internal fun AppDetailPane(
                 shizuku = shizuku,
                 actions = actions,
                 onRequestForceStop = { confirmForceStop = true },
+                onRequestSoftStop = { confirmSoftStop = true },
                 onRequestOperation = { operation ->
                     when (operation) {
                         PackageOperation.DISABLE -> confirmOperation = operation
@@ -307,6 +321,20 @@ internal fun AppDetailPane(
                 clear()
             },
             onDismiss = clear,
+        )
+    }
+
+    if (confirmSoftStop) {
+        ConfirmationDialog(
+            title = stringResource(R.string.apps_soft_stop_confirm_title, detail.label),
+            message = stringResource(R.string.apps_soft_stop_confirm_message),
+            confirmLabel = stringResource(R.string.apps_soft_stop_confirm_action),
+            icon = Icons.Rounded.StopCircle,
+            onConfirm = {
+                confirmSoftStop = false
+                actions.onSoftStop()
+            },
+            onDismiss = { confirmSoftStop = false },
         )
     }
 
@@ -542,6 +570,7 @@ private fun ActionsGroup(
     shizuku: ShizukuConnectionState,
     actions: AppDetailActions,
     onRequestForceStop: () -> Unit,
+    onRequestSoftStop: () -> Unit,
     onRequestOperation: (PackageOperation) -> Unit,
 ) {
     val running = (detail.operation as? PackageOperationUi.Running)?.operation
@@ -576,6 +605,11 @@ private fun ActionsGroup(
         }
         when (detail.state) {
             AppInstallState.INSTALLED -> {
+                if (detail.softStopAvailable) {
+                    item { shape ->
+                        SoftStopRow(shizuku, detail.softStop, detail.forceStop == ForceStopUi.Running, shape, actions.onRequestShizukuPermission, onRequestSoftStop)
+                    }
+                }
                 item { shape -> ForceStopRow(shizuku, detail.forceStop, shape, actions.onRequestShizukuPermission, onRequestForceStop) }
                 item { shape -> OperationRow(PackageOperation.DISABLE, shizuku, running, shape, actions.onRequestShizukuPermission, onRequestOperation) }
                 item { shape -> OperationRow(PackageOperation.UNINSTALL, shizuku, running, shape, actions.onRequestShizukuPermission, onRequestOperation) }
@@ -685,6 +719,32 @@ private fun OperationRow(
         shape = shape,
         onRequestShizukuPermission = onRequestShizukuPermission,
         onClick = { onRequest(operation) },
+    )
+}
+
+@Composable
+private fun SoftStopRow(
+    shizuku: ShizukuConnectionState,
+    softStop: ForceStopUi,
+    otherBusy: Boolean,
+    shape: Shape,
+    onRequestShizukuPermission: () -> Unit,
+    onRequestSoftStop: () -> Unit,
+) {
+    ShizukuActionRow(
+        title = stringResource(R.string.apps_action_soft_stop),
+        readyMessage = stringResource(R.string.apps_soft_stop_message),
+        runningMessage = stringResource(R.string.apps_soft_stop_running).takeIf { softStop == ForceStopUi.Running },
+        busy = softStop == ForceStopUi.Running || otherBusy,
+        icon = Icons.Rounded.StopCircle,
+        helpTitle = stringResource(R.string.apps_help_soft_stop_title),
+        helpText = stringResource(R.string.apps_help_soft_stop_text),
+        permissionMessage = stringResource(R.string.apps_force_stop_needs_permission),
+        unavailableMessage = stringResource(R.string.apps_force_stop_needs_shizuku),
+        shizuku = shizuku,
+        shape = shape,
+        onRequestShizukuPermission = onRequestShizukuPermission,
+        onClick = onRequestSoftStop,
     )
 }
 
@@ -817,6 +877,24 @@ private fun UsageSection(usage: UsageEvidence, onOpenUsageAccess: () -> Unit) {
             }
         }
     }
+}
+
+@Composable
+private fun SoftStopResult(softStop: ForceStopUi, label: String, onDismiss: () -> Unit) {
+    val done = softStop as? ForceStopUi.Done ?: return
+    val (level, titleRes, messageRes) = when (done.outcome) {
+        ForceStopOutcome.STOPPED -> Triple(StatusLevel.SUCCESS, R.string.apps_soft_stop_result_stopped, R.string.apps_soft_stop_result_stopped_message)
+        ForceStopOutcome.STILL_RUNNING -> Triple(StatusLevel.WARNING, R.string.apps_force_stop_result_running, R.string.apps_soft_stop_result_running_message)
+        ForceStopOutcome.NOT_CONFIRMED -> Triple(StatusLevel.WARNING, R.string.apps_force_stop_result_unconfirmed, R.string.apps_force_stop_result_unconfirmed_message)
+        ForceStopOutcome.FAILED -> Triple(StatusLevel.CRITICAL, R.string.apps_soft_stop_result_failed, R.string.apps_force_stop_result_failed_message)
+    }
+    StatusBanner(
+        level = level,
+        title = stringResource(titleRes, label),
+        message = stringResource(messageRes) + (done.detail?.let { "\n$it" } ?: ""),
+        actionLabel = stringResource(R.string.apps_dismiss),
+        onAction = onDismiss,
+    )
 }
 
 @Composable

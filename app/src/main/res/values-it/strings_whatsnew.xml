@@ -4,8 +4,11 @@
     <string name="whats_new_ok">Ho capito</string>
     <string name="whats_new_full_notes">Note complete</string>
     <string-array name="whats_new_items">
-        <item>Gli aggiornamenti ora vengono trovati in modo affidabile: Able legge un piccolo file della release nel repository, che non ha il limite di richieste di GitHub e non viene mai servito vecchio.</item>
-        <item>Se non è raggiungibile, il controllo usa come prima l\'API di GitHub.</item>
-        <item>Dalla 0.9.2: i pop-up di aiuto scorrono, il tempo del doppio tocco va da 50 a 450 ms e questa finestra mostra le novità dopo ogni aggiornamento.</item>
+        <item>Nuova sezione Rete negli Strumenti: Speedtest, Hotspot, DNS privato (ora uno strumento a sé) e Downdetector.</item>
+        <item>Speedtest: ping, jitter, download e upload con indicatore in tempo reale e cronologia locale.</item>
+        <item>Downdetector: apre la pagina dei disservizi di un servizio per il tuo paese, con i preferiti.</item>
+        <item>Fontanelle: mappa dei punti di acqua potabile da OpenStreetMap, ultimo strumento di Misure e posizione.</item>
+        <item>App → Background: Con limitazioni / Ottimizzata / Senza limitazioni, blocco dei dati mobili in background, stop leggero e app revisionate con ripristino, come NoMoreBackground.</item>
+        <item>Doppio tocco sulla Home meno sensibile: i tocchi sulle icone e gli scorrimenti delle pagine non contano più.</item>
     </string-array>
 </resources>

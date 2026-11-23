@@ -242,4 +242,22 @@
     <string name="apps_store_unavailable">No app store or browser can open this app\'s page.</string>
     <string name="apps_log_outcome_store_required">APK removed by Android, reinstall from store</string>
     <string name="apps_log_backup_failed">APK backup failed: %1$s</string>
+
+    <!-- Soft stop (am stop-app) -->
+    <string name="apps_action_soft_stop">Stop (keep alarms)</string>
+    <string name="apps_soft_stop_message">Stops the app and its services; scheduled alarms and jobs are kept.</string>
+    <string name="apps_soft_stop_running">Stopping and checking the result…</string>
+    <string name="apps_soft_stop_confirm_title">Stop %1$s?</string>
+    <string name="apps_soft_stop_confirm_message">The app and its services close now. Unlike Force stop, its scheduled alarms and jobs are kept, so it can start again on its own. Unsaved data in the app may be lost. Able will not reopen it.</string>
+    <string name="apps_soft_stop_confirm_action">Stop</string>
+    <string name="apps_soft_stop_result_stopped">%1$s stopped</string>
+    <string name="apps_soft_stop_result_stopped_message">Android accepted the command and no process of the app is running now. Its alarms and jobs can start it again.</string>
+    <string name="apps_soft_stop_result_running_message">The command was accepted, but a process of the app is running again. Its own alarms or jobs, a system component or another app may have started it.</string>
+    <string name="apps_soft_stop_result_failed">Could not stop %1$s</string>
+    <string name="apps_help_soft_stop_title">Stop (keep alarms)</string>
+    <string name="apps_help_soft_stop_text">Closes the app and its services like Force stop, but keeps its scheduled alarms and jobs (Android `am stop-app`). Use it to close a misbehaving app without losing reminders.\n\nRisk: the app can start again on its own; unsaved work may be lost.\n\nUndo: open the app again. Nothing is uninstalled.</string>
+    <string name="apps_log_soft_stop_success">Stop of %1$s applied (alarms and jobs kept)</string>
+    <string name="apps_log_soft_stop_still_running">Stop of %1$s sent, but the app is running again</string>
+    <string name="apps_log_soft_stop_not_confirmed">Stop of %1$s sent, result not confirmed</string>
+    <string name="apps_log_soft_stop_failed">Stop of %1$s failed</string>
 </resources>

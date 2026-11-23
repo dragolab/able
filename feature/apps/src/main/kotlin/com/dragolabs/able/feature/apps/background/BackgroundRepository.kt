@@ -1,6 +1,7 @@
 package com.dragolabs.able.feature.apps.background
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.PowerManager
 import com.dragolabs.able.core.capability.ShizukuAdapter
 import com.dragolabs.able.core.common.AbleResult
@@ -49,9 +50,26 @@ class BackgroundRepository(
         val buckets = async {
             BackgroundCommands.getStandbyBucket(userId)?.let { run(it).first }?.let(BackgroundCommands::parseStandbyBuckets)
         }
-        val allowlist = async { run(BackgroundCommands.POWER_ALLOWLIST).first?.let(BackgroundCommands::parsePowerAllowlist) }
-        BackgroundOverview(any.await(), runBg.await(), buckets.await().orEmpty(), allowlist.await())
+        val allowlist = async { run(BackgroundCommands.POWER_ALLOWLIST).first?.let(BackgroundCommands::parsePowerAllowlistKinds) }
+        val data = async { run(BackgroundCommands.BACKGROUND_DATA_DENYLIST).first?.let(BackgroundCommands::parseUidList) }
+        val kinds = allowlist.await()
+        BackgroundOverview(
+            runAnyRestricted = any.await(),
+            runRestricted = runBg.await(),
+            buckets = buckets.await().orEmpty(),
+            allowlist = kinds?.mapValues { (_, set) -> set.maxBy { it.ordinal } },
+            allowlistKinds = kinds,
+            backgroundDataBlockedUids = data.await(),
+        )
     }
+
+    /** App UID for the user Able runs in (PackageManager `ApplicationInfo.uid`); null if unknown. */
+    fun uidOf(packageName: String): Int? = runCatching {
+        context.packageManager.getApplicationInfo(
+            packageName,
+            PackageManager.ApplicationInfoFlags.of(PackageManager.MATCH_UNINSTALLED_PACKAGES.toLong()),
+        ).uid
+    }.getOrNull()?.takeIf(BackgroundCommands::isAppUid)
 
     /** Reads one package through Shizuku; null when Shizuku is not ready or the name is invalid. */
     suspend fun read(userId: Int, packageName: String): BackgroundSnapshot? = coroutineScope {
@@ -67,16 +85,23 @@ class BackgroundRepository(
         val bucket = async {
             BackgroundCommands.getStandbyBucket(userId, packageName)?.let { run(it).first }?.let(BackgroundCommands::parseStandbyBucket)
         }
-        val allowlist = async { run(BackgroundCommands.POWER_ALLOWLIST).first?.let(BackgroundCommands::parsePowerAllowlist) }
+        val allowlist = async { run(BackgroundCommands.POWER_ALLOWLIST).first?.let(BackgroundCommands::parsePowerAllowlistKinds) }
+        val uid = uidOf(packageName)
+        val data = async {
+            if (uid == null) null else run(BackgroundCommands.BACKGROUND_DATA_DENYLIST).first?.let(BackgroundCommands::parseUidList)
+        }
         val list = allowlist.await()
         val bucketValue = bucket.await()
+        val kinds = list?.get(packageName).orEmpty()
         BackgroundSnapshot(
             runAnyInBackground = any.await(),
             runInBackground = runBg.await(),
             bucket = bucketValue?.let(StandbyBucket::fromValue),
             bucketValue = bucketValue,
-            allowlist = list?.get(packageName),
+            allowlist = kinds.maxByOrNull { it.ordinal },
             allowlistKnown = list != null,
+            allowlistKinds = kinds,
+            backgroundDataBlocked = uid?.let { u -> data.await()?.contains(u) },
         )
     }
 
@@ -90,10 +115,23 @@ class BackgroundRepository(
 
     /** Applies [change] and reads the state back. */
     suspend fun apply(userId: Int, packageName: String, change: BackgroundChange): BackgroundChangeResult {
-        val commands = BackgroundCommands.commandsFor(change, userId, packageName)
-            ?: return BackgroundChangeResult(PackageActionOutcome.REJECTED, null, null, "Invalid package name")
+        if (!PackageCommands.isValidPackageName(packageName)) {
+            return BackgroundChangeResult(PackageActionOutcome.REJECTED, null, null, "Invalid package name")
+        }
         if (!shizuku.isReady()) return BackgroundChangeResult(PackageActionOutcome.REJECTED, null, null, "Shizuku unavailable")
         val before = read(userId, packageName)
+        val uid = uidOf(packageName)
+        val commands = BackgroundCommands.commandsFor(change, userId, packageName, uid, before)
+            ?: return BackgroundChangeResult(
+                PackageActionOutcome.REJECTED,
+                before,
+                before,
+                when {
+                    change is BackgroundChange.SetBackgroundData || change is BackgroundChange.RestoreReview && uid == null -> "App UID unavailable"
+                    before == null -> "Current state unavailable"
+                    else -> "Invalid request"
+                },
+            )
         var failure: String? = null
         for (command in commands) {
             val (output, error) = run(command)

@@ -23,7 +23,11 @@ enum class ToolId(val key: String) {
     FAKE_GPS("fakegps"),
     LEVEL("level"),
     RULER("ruler"),
-    COMPASS("compass");
+    COMPASS("compass"),
+    PRIVATE_DNS("privatedns"),
+    FOUNTAINS("fountains"),
+    SPEEDTEST("speedtest"),
+    DOWNDETECTOR("downdetector");
 
     companion object {
         fun fromKey(key: String?): ToolId? = entries.firstOrNull { it.key == key }

@@ -16,7 +16,7 @@
     <string name="tools_hint_hotspot">Attiva/disattiva, rete, QR e dispositivi (Shizuku)</string>
     <string name="tools_hint_lock">Blocca lo schermo tramite Accessibilità</string>
     <string name="tools_hint_direct">Controllo diretto con Shizuku</string>
-    <string name="tools_hint_settings">NFC, luminosità, debug, DNS privato</string>
+    <string name="tools_hint_settings">NFC, luminosità, debug USB e wireless</string>
     <string name="tools_hint_storage">Rivedi file grandi e download vecchi</string>
     <string name="tools_hint_activities">Apri direttamente le schermate delle app</string>
     <string name="tools_hint_shortcuts">Scorciatoie nella Home con icone personalizzate</string>
@@ -261,4 +261,7 @@
     <string name="tools_hint_memory">Uso della RAM e app in esecuzione</string>
     <string name="tools_fakegps_title">Fake GPS</string>
     <string name="tools_hint_fakegps">Simula una posizione sulla mappa</string>
+    <string name="tools_section_network">Rete</string>
+    <string name="tools_privatedns_title">DNS privato</string>
+    <string name="tools_hint_privatedns">Provider DNS salvati, attivabili con un tocco</string>
 </resources>

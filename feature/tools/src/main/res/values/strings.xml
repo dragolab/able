@@ -16,7 +16,7 @@
     <string name="tools_hint_hotspot">On/off, network settings, QR and devices (Shizuku)</string>
     <string name="tools_hint_lock">Lock the screen via Accessibility</string>
     <string name="tools_hint_direct">Direct control with Shizuku</string>
-    <string name="tools_hint_settings">NFC, brightness, debugging, Private DNS</string>
+    <string name="tools_hint_settings">NFC, brightness, USB and wireless debugging</string>
     <string name="tools_hint_storage">Review large files and old downloads</string>
     <string name="tools_hint_activities">Open app screens directly</string>
     <string name="tools_hint_shortcuts">Home-screen shortcuts with custom icons</string>
@@ -260,4 +260,7 @@
     <string name="tools_hint_memory">RAM use and running apps</string>
     <string name="tools_fakegps_title">Fake GPS</string>
     <string name="tools_hint_fakegps">Simulate a location on a map</string>
+    <string name="tools_section_network">Network</string>
+    <string name="tools_privatedns_title">Private DNS</string>
+    <string name="tools_hint_privatedns">Saved DNS providers, applied in one tap</string>
 </resources>

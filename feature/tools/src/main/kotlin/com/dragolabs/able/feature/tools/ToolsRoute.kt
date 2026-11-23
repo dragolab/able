@@ -17,7 +17,11 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddToHomeScreen
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material.icons.rounded.FlashlightOn
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.Lock
@@ -85,6 +89,7 @@ import kotlinx.coroutines.launch
 
 enum class ToolSection(@StringRes val titleRes: Int) {
     DEVICE(R.string.tools_section_device),
+    NETWORK(R.string.tools_section_network),
     FILES_AND_APPS(R.string.tools_section_files_apps),
     MEASURE(R.string.tools_section_measure),
     ADVANCED(R.string.tools_section_advanced),
@@ -113,10 +118,14 @@ internal fun buildToolEntries(
     val privilegedHint = if (shizuku == ShizukuConnectionState.READY) R.string.tools_hint_direct else R.string.tools_hint_settings
     return listOf(
         ToolEntry(ToolId.TORCH, ToolSection.DEVICE, if (device.hasFlashTorch) null else R.string.tools_reason_no_flash, R.string.tools_hint_torch),
-        ToolEntry(ToolId.HOTSPOT, ToolSection.DEVICE, hintRes = R.string.tools_hint_hotspot),
         ToolEntry(ToolId.SCREEN_LOCK, ToolSection.DEVICE, hintRes = R.string.tools_hint_lock),
         ToolEntry(ToolId.SYSTEM_TOGGLES, ToolSection.DEVICE, hintRes = privilegedHint),
         ToolEntry(ToolId.BUTTON_MAPPER, ToolSection.DEVICE, hintRes = R.string.tools_hint_buttons),
+        // Network (owner request 2026-11-24): connection tools together; Private DNS left System toggles.
+        ToolEntry(ToolId.SPEEDTEST, ToolSection.NETWORK, hintRes = R.string.tools_speedtest_summary),
+        ToolEntry(ToolId.HOTSPOT, ToolSection.NETWORK, hintRes = R.string.tools_hint_hotspot),
+        ToolEntry(ToolId.PRIVATE_DNS, ToolSection.NETWORK, hintRes = R.string.tools_hint_privatedns),
+        ToolEntry(ToolId.DOWNDETECTOR, ToolSection.NETWORK, hintRes = R.string.tools_downdetector_summary),
         ToolEntry(ToolId.APP_LOCK, ToolSection.ADVANCED, hintRes = R.string.tools_hint_applock),
         ToolEntry(ToolId.SHELL, ToolSection.ADVANCED, hintRes = R.string.tools_hint_shell),
         ToolEntry(ToolId.STORAGE, ToolSection.FILES_AND_APPS, hintRes = R.string.tools_hint_storage),
@@ -134,6 +143,8 @@ internal fun buildToolEntries(
             if (device.hasMagnetometer && device.hasAccelerometer) null else R.string.tools_reason_no_magnetometer,
             R.string.tools_hint_compass,
         ),
+        // Last tool of Measure & location (owner request 2026-11-24).
+        ToolEntry(ToolId.FOUNTAINS, ToolSection.MEASURE, hintRes = R.string.tools_fountains_summary),
     )
 }
 
@@ -375,4 +386,8 @@ internal fun ToolId.presentation(): ToolPresentation = when (this) {
     ToolId.LEVEL -> ToolPresentation(Icons.Rounded.Balance, R.string.tools_level_title, MaterialShapes.Pentagon)
     ToolId.RULER -> ToolPresentation(Icons.Rounded.Straighten, R.string.tools_ruler_title, MaterialShapes.Slanted)
     ToolId.COMPASS -> ToolPresentation(Icons.Rounded.Explore, R.string.tools_compass_title, MaterialShapes.Cookie12Sided)
+    ToolId.FOUNTAINS -> ToolPresentation(Icons.Rounded.WaterDrop, R.string.tools_fountains_title, MaterialShapes.Cookie6Sided)
+    ToolId.SPEEDTEST -> ToolPresentation(Icons.Rounded.Speed, R.string.tools_speedtest_title, MaterialShapes.Sunny)
+    ToolId.DOWNDETECTOR -> ToolPresentation(Icons.Rounded.CloudOff, R.string.tools_downdetector_title, MaterialShapes.Pentagon)
+    ToolId.PRIVATE_DNS -> ToolPresentation(Icons.Rounded.Dns, R.string.tools_privatedns_title, MaterialShapes.Cookie4Sided)
 }

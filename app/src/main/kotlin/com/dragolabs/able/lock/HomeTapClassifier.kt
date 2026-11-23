@@ -61,11 +61,14 @@ class HomeTapClassifier {
     }
 
     companion object {
-        /** Same lower bound as the reference app: closer touches are a bounce or two fingers. */
-        const val MIN_GAP_MS = 80L
+        /** Closer touches are a bounce, a palm or two fingers (reference app: 80 ms). */
+        const val MIN_GAP_MS = 90L
 
-        /** Added to the user's double-tap time: only touch-downs are seen. */
-        const val TAP_ALLOWANCE_MS = 150L
+        /** Added to the user's double-tap time for the first tap's duration (only touch-downs are seen). */
+        const val TAP_ALLOWANCE_MS = 100L
+
+        /** Launcher events stamped slightly before the first touch still belong to it. */
+        const val INTERACTION_MARGIN_MS = 50L
 
         /** Same as the reference app: ignore pairs within this time after a double tap. */
         const val REARM_MS = 200L

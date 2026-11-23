@@ -39,6 +39,19 @@ object PackageCommands {
     fun forceStop(userId: Int, packageName: String): String? =
         if (userId < 0 || !isValidPackageName(packageName)) null else "am force-stop --user $userId $packageName"
 
+    /**
+     * Soft stop: `am stop-app` "Stop an app and all of its services. Unlike `force-stop` this does
+     * not cancel the app's scheduled alarms and jobs" (AOSP ActivityManagerShellCommand, main;
+     * also present in android13-release, checked 2026-11-24). Gated by [SOFT_STOP_MIN_SDK].
+     */
+    fun stopApp(userId: Int, packageName: String): String? =
+        if (userId < 0 || !isValidPackageName(packageName)) null else "am stop-app --user $userId $packageName"
+
+    /** First API level whose `am` has `stop-app` (Android 13, TIRAMISU). */
+    const val SOFT_STOP_MIN_SDK = 33
+
+    fun isSoftStopSupported(sdkInt: Int): Boolean = sdkInt >= SOFT_STOP_MIN_SDK
+
     fun pidOf(packageName: String): String? =
         if (!isValidPackageName(packageName)) null else "pidof $packageName || true"
 

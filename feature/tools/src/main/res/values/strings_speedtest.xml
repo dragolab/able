@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hub -->
+    <string name="tools_speedtest_title">Speed test</string>
+    <string name="tools_speedtest_summary">Ping, jitter, download and upload via Cloudflare</string>
+
+    <!-- Actions -->
+    <string name="speedtest_start">Start test</string>
+    <string name="speedtest_start_again">Test again</string>
+    <string name="speedtest_cancel">Cancel</string>
+
+    <!-- Phases -->
+    <string name="speedtest_phase_idle">Ready</string>
+    <string name="speedtest_phase_latency">Measuring ping</string>
+    <string name="speedtest_phase_download">Download</string>
+    <string name="speedtest_phase_upload">Upload</string>
+    <string name="speedtest_phase_done">Download</string>
+    <string name="speedtest_phase_cancelled">Cancelled</string>
+    <string name="speedtest_phase_failed">Test failed</string>
+
+    <!-- Results -->
+    <string name="speedtest_unit_mbps">Mbps</string>
+    <string name="speedtest_unit_ms">ms</string>
+    <string name="speedtest_download">Download</string>
+    <string name="speedtest_upload">Upload</string>
+    <string name="speedtest_ping">Ping</string>
+    <string name="speedtest_jitter">Jitter</string>
+    <string name="speedtest_data_used">Data used: %1$s MB</string>
+
+    <!-- Connection -->
+    <string name="speedtest_connection">Connection</string>
+    <string name="speedtest_type_wifi">Wi-Fi</string>
+    <string name="speedtest_type_cellular">Mobile data</string>
+    <string name="speedtest_type_ethernet">Ethernet</string>
+    <string name="speedtest_type_other">Other network</string>
+    <string name="speedtest_type_none">No connection</string>
+    <string name="speedtest_metered">Metered</string>
+    <string name="speedtest_server_colo_country">Cloudflare server: %1$s (you appear in %2$s)</string>
+    <string name="speedtest_server_colo">Cloudflare server: %1$s</string>
+    <string name="speedtest_server_unknown">Server location is shown once the test starts.</string>
+
+    <!-- States -->
+    <string name="speedtest_offline_title">No internet connection</string>
+    <string name="speedtest_offline_message">Connect to Wi-Fi, mobile data or Ethernet to run the test.</string>
+    <string name="speedtest_failed_title">The test could not finish</string>
+    <string name="speedtest_failed_message">speed.cloudflare.com could not be reached or the connection dropped. Results shown so far are partial.</string>
+    <string name="speedtest_cancelled_title">Test cancelled</string>
+
+    <!-- Metered warning -->
+    <string name="speedtest_metered_title">Use mobile data?</string>
+    <string name="speedtest_metered_message">This connection is metered. On a fast connection the test can use up to about %1$s MB (each phase stops at 10 seconds or 100 MB). On slower connections it uses much less.</string>
+    <string name="speedtest_metered_confirm">Start anyway</string>
+
+    <!-- History -->
+    <string name="speedtest_history">Recent results</string>
+    <string name="speedtest_history_empty_title">No results yet</string>
+    <string name="speedtest_history_empty_message">The last 20 results are kept on this device only.</string>
+    <string name="speedtest_history_row_title">↓ %1$s · ↑ %2$s Mbps</string>
+    <string name="speedtest_history_row_supporting">%1$s · %2$s · ping %3$s ms</string>
+    <string name="speedtest_history_clear">Clear</string>
+    <string name="speedtest_history_clear_title">Clear history?</string>
+    <string name="speedtest_history_clear_message">All saved speed test results will be deleted from this device. This cannot be undone.</string>
+
+    <!-- Honest copy and help -->
+    <string name="speedtest_honest_note">Results depend on the Cloudflare server, your network and the moment you test. Cloudflare sees your IP address, as any website does.</string>
+    <string name="speedtest_help_title">About the speed test</string>
+    <string name="speedtest_help_text">How it works: Able measures against Cloudflare\'s public speed test (speed.cloudflare.com), the same service its website uses.\n\nPing and jitter: 10 tiny requests after one warm-up request. Ping is the median round trip, without Cloudflare\'s own processing time; jitter is the average change between consecutive pings.\n\nDownload and upload: 4 parallel transfers that grow from 100 kB to 1 MB, 10 MB and 25 MB as the connection allows. Each phase stops after 10 seconds, earlier once the speed is stable, or when its data budget is reached (100 MB on metered connections). The first second is excluded so connection set-up does not lower the result. Speeds are in megabits per second (1 Mbps = 1,000,000 bits per second).\n\nData used: shown during and after the test. On mobile data Able asks before starting.\n\nPrivacy: Able contacts speed.cloudflare.com only. Cloudflare sees your IP address like any website. Results are saved only on this device (last 20) and never uploaded.</string>
+</resources>

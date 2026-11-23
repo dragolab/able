@@ -92,6 +92,7 @@ class AppsViewModel(
         val packageName: String? = null,
         val usage: UsageEvidence = UsageEvidence.Loading,
         val forceStop: ForceStopUi = ForceStopUi.Idle,
+        val softStop: ForceStopUi = ForceStopUi.Idle,
         val operation: PackageOperationUi = PackageOperationUi.Idle,
         val restore: RestoreInfo? = null,
         val uninstallPlan: UninstallPlanUi = UninstallPlanUi.Idle,
@@ -120,6 +121,7 @@ class AppsViewModel(
     internal val background = com.dragolabs.able.feature.apps.background.BackgroundController(
         appContext = appContext,
         repository = com.dragolabs.able.feature.apps.background.BackgroundRepository(appContext, shizuku),
+        reviewStore = com.dragolabs.able.feature.apps.background.BackgroundReviewStore(appContext),
         actionLog = actionLog,
         ownPackage = catalog.ownPackageName,
         userId = { catalog.currentUserId },
@@ -189,6 +191,8 @@ class AppsViewModel(
                 )?.let { AppEffectiveAction(it.level, it.sourceProfileIds) },
                 usage = if (access.usageAccess) selected.usage else UsageEvidence.AccessMissing,
                 forceStop = selected.forceStop,
+                softStop = selected.softStop,
+                softStopAvailable = PackageCommands.isSoftStopSupported(android.os.Build.VERSION.SDK_INT),
                 operation = selected.operation,
                 restoreRoute = selected.restore?.route.takeIf { app?.isInstalledForUser != true },
                 backupBytes = selected.restore?.backupBytes,
@@ -370,6 +374,10 @@ class AppsViewModel(
         selection.update { it.copy(forceStop = ForceStopUi.Idle) }
     }
 
+    fun dismissSoftStopResult() {
+        selection.update { it.copy(softStop = ForceStopUi.Idle) }
+    }
+
     fun dismissOperationResult() {
         selection.update { it.copy(operation = PackageOperationUi.Idle) }
     }
@@ -378,18 +386,35 @@ class AppsViewModel(
      * User-initiated force stop through Shizuku (APP-003). The process list is read back after the
      * command and the real outcome is reported and logged; Able never relaunches the app.
      */
-    fun forceStop(packageName: String, label: String) {
-        val command = PackageCommands.forceStop(catalog.currentUserId, packageName) ?: return
+    fun forceStop(packageName: String, label: String) = stop(packageName, label, soft = false)
+
+    /**
+     * Soft stop (`am stop-app`, APP-007): stops the app and its services but keeps its scheduled
+     * alarms and jobs, so it may start again on its own. Verified and logged like a force stop.
+     */
+    fun softStop(packageName: String, label: String) {
+        if (!PackageCommands.isSoftStopSupported(android.os.Build.VERSION.SDK_INT)) return
+        stop(packageName, label, soft = true)
+    }
+
+    private fun Selection.withStop(soft: Boolean, value: ForceStopUi) = if (soft) copy(softStop = value) else copy(forceStop = value)
+
+    private fun stop(packageName: String, label: String, soft: Boolean) {
+        val command = (if (soft) PackageCommands.stopApp(catalog.currentUserId, packageName)
+        else PackageCommands.forceStop(catalog.currentUserId, packageName)) ?: return
         val check = PackageCommands.pidOf(packageName) ?: return
         if (blockReasonFor(packageName, catalog.ownPackageName) != null) return
-        if (selection.value.forceStop == ForceStopUi.Running) return
-        selection.update { if (it.packageName == packageName) it.copy(forceStop = ForceStopUi.Running) else it }
+        if (selection.value.forceStop == ForceStopUi.Running || selection.value.softStop == ForceStopUi.Running) return
+        selection.update { if (it.packageName == packageName) it.withStop(soft, ForceStopUi.Running) else it }
 
         applicationScope.launch {
             val result = when (val stop = shizuku.executeCommand(command)) {
                 is AbleResult.Failure -> ForceStopUi.Done(ForceStopOutcome.FAILED, stop.error.message)
                 AbleResult.Loading -> ForceStopUi.Done(ForceStopOutcome.NOT_CONFIRMED)
-                is AbleResult.Success -> {
+                is AbleResult.Success -> if (com.dragolabs.able.feature.apps.background.BackgroundCommands.isErrorOutput(stop.data)) {
+                    // e.g. "Unknown command: stop-app" on a build without soft stop: report it.
+                    ForceStopUi.Done(ForceStopOutcome.FAILED, stop.data.lineSequence().firstOrNull { it.isNotBlank() }?.trim())
+                } else {
                     delay(FORCE_STOP_VERIFY_DELAY_MS)
                     when (val pid = shizuku.executeCommand(check)) {
                         is AbleResult.Success ->
@@ -401,21 +426,25 @@ class AppsViewModel(
                 }
             }
             val (status, detailRes) = when (result.outcome) {
-                ForceStopOutcome.STOPPED -> ActionExecutionStatus.SUCCESS to R.string.apps_log_force_stop_success
-                ForceStopOutcome.STILL_RUNNING -> ActionExecutionStatus.ATTEMPTED to R.string.apps_log_force_stop_still_running
-                ForceStopOutcome.NOT_CONFIRMED -> ActionExecutionStatus.ATTEMPTED to R.string.apps_log_force_stop_not_confirmed
-                ForceStopOutcome.FAILED -> ActionExecutionStatus.FAILED to R.string.apps_log_force_stop_failed
+                ForceStopOutcome.STOPPED -> ActionExecutionStatus.SUCCESS to
+                    if (soft) R.string.apps_log_soft_stop_success else R.string.apps_log_force_stop_success
+                ForceStopOutcome.STILL_RUNNING -> ActionExecutionStatus.ATTEMPTED to
+                    if (soft) R.string.apps_log_soft_stop_still_running else R.string.apps_log_force_stop_still_running
+                ForceStopOutcome.NOT_CONFIRMED -> ActionExecutionStatus.ATTEMPTED to
+                    if (soft) R.string.apps_log_soft_stop_not_confirmed else R.string.apps_log_force_stop_not_confirmed
+                ForceStopOutcome.FAILED -> ActionExecutionStatus.FAILED to
+                    if (soft) R.string.apps_log_soft_stop_failed else R.string.apps_log_force_stop_failed
             }
             runCatching {
                 actionLog.log(
-                    actionId = ACTION_FORCE_STOP,
+                    actionId = if (soft) ACTION_SOFT_STOP else ACTION_FORCE_STOP,
                     status = status,
                     detail = appContext.getString(detailRes, label),
                     targetPackage = packageName,
                     reversible = false,
                 )
             }
-            selection.update { if (it.packageName == packageName) it.copy(forceStop = result) else it }
+            selection.update { if (it.packageName == packageName) it.withStop(soft, result) else it }
         }
     }
 
@@ -620,6 +649,7 @@ class AppsViewModel(
 
     private companion object {
         const val ACTION_FORCE_STOP = "app_force_stop"
+        const val ACTION_SOFT_STOP = "app_soft_stop"
         const val ACTION_DISABLE = "app_disable"
         const val ACTION_ENABLE = "app_enable"
         const val ACTION_UNINSTALL = "app_uninstall_user"

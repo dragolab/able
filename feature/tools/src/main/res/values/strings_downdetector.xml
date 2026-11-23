@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hub -->
+    <string name="tools_downdetector_title">Downdetector</string>
+    <string name="tools_downdetector_summary">Check if a service is down for others, on Downdetector</string>
+
+    <string name="downdetector_hero_title">Is it down for everyone?</string>
+    <string name="downdetector_hero_subtitle">Opens Downdetector in your browser. Able does not fetch outage data itself.</string>
+    <string name="downdetector_open_home">Open %1$s</string>
+
+    <!-- Country -->
+    <string name="downdetector_country">Country</string>
+    <string name="downdetector_country_detected">Detected from SIM, network or language · %1$s</string>
+    <string name="downdetector_country_chosen">Chosen by you · %1$s</string>
+    <string name="downdetector_country_pick">Downdetector country</string>
+    <string name="downdetector_close">Close</string>
+
+    <!-- Search -->
+    <string name="downdetector_search">Service</string>
+    <string name="downdetector_search_label">Service name</string>
+    <string name="downdetector_search_placeholder">e.g. WhatsApp</string>
+    <string name="downdetector_search_hint">Type the name of an app, website or provider.</string>
+    <string name="downdetector_search_preview">Opens %1$s</string>
+    <string name="downdetector_open_status">Open status page</string>
+    <string name="downdetector_add_favourite">Add to favourites</string>
+    <string name="downdetector_not_found_note">If Downdetector has no page with that exact name, it shows \"not found\": open the homepage and use its search instead.</string>
+
+    <!-- Favourites and suggestions -->
+    <string name="downdetector_favourites">Favourites</string>
+    <string name="downdetector_favourites_empty">No favourites yet. Type a service and tap Add to favourites.</string>
+    <string name="downdetector_remove_favourite">Remove %1$s from favourites</string>
+    <string name="downdetector_suggestions">Suggestions</string>
+
+    <!-- States -->
+    <string name="downdetector_no_browser">No browser on this device can open this link.</string>
+    <string name="downdetector_privacy_note">Links open in your browser. Downdetector sees your visit like any website; Able sends nothing to it.</string>
+
+    <!-- Help -->
+    <string name="downdetector_help_title">About Downdetector</string>
+    <string name="downdetector_help_text">Downdetector collects user reports of problems with apps, websites and network providers, per country.\n\nAble only opens Downdetector\'s pages in your browser. It does not download or show outage data itself because Downdetector offers no public API and its rules do not allow automated access: its robots.txt blocks generic crawlers and its pages are protected against non-browser clients.\n\nCountry: Able picks it from your SIM or mobile network, then your language, and you can change it. Only countries whose Downdetector site was checked are listed; others use downdetector.com.\n\nYour country choice and favourites are saved only on this device.</string>
+</resources>

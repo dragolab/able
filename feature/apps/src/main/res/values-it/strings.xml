@@ -239,4 +239,22 @@
     <string name="apps_store_unavailable">Nessuno store o browser può aprire la pagina di questa app.</string>
     <string name="apps_log_outcome_store_required">APK rimosso da Android, reinstallare dallo store</string>
     <string name="apps_log_backup_failed">backup dell\'APK non riuscito: %1$s</string>
+
+    <!-- Arresto leggero (am stop-app) -->
+    <string name="apps_action_soft_stop">Arresta (mantieni sveglie)</string>
+    <string name="apps_soft_stop_message">Arresta l\'app e i suoi servizi; sveglie e job programmati vengono mantenuti.</string>
+    <string name="apps_soft_stop_running">Arresto e verifica dell\'esito…</string>
+    <string name="apps_soft_stop_confirm_title">Arrestare %1$s?</string>
+    <string name="apps_soft_stop_confirm_message">L\'app e i suoi servizi si chiudono subito. A differenza dell\'arresto forzato, sveglie e job programmati vengono mantenuti, quindi l\'app può riavviarsi da sola. I dati non salvati nell\'app potrebbero andare persi. Able non la riaprirà.</string>
+    <string name="apps_soft_stop_confirm_action">Arresta</string>
+    <string name="apps_soft_stop_result_stopped">%1$s arrestata</string>
+    <string name="apps_soft_stop_result_stopped_message">Android ha accettato il comando e ora nessun processo dell\'app è in esecuzione. Le sue sveglie e i suoi job possono riavviarla.</string>
+    <string name="apps_soft_stop_result_running_message">Il comando è stato accettato, ma un processo dell\'app è di nuovo attivo. Potrebbero averla riavviata le sue sveglie o i suoi job, un componente di sistema o un\'altra app.</string>
+    <string name="apps_soft_stop_result_failed">Impossibile arrestare %1$s</string>
+    <string name="apps_help_soft_stop_title">Arresta (mantieni sveglie)</string>
+    <string name="apps_help_soft_stop_text">Chiude l\'app e i suoi servizi come l\'arresto forzato, ma mantiene sveglie e job programmati (comando Android `am stop-app`). Usalo per chiudere un\'app che si comporta male senza perdere i promemoria.\n\nRischio: l\'app può riavviarsi da sola; il lavoro non salvato potrebbe andare perso.\n\nAnnulla: riapri l\'app. Nulla viene disinstallato.</string>
+    <string name="apps_log_soft_stop_success">Arresto di %1$s applicato (sveglie e job mantenuti)</string>
+    <string name="apps_log_soft_stop_still_running">Arresto di %1$s inviato, ma l\'app è di nuovo attiva</string>
+    <string name="apps_log_soft_stop_not_confirmed">Arresto di %1$s inviato, esito non confermato</string>
+    <string name="apps_log_soft_stop_failed">Arresto di %1$s non riuscito</string>
 </resources>

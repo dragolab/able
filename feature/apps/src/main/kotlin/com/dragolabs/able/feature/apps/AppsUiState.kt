@@ -142,6 +142,10 @@ data class AppDetailState(
     val effectiveAction: AppEffectiveAction? = null,
     val usage: UsageEvidence,
     val forceStop: ForceStopUi,
+    /** Soft stop (`am stop-app`): keeps alarms and jobs. */
+    val softStop: ForceStopUi = ForceStopUi.Idle,
+    /** False on Android versions without `am stop-app`; the row is then hidden. */
+    val softStopAvailable: Boolean = false,
     val operation: PackageOperationUi,
     /** Null while unknown or when the package is installed for the user. */
     val restoreRoute: RestoreRoute? = null,

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hub -->
+    <string name="tools_speedtest_title">Test velocità</string>
+    <string name="tools_speedtest_summary">Ping, jitter, download e upload tramite Cloudflare</string>
+
+    <!-- Actions -->
+    <string name="speedtest_start">Avvia test</string>
+    <string name="speedtest_start_again">Ripeti test</string>
+    <string name="speedtest_cancel">Annulla</string>
+
+    <!-- Phases -->
+    <string name="speedtest_phase_idle">Pronto</string>
+    <string name="speedtest_phase_latency">Misuro il ping</string>
+    <string name="speedtest_phase_download">Download</string>
+    <string name="speedtest_phase_upload">Upload</string>
+    <string name="speedtest_phase_done">Download</string>
+    <string name="speedtest_phase_cancelled">Annullato</string>
+    <string name="speedtest_phase_failed">Test non riuscito</string>
+
+    <!-- Results -->
+    <string name="speedtest_unit_mbps">Mbps</string>
+    <string name="speedtest_unit_ms">ms</string>
+    <string name="speedtest_download">Download</string>
+    <string name="speedtest_upload">Upload</string>
+    <string name="speedtest_ping">Ping</string>
+    <string name="speedtest_jitter">Jitter</string>
+    <string name="speedtest_data_used">Dati usati: %1$s MB</string>
+
+    <!-- Connection -->
+    <string name="speedtest_connection">Connessione</string>
+    <string name="speedtest_type_wifi">Wi-Fi</string>
+    <string name="speedtest_type_cellular">Dati mobili</string>
+    <string name="speedtest_type_ethernet">Ethernet</string>
+    <string name="speedtest_type_other">Altra rete</string>
+    <string name="speedtest_type_none">Nessuna connessione</string>
+    <string name="speedtest_metered">A consumo</string>
+    <string name="speedtest_server_colo_country">Server Cloudflare: %1$s (risulti in %2$s)</string>
+    <string name="speedtest_server_colo">Server Cloudflare: %1$s</string>
+    <string name="speedtest_server_unknown">La posizione del server appare quando il test parte.</string>
+
+    <!-- States -->
+    <string name="speedtest_offline_title">Nessuna connessione a internet</string>
+    <string name="speedtest_offline_message">Connettiti a Wi-Fi, dati mobili o Ethernet per eseguire il test.</string>
+    <string name="speedtest_failed_title">Il test non è stato completato</string>
+    <string name="speedtest_failed_message">speed.cloudflare.com non è raggiungibile o la connessione si è interrotta. I risultati mostrati finora sono parziali.</string>
+    <string name="speedtest_cancelled_title">Test annullato</string>
+
+    <!-- Metered warning -->
+    <string name="speedtest_metered_title">Usare i dati mobili?</string>
+    <string name="speedtest_metered_message">Questa connessione è a consumo. Su una connessione veloce il test può usare fino a circa %1$s MB (ogni fase si ferma dopo 10 secondi o 100 MB). Su connessioni più lente ne usa molti meno.</string>
+    <string name="speedtest_metered_confirm">Avvia comunque</string>
+
+    <!-- History -->
+    <string name="speedtest_history">Risultati recenti</string>
+    <string name="speedtest_history_empty_title">Ancora nessun risultato</string>
+    <string name="speedtest_history_empty_message">Gli ultimi 20 risultati restano solo su questo dispositivo.</string>
+    <string name="speedtest_history_row_title">↓ %1$s · ↑ %2$s Mbps</string>
+    <string name="speedtest_history_row_supporting">%1$s · %2$s · ping %3$s ms</string>
+    <string name="speedtest_history_clear">Cancella</string>
+    <string name="speedtest_history_clear_title">Cancellare la cronologia?</string>
+    <string name="speedtest_history_clear_message">Tutti i risultati salvati verranno eliminati da questo dispositivo. L\'operazione non si può annullare.</string>
+
+    <!-- Honest copy and help -->
+    <string name="speedtest_honest_note">I risultati dipendono dal server Cloudflare, dalla tua rete e dal momento del test. Cloudflare vede il tuo indirizzo IP, come qualsiasi sito web.</string>
+    <string name="speedtest_help_title">Informazioni sul test velocità</string>
+    <string name="speedtest_help_text">Come funziona: Able misura con il test di velocità pubblico di Cloudflare (speed.cloudflare.com), lo stesso servizio usato dal suo sito.\n\nPing e jitter: 10 richieste minime dopo una richiesta di riscaldamento. Il ping è il tempo di andata e ritorno mediano, senza il tempo di elaborazione di Cloudflare; il jitter è la variazione media tra ping consecutivi.\n\nDownload e upload: 4 trasferimenti in parallelo che crescono da 100 kB a 1 MB, 10 MB e 25 MB se la connessione lo permette. Ogni fase si ferma dopo 10 secondi, prima se la velocità è stabile, o quando raggiunge il limite di dati (100 MB su connessioni a consumo). Il primo secondo è escluso, così l\'apertura della connessione non abbassa il risultato. Le velocità sono in megabit al secondo (1 Mbps = 1.000.000 bit al secondo).\n\nDati usati: mostrati durante e dopo il test. Con i dati mobili Able chiede conferma prima di iniziare.\n\nPrivacy: Able contatta solo speed.cloudflare.com. Cloudflare vede il tuo indirizzo IP come qualsiasi sito web. I risultati restano solo su questo dispositivo (ultimi 20) e non vengono mai caricati.</string>
+</resources>

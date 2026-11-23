@@ -18,7 +18,11 @@ import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.FlashlightOn
@@ -149,6 +153,10 @@ object SearchIndex {
         ToolId.LEVEL -> ToolsR.string.tools_level_title to Icons.Rounded.Balance
         ToolId.RULER -> ToolsR.string.tools_ruler_title to Icons.Rounded.Straighten
         ToolId.COMPASS -> ToolsR.string.tools_compass_title to Icons.Rounded.Explore
+        ToolId.PRIVATE_DNS -> ToolsR.string.tools_privatedns_title to Icons.Rounded.Dns
+        ToolId.SPEEDTEST -> ToolsR.string.tools_speedtest_title to Icons.Rounded.Speed
+        ToolId.DOWNDETECTOR -> ToolsR.string.tools_downdetector_title to Icons.Rounded.CloudOff
+        ToolId.FOUNTAINS -> ToolsR.string.tools_fountains_title to Icons.Rounded.WaterDrop
     }
 
     private fun toolKeywords(tool: ToolId): Int = when (tool) {
@@ -168,6 +176,10 @@ object SearchIndex {
         ToolId.LEVEL -> R.string.search_kw_tool_level
         ToolId.RULER -> R.string.search_kw_tool_ruler
         ToolId.COMPASS -> R.string.search_kw_tool_compass
+        ToolId.PRIVATE_DNS -> R.string.search_kw_tool_privatedns
+        ToolId.SPEEDTEST -> R.string.search_kw_tool_speedtest
+        ToolId.DOWNDETECTOR -> R.string.search_kw_tool_downdetector
+        ToolId.FOUNTAINS -> R.string.search_kw_tool_fountains
     }
 
     private val popularTools = setOf(ToolId.TORCH, ToolId.STORAGE, ToolId.SCREEN_LOCK)

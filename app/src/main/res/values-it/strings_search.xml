@@ -100,4 +100,8 @@
     <string name="search_kw_tiles_custom_widget">custom widget, layout, actions, widget personalizzato, azioni</string>
     <string name="search_kw_tool_memory">ram, memoria, memory, processi, processes, app in esecuzione, running apps, kill</string>
     <string name="search_kw_tool_fakegps">fake gps, mock location, posizione falsa, simula posizione, finta posizione, location spoof, mappa</string>
+    <string name="search_kw_tool_privatedns">private DNS, DNS over TLS, AdGuard, NextDNS, Cloudflare, Quad9, DNS privato, blocco pubblicità</string>
+    <string name="search_kw_tool_fountains">fountains, drinking water, water, map, OpenStreetMap, fontanelle, fontana, acqua potabile, nasone, borraccia</string>
+    <string name="search_kw_tool_speedtest">speed test, speedtest, internet speed, download, upload, ping, latency, velocità, connessione, banda</string>
+    <string name="search_kw_tool_downdetector">Downdetector, outage, down, not working, service status, disservizio, non funziona, guasto, stato servizi</string>
 </resources>

@@ -109,6 +109,9 @@ fun AppsRoute(
             onQueryChange = background::setQuery,
             onTypeChange = background::setType,
             onRestrictedOnlyChange = background::setRestrictedOnly,
+            onBackgroundDataBlockedOnlyChange = background::setBackgroundDataBlockedOnly,
+            onHideReviewedChange = background::setHideReviewed,
+            onRestoreAllChanged = background::restoreAllChanged,
             onClearFilters = background::clearFilters,
             onRetry = {
                 viewModel.onResume()
@@ -170,6 +173,8 @@ fun AppsRoute(
                             onRequestShizukuPermission = viewModel::requestShizukuPermission,
                             onForceStop = { viewModel.forceStop(pkg, label) },
                             onDismissForceStopResult = viewModel::dismissForceStopResult,
+                            onSoftStop = { viewModel.softStop(pkg, label) },
+                            onDismissSoftStopResult = viewModel::dismissSoftStopResult,
                             onOperation = { viewModel.runOperation(pkg, it) },
                             onDismissOperationResult = viewModel::dismissOperationResult,
                             onPrepareUninstall = { viewModel.prepareUninstall(pkg) },
@@ -181,8 +186,12 @@ fun AppsRoute(
                     }
                     val backgroundDetailActions = remember(viewModel, pkg, label) {
                         BackgroundDetailActions(
-                            onSetAllowed = { allow -> background.apply(pkg, label, BackgroundChange.SetBackground(allow)) },
+                            onSetMode = { mode -> background.apply(pkg, label, BackgroundChange.SetMode(mode)) },
                             onSetBucket = { bucket -> background.apply(pkg, label, BackgroundChange.SetBucket(bucket)) },
+                            onSetBackgroundDataBlocked = { blocked -> background.apply(pkg, label, BackgroundChange.SetBackgroundData(blocked)) },
+                            onMarkReviewed = { background.markReviewed(pkg) },
+                            onForgetReview = { background.forgetReview(pkg) },
+                            onRestoreReview = { background.restoreReview(pkg, label) },
                             onDismissResult = background::dismissOperationResult,
                             onRequestShizukuPermission = viewModel::requestShizukuPermission,
                         )

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Drinking fountains tool (MAP-001). Data: OpenStreetMap via Overpass (ODbL). -->
+    <string name="tools_fountains_title">Drinking fountains</string>
+    <string name="tools_fountains_summary">Public drinking water nearby, on an OpenStreetMap map</string>
+
+    <string name="fountains_osm_attribution">© OpenStreetMap contributors</string>
+    <string name="fountains_locate_me">Show my position</string>
+    <string name="fountains_refresh">Reload fountains in this area</string>
+    <string name="fountains_zoom_in">Zoom in</string>
+    <string name="fountains_zoom_out">Zoom out</string>
+    <string name="fountains_map_cd">Map of drinking fountains. %1$d shown. Tap a drop for details.</string>
+
+    <string name="fountains_nearest_title">Nearest fountains</string>
+    <string name="fountains_from_you">Distances from your position</string>
+    <string name="fountains_from_center">Distances from the map centre</string>
+    <plurals name="fountains_count">
+        <item quantity="one">%d fountain in this area</item>
+        <item quantity="other">%d fountains in this area</item>
+    </plurals>
+    <string name="fountains_fetched_at">OpenStreetMap data loaded %1$s</string>
+    <string name="fountains_fetched_cached">OpenStreetMap data loaded %1$s (saved copy)</string>
+
+    <string name="fountains_filter_bottle">Bottle refill</string>
+    <string name="fountains_filter_wheelchair">Wheelchair accessible</string>
+    <string name="fountains_filters_clear">Clear filters</string>
+
+    <string name="fountains_status_loading">Looking for fountains in this area…</string>
+    <string name="fountains_status_waiting">Move the map to look for fountains.</string>
+    <string name="fountains_zoom_title">Zoom in to see fountains</string>
+    <string name="fountains_zoom_text">The visible area is too large to search. Zoom in on a town or a neighbourhood.</string>
+    <string name="fountains_empty_title">No fountains found here</string>
+    <string name="fountains_empty_text">OpenStreetMap has no drinking water points in this area. Move the map, or add a missing fountain on openstreetmap.org.</string>
+    <string name="fountains_empty_filtered_title">No fountain matches the filters</string>
+    <string name="fountains_empty_filtered_text">Many fountains in OpenStreetMap do not say whether they suit bottles or wheelchairs.</string>
+    <string name="fountains_offline_title">You seem to be offline</string>
+    <string name="fountains_offline_text">Fountains could not be loaded. Check the connection and retry. The map keeps the areas already loaded.</string>
+    <string name="fountains_busy_title">The OpenStreetMap search server is busy</string>
+    <string name="fountains_busy_text">The free Overpass server is overloaded or is limiting requests. Wait a minute and retry.</string>
+    <string name="fountains_failed_title">Could not load fountains</string>
+    <string name="fountains_failed_text">The server sent an unexpected answer. Try again later.</string>
+    <string name="fountains_retry">Retry</string>
+
+    <string name="fountains_permission_title">Show fountains near you</string>
+    <string name="fountains_permission_text">Allow location to see your position and sort fountains by distance from you. Your position stays on this phone: only the visible map area is sent to the OpenStreetMap servers. Without it you can still pan the map.</string>
+    <string name="fountains_permission_action">Use my location</string>
+
+    <string name="fountains_kind_drinking_water">Drinking fountain</string>
+    <string name="fountains_kind_water_tap">Drinking water tap</string>
+    <string name="fountains_kind_spring">Drinkable spring</string>
+    <string name="fountains_kind_fountain">Fountain with drinking water</string>
+
+    <string name="fountains_distance_m">%1$d m</string>
+    <string name="fountains_distance_km">%1$s km</string>
+    <string name="fountains_distance_direction">%1$s · %2$s</string>
+    <string name="fountains_row_cd">%1$s, %2$s to the %3$s</string>
+    <string name="fountains_dir_n">N</string>
+    <string name="fountains_dir_ne">NE</string>
+    <string name="fountains_dir_e">E</string>
+    <string name="fountains_dir_se">SE</string>
+    <string name="fountains_dir_s">S</string>
+    <string name="fountains_dir_sw">SW</string>
+    <string name="fountains_dir_w">W</string>
+    <string name="fountains_dir_nw">NW</string>
+    <string name="fountains_dir_long_n">north</string>
+    <string name="fountains_dir_long_ne">north-east</string>
+    <string name="fountains_dir_long_e">east</string>
+    <string name="fountains_dir_long_se">south-east</string>
+    <string name="fountains_dir_long_s">south</string>
+    <string name="fountains_dir_long_sw">south-west</string>
+    <string name="fountains_dir_long_w">west</string>
+    <string name="fountains_dir_long_nw">north-west</string>
+
+    <string name="fountains_tag_drinkable">Drinking water</string>
+    <string name="fountains_tag_bottle_yes">Bottle refill: yes</string>
+    <string name="fountains_tag_bottle_no">Bottle refill: no</string>
+    <string name="fountains_tag_wheelchair_yes">Wheelchair accessible</string>
+    <string name="fountains_tag_wheelchair_limited">Limited wheelchair access</string>
+    <string name="fountains_tag_wheelchair_no">Not wheelchair accessible</string>
+    <string name="fountains_tag_fee_yes">Fee required</string>
+    <string name="fountains_tag_fee_no">Free</string>
+    <string name="fountains_tag_seasonal_yes">Seasonal: may be off part of the year</string>
+    <string name="fountains_tag_seasonal_no">Available all year</string>
+    <string name="fountains_tag_seasonal_other">Seasonal: %1$s</string>
+    <string name="fountains_tag_hours">Hours: %1$s</string>
+    <string name="fountains_tag_checked">Last checked: %1$s</string>
+    <string name="fountains_tag_not_checked">No check date in OpenStreetMap</string>
+    <string name="fountains_tag_operator">Operator: %1$s</string>
+    <string name="fountains_detail_note">Data comes from volunteers and may be outdated. Able does not edit OpenStreetMap: open it there to add or fix details.</string>
+
+    <string name="fountains_navigate">Navigate</string>
+    <string name="fountains_share">Share</string>
+    <string name="fountains_open_osm">Open in OpenStreetMap</string>
+    <string name="fountains_close_detail">Close details</string>
+    <string name="fountains_navigate_chooser">Walk there with</string>
+    <string name="fountains_share_chooser">Share fountain</string>
+    <string name="fountains_share_text">%1$s\n%2$s\nhttps://www.openstreetmap.org/%3$s</string>
+
+    <string name="fountains_help_title">About the fountains map</string>
+    <string name="fountains_help_text">Fountains, taps and drinkable springs come from OpenStreetMap, a map made by volunteers (© OpenStreetMap contributors, ODbL licence). Data may be missing, outdated or wrong: a fountain can be broken, turned off in winter or removed. Check the “last checked” date when shown.\n\nWhen you move the map, Able sends only the visible map area to a public Overpass server (overpass-api.de, or overpass.kumi.systems as a fallback) and downloads map images from the OpenStreetMap tile servers. Your position is never sent; there is no account and nothing else leaves the phone. Results are kept on this phone for up to 24 hours.\n\nAble does not edit OpenStreetMap. To add or fix a fountain, use “Open in OpenStreetMap”.</string>
+
+    <string name="fountains_msg_permission_denied">Location not allowed. You can still pan the map to find fountains.</string>
+    <string name="fountains_msg_location_off">Location is turned off in system settings.</string>
+    <string name="fountains_msg_location_failed">Could not get your position. Try again outdoors.</string>
+    <string name="fountains_msg_retry_later">Please wait a few seconds between reloads.</string>
+</resources>

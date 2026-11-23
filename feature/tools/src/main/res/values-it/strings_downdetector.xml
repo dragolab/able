@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hub -->
+    <string name="tools_downdetector_title">Downdetector</string>
+    <string name="tools_downdetector_summary">Controlla su Downdetector se un servizio non funziona anche per altri</string>
+
+    <string name="downdetector_hero_title">Non funziona per tutti?</string>
+    <string name="downdetector_hero_subtitle">Apre Downdetector nel browser. Able non scarica dati sui disservizi.</string>
+    <string name="downdetector_open_home">Apri %1$s</string>
+
+    <!-- Country -->
+    <string name="downdetector_country">Paese</string>
+    <string name="downdetector_country_detected">Rilevato da SIM, rete o lingua · %1$s</string>
+    <string name="downdetector_country_chosen">Scelto da te · %1$s</string>
+    <string name="downdetector_country_pick">Paese di Downdetector</string>
+    <string name="downdetector_close">Chiudi</string>
+
+    <!-- Search -->
+    <string name="downdetector_search">Servizio</string>
+    <string name="downdetector_search_label">Nome del servizio</string>
+    <string name="downdetector_search_placeholder">es. WhatsApp</string>
+    <string name="downdetector_search_hint">Scrivi il nome di un\'app, di un sito o di un operatore.</string>
+    <string name="downdetector_search_preview">Apre %1$s</string>
+    <string name="downdetector_open_status">Apri pagina di stato</string>
+    <string name="downdetector_add_favourite">Aggiungi ai preferiti</string>
+    <string name="downdetector_not_found_note">Se Downdetector non ha una pagina con quel nome esatto, mostra \"non trovato\": apri la home e usa la sua ricerca.</string>
+
+    <!-- Favourites and suggestions -->
+    <string name="downdetector_favourites">Preferiti</string>
+    <string name="downdetector_favourites_empty">Ancora nessun preferito. Scrivi un servizio e tocca Aggiungi ai preferiti.</string>
+    <string name="downdetector_remove_favourite">Rimuovi %1$s dai preferiti</string>
+    <string name="downdetector_suggestions">Suggerimenti</string>
+
+    <!-- States -->
+    <string name="downdetector_no_browser">Nessun browser su questo dispositivo può aprire il link.</string>
+    <string name="downdetector_privacy_note">I link si aprono nel browser. Downdetector vede la tua visita come qualsiasi sito; Able non gli invia nulla.</string>
+
+    <!-- Help -->
+    <string name="downdetector_help_title">Informazioni su Downdetector</string>
+    <string name="downdetector_help_text">Downdetector raccoglie le segnalazioni degli utenti sui problemi di app, siti e operatori, paese per paese.\n\nAble apre soltanto le pagine di Downdetector nel browser. Non scarica né mostra dati sui disservizi perché Downdetector non offre un\'API pubblica e le sue regole non consentono l\'accesso automatico: il suo robots.txt blocca i crawler generici e le pagine sono protette contro i client che non sono browser.\n\nPaese: Able lo ricava dalla SIM o dalla rete mobile, poi dalla lingua, e puoi cambiarlo. Sono elencati solo i paesi il cui sito Downdetector è stato verificato; gli altri usano downdetector.com.\n\nIl paese scelto e i preferiti restano solo su questo dispositivo.</string>
+</resources>

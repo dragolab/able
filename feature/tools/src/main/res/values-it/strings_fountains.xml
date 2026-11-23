@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Strumento Fontanelle (MAP-001). Dati: OpenStreetMap tramite Overpass (ODbL). -->
+    <string name="tools_fountains_title">Fontanelle</string>
+    <string name="tools_fountains_summary">Acqua potabile pubblica vicino a te, su mappa OpenStreetMap</string>
+
+    <string name="fountains_osm_attribution">© OpenStreetMap contributors</string>
+    <string name="fountains_locate_me">Mostra la mia posizione</string>
+    <string name="fountains_refresh">Ricarica le fontanelle di quest\'area</string>
+    <string name="fountains_zoom_in">Aumenta zoom</string>
+    <string name="fountains_zoom_out">Riduci zoom</string>
+    <string name="fountains_map_cd">Mappa delle fontanelle. %1$d visibili. Tocca una goccia per i dettagli.</string>
+
+    <string name="fountains_nearest_title">Fontanelle più vicine</string>
+    <string name="fountains_from_you">Distanze dalla tua posizione</string>
+    <string name="fountains_from_center">Distanze dal centro della mappa</string>
+    <plurals name="fountains_count">
+        <item quantity="one">%d fontanella in quest\'area</item>
+        <item quantity="other">%d fontanelle in quest\'area</item>
+    </plurals>
+    <string name="fountains_fetched_at">Dati OpenStreetMap caricati %1$s</string>
+    <string name="fountains_fetched_cached">Dati OpenStreetMap caricati %1$s (copia salvata)</string>
+
+    <string name="fountains_filter_bottle">Riempi borraccia</string>
+    <string name="fountains_filter_wheelchair">Accessibile in sedia a rotelle</string>
+    <string name="fountains_filters_clear">Rimuovi filtri</string>
+
+    <string name="fountains_status_loading">Cerco fontanelle in quest\'area…</string>
+    <string name="fountains_status_waiting">Sposta la mappa per cercare fontanelle.</string>
+    <string name="fountains_zoom_title">Aumenta lo zoom per vedere le fontanelle</string>
+    <string name="fountains_zoom_text">L\'area visibile è troppo grande per la ricerca. Avvicinati a un paese o a un quartiere.</string>
+    <string name="fountains_empty_title">Nessuna fontanella trovata qui</string>
+    <string name="fountains_empty_text">In quest\'area OpenStreetMap non ha punti di acqua potabile. Sposta la mappa, oppure aggiungi una fontanella mancante su openstreetmap.org.</string>
+    <string name="fountains_empty_filtered_title">Nessuna fontanella corrisponde ai filtri</string>
+    <string name="fountains_empty_filtered_text">Molte fontanelle su OpenStreetMap non indicano se sono adatte a borracce o sedie a rotelle.</string>
+    <string name="fountains_offline_title">Sembra che tu sia offline</string>
+    <string name="fountains_offline_text">Impossibile caricare le fontanelle. Controlla la connessione e riprova. La mappa mantiene le aree già caricate.</string>
+    <string name="fountains_busy_title">Il server di ricerca OpenStreetMap è occupato</string>
+    <string name="fountains_busy_text">Il server gratuito Overpass è sovraccarico o sta limitando le richieste. Attendi un minuto e riprova.</string>
+    <string name="fountains_failed_title">Impossibile caricare le fontanelle</string>
+    <string name="fountains_failed_text">Il server ha inviato una risposta inattesa. Riprova più tardi.</string>
+    <string name="fountains_retry">Riprova</string>
+
+    <string name="fountains_permission_title">Mostra le fontanelle vicino a te</string>
+    <string name="fountains_permission_text">Consenti la posizione per vederti sulla mappa e ordinare le fontanelle per distanza da te. La tua posizione resta sul telefono: ai server OpenStreetMap viene inviata solo l\'area visibile della mappa. Anche senza, puoi spostare la mappa a mano.</string>
+    <string name="fountains_permission_action">Usa la mia posizione</string>
+
+    <string name="fountains_kind_drinking_water">Fontanella</string>
+    <string name="fountains_kind_water_tap">Rubinetto di acqua potabile</string>
+    <string name="fountains_kind_spring">Sorgente potabile</string>
+    <string name="fountains_kind_fountain">Fontana con acqua potabile</string>
+
+    <string name="fountains_distance_m">%1$d m</string>
+    <string name="fountains_distance_km">%1$s km</string>
+    <string name="fountains_distance_direction">%1$s · %2$s</string>
+    <string name="fountains_row_cd">%1$s, a %2$s verso %3$s</string>
+    <string name="fountains_dir_n">N</string>
+    <string name="fountains_dir_ne">NE</string>
+    <string name="fountains_dir_e">E</string>
+    <string name="fountains_dir_se">SE</string>
+    <string name="fountains_dir_s">S</string>
+    <string name="fountains_dir_sw">SO</string>
+    <string name="fountains_dir_w">O</string>
+    <string name="fountains_dir_nw">NO</string>
+    <string name="fountains_dir_long_n">nord</string>
+    <string name="fountains_dir_long_ne">nord-est</string>
+    <string name="fountains_dir_long_e">est</string>
+    <string name="fountains_dir_long_se">sud-est</string>
+    <string name="fountains_dir_long_s">sud</string>
+    <string name="fountains_dir_long_sw">sud-ovest</string>
+    <string name="fountains_dir_long_w">ovest</string>
+    <string name="fountains_dir_long_nw">nord-ovest</string>
+
+    <string name="fountains_tag_drinkable">Acqua potabile</string>
+    <string name="fountains_tag_bottle_yes">Riempi borraccia: sì</string>
+    <string name="fountains_tag_bottle_no">Riempi borraccia: no</string>
+    <string name="fountains_tag_wheelchair_yes">Accessibile in sedia a rotelle</string>
+    <string name="fountains_tag_wheelchair_limited">Accesso limitato in sedia a rotelle</string>
+    <string name="fountains_tag_wheelchair_no">Non accessibile in sedia a rotelle</string>
+    <string name="fountains_tag_fee_yes">A pagamento</string>
+    <string name="fountains_tag_fee_no">Gratuita</string>
+    <string name="fountains_tag_seasonal_yes">Stagionale: può essere chiusa in parte dell\'anno</string>
+    <string name="fountains_tag_seasonal_no">Disponibile tutto l\'anno</string>
+    <string name="fountains_tag_seasonal_other">Stagionale: %1$s</string>
+    <string name="fountains_tag_hours">Orari: %1$s</string>
+    <string name="fountains_tag_checked">Ultima verifica: %1$s</string>
+    <string name="fountains_tag_not_checked">Nessuna data di verifica su OpenStreetMap</string>
+    <string name="fountains_tag_operator">Gestore: %1$s</string>
+    <string name="fountains_detail_note">I dati provengono da volontari e possono essere superati. Able non modifica OpenStreetMap: aprila lì per aggiungere o correggere i dettagli.</string>
+
+    <string name="fountains_navigate">Naviga</string>
+    <string name="fountains_share">Condividi</string>
+    <string name="fountains_open_osm">Apri in OpenStreetMap</string>
+    <string name="fountains_close_detail">Chiudi dettagli</string>
+    <string name="fountains_navigate_chooser">Raggiungila a piedi con</string>
+    <string name="fountains_share_chooser">Condividi fontanella</string>
+    <string name="fountains_share_text">%1$s\n%2$s\nhttps://www.openstreetmap.org/%3$s</string>
+
+    <string name="fountains_help_title">Informazioni sulla mappa delle fontanelle</string>
+    <string name="fountains_help_text">Fontanelle, rubinetti e sorgenti potabili provengono da OpenStreetMap, una mappa realizzata da volontari (© OpenStreetMap contributors, licenza ODbL). I dati possono essere incompleti, superati o errati: una fontanella può essere guasta, chiusa d\'inverno o rimossa. Controlla la data di “ultima verifica” quando è presente.\n\nQuando sposti la mappa, Able invia solo l\'area visibile della mappa a un server Overpass pubblico (overpass-api.de, oppure overpass.kumi.systems come riserva) e scarica le immagini della mappa dai server OpenStreetMap. La tua posizione non viene mai inviata; non serve un account e nient\'altro lascia il telefono. I risultati restano salvati sul telefono per massimo 24 ore.\n\nAble non modifica OpenStreetMap. Per aggiungere o correggere una fontanella usa “Apri in OpenStreetMap”.</string>
+
+    <string name="fountains_msg_permission_denied">Posizione non consentita. Puoi comunque spostare la mappa per cercare fontanelle.</string>
+    <string name="fountains_msg_location_off">La localizzazione è disattivata nelle impostazioni di sistema.</string>
+    <string name="fountains_msg_location_failed">Impossibile ottenere la tua posizione. Riprova all\'aperto.</string>
+    <string name="fountains_msg_retry_later">Attendi qualche secondo tra un aggiornamento e l\'altro.</string>
+</resources>
