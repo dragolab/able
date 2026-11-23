@@ -42,13 +42,13 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Preconditions:** Able is running on a supported Android form factor.
 
 1. Able chooses a layout based on current window size and input capabilities.
-2. On compact phone windows it shows a one-column modular card layout and bottom navigation.
+2. On compact phone windows it shows a one-column modular card layout and the floating navigation bar with a light background blur and a separate circular Search button on its right; content is padded so nothing hides under the bar (revised 2026-11-23, ADR-042).
 3. On wide/tablet windows it uses available space for responsive multi-column card grids, or list/detail multi-pane layouts.
 4. On Android TV it exposes a remote-first card layout; user reaches all visible controls and cards using D-pad, Select, and Back.
 5. Able includes only actions supported by the device, or explains why an action is unavailable.
 6. Selecting the current section's navigation item again returns to that section's start (UC-48).
 
-**Alternatives:** Window resized/rotated → layout recomputes without losing unsaved data. D-pad focus cannot reach a visible action → TV usability defect.  
+**Alternatives:** Window resized/rotated → layout recomputes without losing unsaved data; a window that becomes medium/expanded switches from the floating bar to the rail. Blur unavailable or disabled → the bar uses an opaque tonal surface. Keyboard shown → the bar hides or lifts and never covers the focused field. D-pad focus cannot reach a visible action → TV usability defect.  
 **Postconditions:** The current screen is operable using the device's primary input method.
 
 ## UC-04 — Configure a battery profile
@@ -213,13 +213,13 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Preconditions:** Storage summary or user-selected documents are available.
 
 1. User opens Storage (overview in UC-30) and selects a category (Large files, Old downloads, or Cache; system-wide cache cleanup is UC-31).
-2. For Large files, Able defaults to >100 MB and offers filter chips (50MB, 100MB, 500MB, 1GB); for Old downloads, Able defaults to >30 days with filter chips (7, 30, 90 days).
+2. For Large files, Able defaults to >100 MB and offers filter chips (50MB, 100MB, 500MB, 1GB, custom); for Old downloads, Able defaults to >30 days with filter chips (7, 30, 90, 365 days). Revised 2026-11-23: the large-file finder also filters by type, age, location (all, Downloads, DCIM/Pictures, user-picked SAF folder), and name, and sorts by size, date, or name.
 3. Able lists matching items with name, size, date, path, and preview thumbnail where available.
 4. User selects items to delete and reviews the selection count and total space to be freed.
 5. User confirms; Able opens Android's Storage Access Framework / MediaStore delete confirmation.
 6. Able deletes only confirmed items, refreshes the storage scan, and displays the actual space freed.
 
-**Alternatives:** User adjusts filter chip → Able updates scan results without deleting anything. User cancels confirmation or file disappears → no unrelated file is deleted; Able reports partial completion. Other apps' private data is not exposed.  
+**Alternatives:** User adjusts filter chip → Able updates scan results without deleting anything. Invalid custom size → rejected with a message. No result → Able lists the active filters and offers to clear them. Scan cancelled → partial results labelled partial. User-picked folder access revoked → Able asks to pick it again. User cancels confirmation or file disappears → no unrelated file is deleted; Able reports partial completion. Other apps' private data is not exposed.  
 **Postconditions:** Actual freed space is refreshed; deletions occur only upon explicit user confirmation.
 
 ## UC-12 — Find and open an app activity
@@ -255,12 +255,13 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Primary actor:** End user  
 **Preconditions:** User opens Settings → Backup/transfer.
 
-1. User selects the export sections for this export: battery/app rules, Home/appearance, shortcuts/collections, and custom icons.
-2. Able previews included and excluded information; usage history, OS permission grants, Shizuku state, app data, and hotspot passwords remain excluded by default.
-3. User chooses a destination with Android's document picker.
-4. Able writes a versioned `.ablebackup` archive and confirms the result.
+1. User selects the export sections for this export (revised 2026-11-23, ADR-046): battery profiles, app rules/protected list, Home/appearance, shortcuts/collections, custom icons, GPS and Fake GPS points, and optionally battery history and measurements (never preselected).
+2. If battery history is selected, Able shows a privacy notice (the file reveals usage patterns over time) and the user confirms or deselects it.
+3. Able previews included and excluded information; usage history, OS permission grants, Shizuku state, the `WRITE_SECURE_SETTINGS` grant, the mock-location selection, app data, and hotspot passwords are never included.
+4. User chooses a destination with Android's document picker.
+5. Able writes a `.ablebackup` archive with schema version 2 and confirms the result.
 
-**Alternatives:** User cancels the section chooser or file picker → no export is written. Write fails → retain local configuration and show failure.  
+**Alternatives:** User cancels the section chooser, the privacy notice, or the file picker → no export is written. Battery history empty → the section is shown as empty and cannot be selected. Write fails → retain local configuration and show failure.  
 **Postconditions:** Export is a user-controlled file and does not upload to Able/Drago Labs.
 
 ## UC-15 — Import configuration
@@ -269,13 +270,13 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Preconditions:** User has a candidate `.ablebackup` file.
 
 1. User selects the file through Android's document picker.
-2. Able validates archive structure, size, checksum, schema, and values without executing archive content.
-3. Able previews sections, target-device differences, missing apps/activities, and conflicts.
+2. Able validates archive structure, size, checksum, schema, and values without executing archive content; schema 1 and schema 2 are accepted (schema-1 profiles are mapped to the current profile model).
+3. Able previews sections, target-device differences, missing apps/activities, conflicts, and, for battery history, the number of new sessions, the duplicates that will be skipped, and the sessions older than the current retention period that the next retention run would delete.
 4. User selects merge or replace; merge conflicts are resolved explicitly.
 5. Able creates a rollback snapshot and asks for confirmation.
 6. Able applies supported configuration, reports skipped items, and offers undo/restore.
 
-**Alternatives:** Invalid/unsupported file, user cancellation, or storage permission loss → no configuration changes are applied. Missing target app → mark the rule unresolved; never install/disable an app as a side effect.  
+**Alternatives:** Invalid/unsupported file (including a schema newer than 2), user cancellation, or storage permission loss → no configuration changes are applied. Invalid battery-history records (time order, ranges, overlaps) → those records are rejected and listed; the rest of the import can continue only after the user confirms. Same file imported twice → duplicate sessions are skipped. Missing target app → mark the rule unresolved; never install/disable an app as a side effect.  
 **Postconditions:** Only the user's selected configuration changes; launcher-pinned icons may need a separate pin confirmation.
 
 ## UC-20 — Customize Home dashboard cards
@@ -290,7 +291,9 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 5. User confirms changes.
 6. Able applies the new card configuration to Home and persists it locally.
 
-**Alternatives:** User cancels without saving → keep previous card configuration. User hides all non-critical cards → Home still displays an active safety banner or warning card if any critical automation or permission failure occurs.  
+7. (Revised 2026-11-23, HOME-003, ADR-048) Critical safety banners appear at the top of Home; failed or skipped individual actions appear in a failed-actions notice at the bottom of Home. The user can select Details (action history filtered to failures) or Hide; the Recent actions card offers "Show all" (history sheet) and no "Open Battery" button.
+
+**Alternatives:** User cancels without saving → keep previous card configuration. User hides all non-critical cards → Home still displays an active safety banner if any critical condition occurs. User hides the failed-actions notice → it stays hidden until a newer failure is recorded; log entries are kept. A critical condition cannot be hidden while it persists.  
 **Postconditions:** Customized card order and visibility persist across restarts and are included in exported configuration.
 
 ## UC-21 — Use experimental Pixel toolbox actions
@@ -395,12 +398,12 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Primary actor:** End user; Android System Settings / TileService  
 **Preconditions:** User adds Able's system tiles to the Quick Settings shade or uses in-app switches.
 
-1. **NFC tile (revised 2026-11-22):** Tapping toggles NFC directly if `WRITE_SECURE_SETTINGS` was granted via ADB (setup shows the command with copy); otherwise through Shizuku if connected; otherwise opens native Android NFC settings. The tile shows the real adapter state.
+1. **NFC tile (revised 2026-11-23, ADR-044):** Tapping toggles NFC directly if `WRITE_SECURE_SETTINGS` is granted (via ADB, setup shows the command with copy, or via the Shizuku self-grant of UC-51); with Shizuku but no grant, Able offers the self-grant first; otherwise opens native Android NFC settings. Able never runs `svc nfc` through Shizuku (it fails on Android 16). The tile shows the real adapter state.
 2. **Auto-brightness tile:** Tapping toggles between Automatic and Manual brightness using `WRITE_SETTINGS` (prompts user to allow Modify System Settings if not yet granted).
-3. **USB / Wireless Debugging tile:** Tapping toggles debugging directly if Shizuku is available; otherwise opens Android Developer Options; in-app view displays IP and port for wireless ADB; "details" opens the Wireless debugging page directly, falling back to Developer options and then Android Settings (revised 2026-11-22).
+3. **USB / Wireless Debugging tile:** Tapping toggles debugging directly if `WRITE_SECURE_SETTINGS` is granted (ADB or Shizuku self-grant); otherwise opens Android Developer Options; in-app view displays IP and port for wireless ADB; "details" opens the Wireless debugging page directly, falling back to Developer options and then Android Settings (revised 2026-11-22). Switches and tiles follow changes made elsewhere immediately through Settings observers (revised 2026-11-23).
 4. **Private DNS tile:** Tapping cycles between Off, Automatic, and user's saved DNS provider (e.g. Cloudflare, AdGuard) via Shizuku; fallback opens Private DNS settings dialog.
 
-**Alternatives:** Privileged access missing → tier-2 safe fallback opens the matching Android settings screen with explanation; no crash or silent failure. No NFC hardware → NFC tile unavailable. Wireless debugging page route not resolvable → next fallback with an explanation; Developer options disabled → explain how to enable them.  
+**Alternatives:** Privileged access missing → tier-2 safe fallback opens the matching Android settings screen with explanation; no crash or silent failure. Self-grant refused or failed → reason shown, settings fallback. Grant revoked externally → next route used and the checklist updated. No NFC hardware → NFC tile unavailable.Wireless debugging page route not resolvable → next fallback with an explanation; Developer options disabled → explain how to enable them.  
 **Postconditions:** Real system state is read back and reflected on tile icons/subtitles immediately.
 
 ## UC-29 — Create and customize dynamic tiles and multi-action widgets
@@ -438,6 +441,7 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 2. User chooses Clean all app caches and confirms.
 3. If Shizuku is connected, Able measures free space, runs the system cache trim (for example `pm trim-caches`), and measures free space again.
 4. Able reports the actual freed space and logs the result.
+5. (Revised 2026-11-23) Alternatively, the user opens the per-app cache list (app icon, name, cache size, centered checkbox), selects one or more apps or all user apps, and chooses Clear cache; Able shows a confirmation listing apps and total cache size, clears each app's cache, and shows a per-app result with measured freed space, failed rows first, consistent with the RAM tool's bulk action.
 
 **Alternatives:** Shizuku unavailable → Able explains why it cannot clear other apps' caches and opens Android's storage settings. Command rejected or fails → report failure, no success claim. Freed space is zero or negative due to concurrent writes → report the measured value honestly.  
 **Postconditions:** No app private files/data are deleted; the reported amount is measured, not estimated.
@@ -503,13 +507,13 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Primary actor:** End user; Android OS  
 **Preconditions:** Able is open.
 
-1. User performs a confirmation, toggle, or action, or uses a slider, button, chip, switch, or list row; Able gives the haptic pattern from the haptics map (slider: tick per step and confirm on release).
-2. User opens Settings → Appearance and turns Haptic feedback off or on (default on).
+1. User taps any interactive element, confirms, toggles, long-presses, or uses a slider; Able gives the pattern of that kind from the haptics map (tick, click, toggle on/off, confirm, reject/destructive, long press; slider: tick per step and confirm on release), composed from vibration primitives where supported (revised 2026-11-23, ADR-043).
+2. User opens Settings → Appearance → Haptic feedback and chooses Off, Light, Normal (default), or Strong; Able plays a preview.
 3. User switches primary destination; content slides horizontally in the direction of the tab order with a very light spring overshoot.
 4. User opens a card or menu, including a small tool card; it expands into the full-screen destination (container transform) without jumps. Back or predictive back shrinks it into the originating card's current bounds (revised 2026-11-22: glitches on small cards are a defect).
 5. User navigates back with the predictive back gesture; Able previews the destination on supported Android versions.
 
-**Alternatives:** System touch feedback disabled or no vibrator → no haptics, no error. "Remove animations" enabled → transitions are instant or a plain fade, without slide, overshoot, or container transform. Android version without predictive back → standard back. Originating card scrolled out of view or removed → return with a fade. Predictive back cancelled → full screen restored without a jump. Dirty form → the discard/keep prompt still appears before leaving.  
+**Alternatives:** System touch feedback disabled or no vibrator → no haptics, no error (no vibrator → intensity control hidden or unavailable). Primitives unsupported → fallback constants; Settings notes that intensity may not change. Destructive confirmation → reject pattern, never confirm."Remove animations" enabled → transitions are instant or a plain fade, without slide, overshoot, or container transform. Android version without predictive back → standard back. Originating card scrolled out of view or removed → return with a fade. Predictive back cancelled → full screen restored without a jump. Dirty form → the discard/keep prompt still appears before leaving.  
 **Postconditions:** Haptics and motion preferences persist and never block an action.
 
 ## UC-37 — Recognize Able across system surfaces
@@ -521,7 +525,7 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 2. User opens Able and sees the Able logo in onboarding and About.
 3. User adds Able tiles; each tile uses an icon from the curated Able icon set.
 
-**Alternatives:** Launcher does not support themed icons → the standard adaptive icon is shown. Dynamic color unavailable → fallback palette keeps assets legible. Rebrand pending (2026-11-22, BRAND-001) → current assets stay until the owner selects an option from `docs/brand/branding-options.html`.  
+**Alternatives:** Launcher does not support themed icons → the standard adaptive "Pulse" icon is shown. Dynamic color unavailable → fallback palette (ink `#101418`, mint `#1FC98E` accent) keeps assets legible. Brand concept decided 2026-11-23 ("Pulse", BRAND-001); until the new assets ship, the previous assets remain and are reported as such in the backlog (TSK-1606).  
 **Postconditions:** Brand assets are original Drago Labs work, consistent in light, dark, and dynamic color themes.
 
 ## UC-38 — Run a command in the command shell
@@ -589,7 +593,7 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Primary actor:** End user  
 **Preconditions:** Any primary destination is open. Related: SEARCH-001, ADR-032.
 
-1. User selects the search action in the top app bar.
+1. User selects the search entry point: the circular Search button next to the floating navigation bar on compact windows, or the search action in the top app bar on wider windows and TV (revised 2026-11-23).
 2. Able shows recent searches (if any).
 3. User types a query in Italian or English.
 4. Able lists matching tools, battery options, apps features, settings, tiles & widgets, and Home customization entries, grouped by area.
@@ -641,6 +645,7 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 4. Able shows a confirmation naming the consequences (notifications, alarms, sync may stop; the app may restart and use more battery).
 5. User confirms; Able runs the action, re-lists processes to verify, and logs the result.
 6. User may edit the block list (add/remove apps) and later choose Stop block list, confirm, and see a per-app result.
+7. (Revised 2026-11-23) App rows show the app icon and a vertically centered selection checkbox; multi-select uses the same contextual bar, confirmation, and per-app result layout as Storage's per-app cache cleanup (UC-31).
 
 **Alternatives:** Shizuku unavailable → summary only, process list unavailable with the reason. App protected, launcher, keyboard, Able, or core system process → cannot be added to the block list or stopped in bulk; a single core process shows no stop action. Process restarts immediately → reported "restarted" rather than success. Command rejected → failure reported.  
 **Postconditions:** Nothing runs automatically; no battery-saving or "boost" claim is made; memory values shown are measurements.
@@ -671,8 +676,9 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 4. With Precise active, when the launcher home is in the foreground, Able shows the overlay outside system gesture areas.
 5. A double tap on empty space turns the screen off; any other touch is replayed to the launcher.
 6. When the launcher loses the foreground, Able removes the overlay immediately.
+7. (Revised 2026-11-23, ADR-039 revised) After a swipe is recognized, the first swipe is replayed with its recorded path and timing, and the overlay becomes touch-transparent for a short browsing window so further page swipes go directly to the launcher; the overlay never covers the dock/hotseat row, the search bar band, or system gesture insets.
 
-**Alternatives:** Self-test fails (replay not delivered, launcher ignores dispatched gestures) → Able recommends Light mode or the widget fallback and does not enable Precise silently. Multi-touch gesture → disclosed as not reliably replayed. Accessibility disabled/blocked → inactive with reason. Launcher updated → self-test recommended; failures recorded in the log.  
+**Alternatives:** Double tap during the pass-through window or in an excluded area → not detected (disclosed in setup and help). Pass-through window too short or too long on a launcher → reported by the self-test (first-swipe delay, page-change success rate) and tuned per device. Self-test fails(replay not delivered, launcher ignores dispatched gestures) → Able recommends Light mode or the widget fallback and does not enable Precise silently. Multi-touch gesture → disclosed as not reliably replayed. Accessibility disabled/blocked → inactive with reason. Launcher updated → self-test recommended; failures recorded in the log.  
 **Postconditions:** The overlay never covers another app, the lock screen, or system gesture areas.
 
 ## UC-48 — Return to a section's start from its navigation item
@@ -686,3 +692,57 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 
 **Alternatives:** A form on the stack is dirty → discard/keep prompt first; Keep cancels the return. "Remove animations" on → instant transition.  
 **Postconditions:** Other sections keep their own back stacks.
+
+## UC-49 — Simulate a location with Fake GPS
+
+**Primary actor:** End user; Android location system; Shizuku service (optional); OpenStreetMap tile server  
+**Preconditions:** User opens Strumenti → Fake GPS. Related: GPS-003, ADR-045 (added 2026-11-23).
+
+1. Able checks whether it is the selected mock-location app. If not, it explains why this is needed and offers Developer options or, with Shizuku connected, a one-tap selection (`android:mock_location` allowed through AppOps) that it reads back.
+2. Able shows the OpenStreetMap map with the "© OpenStreetMap contributors" attribution and the always-visible note that apps can detect mock locations.
+3. User places the fake position by tapping the map, searching a place or coordinates, or choosing a saved point; the user may save the position as a point.
+4. User optionally sets jitter, altitude, and accuracy, and chooses a mode: fixed position, joystick (with speed), or route (draws two or more points, picks a speed, optionally loop).
+5. User selects Start; Able starts a foreground service with an ongoing notification and feeds the mock position (moving for joystick/route).
+6. User pauses or resumes a route, or moves the joystick.
+7. User selects Stop in the tool or the notification; Able removes the mock provider, stops the service, and confirms that real location is back.
+
+**Alternatives:** Developer options disabled → Able explains how to enable them and cannot start. Shizuku AppOps change rejected → failure shown with the Developer options route. No network → no map tiles, with an explanation; coordinate entry and saved points still work. Tile server refuses or blocks requests → map shows an error and Able does not retry aggressively. Search finds nothing → empty state. Invalid coordinates → rejected with the valid ranges. Mock-location selection revoked or Developer options turned off while running → service stops and Able reports it. Notification permission denied → Able explains that the stop control stays available in the tool, and the foreground service still shows its required notification where Android allows. A target app refuses mock locations → outside Able's control; help explains detection.  
+**Postconditions:** A mock position exists only while the service runs and the notification is shown; no automation can start it; only user-saved points and routes are stored.
+
+## UC-50 — Move between Battery sub-sections
+
+**Primary actor:** End user  
+**Preconditions:** User opens Batteria. Related: BAT-UI-001, ADR-048 (added 2026-11-23).
+
+1. Able shows the tab row Stato · Monitor · Salute · Diagnosi with Stato selected.
+2. User swipes horizontally or taps a tab; Able shows the adjacent or selected sub-section and moves the tab indicator.
+3. In Monitor, the user reads live status first, then statistics, sessions, and settings.
+4. In Salute, the user reads the health summary first, then capacity, lifecycle, charging, and advanced data.
+
+**Alternatives:** Swipe starts on a chart or chip row → that content scrolls instead of the pager. Swipe starts in a system back-gesture edge → system back, not a sub-section change. "Remove animations" on → instant change. TV → tabs focused with D-pad; no swipe needed. A value unavailable on the device → shown as unavailable with its source, without reordering the groups.  
+**Postconditions:** Re-selecting Batteria returns to Stato; no data or setting changes by switching sub-sections.
+
+## UC-51 — Let Able hold secure-settings access through Shizuku
+
+**Primary actor:** End user; Shizuku service; Android PackageManager  
+**Preconditions:** User opens setup for NFC, USB/Wireless debugging, or Private DNS, or the access checklist; Shizuku is connected. Related: SYS-001, SYS-003, SYS-004, ADR-044 (added 2026-11-23).
+
+1. Able explains that `WRITE_SECURE_SETTINGS` lets it change secure system settings, which features use it, that it stays granted across updates until revoked, and how to revoke it.
+2. User confirms; Able runs `pm grant` for its own package as the Shizuku shell user.
+3. Able verifies the grant with `checkSelfPermission` and shows "Granted" with a Revoke action.
+4. NFC, debugging, and Private DNS toggles now change state in-process and read the result back.
+5. Later the user selects Revoke; Able runs `pm revoke` through Shizuku (or shows the ADB command when Shizuku is unavailable) and verifies the revoke.
+
+**Alternatives:** User cancels → nothing changes; the features keep their settings-page fallback. `pm grant` fails or the readback shows no grant → failure with the output reason, no success claim. Shizuku unavailable at revoke time → Able shows the ADB revoke command and the uninstall option. Grant removed externally → features fall back and the checklist updates on resume.  
+**Postconditions:** The grant is never exported; every secure-settings write is limited to the features the user operates and is read back.
+
+## UC-52 — Browse the Tools hub
+
+**Primary actor:** End user  
+**Preconditions:** User opens Strumenti. Related: TOOLS-001, ADR-048 (added 2026-11-23).
+
+1. Able shows every tool as a tile of the same size with icon, label, and capability state.
+2. User scrolls the grid and opens a tool; the tile expands into the tool (UX-004).
+
+**Alternatives:** Long label → wraps to two lines or ellipsizes; TalkBack reads the full name. Tool unavailable → same tile size with an unavailable badge and reason. Large font scale → all tiles grow together. TV → D-pad moves across the grid predictably.  
+**Postconditions:** Tile size never depends on label, badge, or availability.

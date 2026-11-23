@@ -13,12 +13,10 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
@@ -94,10 +92,10 @@ fun StatusBanner(
                     horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm, Alignment.End),
                 ) {
                     if (secondaryActionLabel != null && onSecondaryAction != null) {
-                        TextButton(onClick = onSecondaryAction) { Text(secondaryActionLabel) }
+                        AbleTextButton(onClick = onSecondaryAction) { Text(secondaryActionLabel) }
                     }
                     if (actionLabel != null && onAction != null) {
-                        FilledTonalButton(onClick = onAction) { Text(actionLabel) }
+                        AbleFilledTonalButton(onClick = onAction) { Text(actionLabel) }
                     }
                 }
             }

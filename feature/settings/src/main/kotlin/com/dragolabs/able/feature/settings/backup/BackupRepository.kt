@@ -6,16 +6,17 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.room.withTransaction
 import com.dragolabs.able.core.data.ActionLogRepository
+import com.dragolabs.able.core.data.battery.BatteryProfileRepository
 import com.dragolabs.able.core.database.AbleDatabase
-import com.dragolabs.able.core.database.UserPreferences
 import com.dragolabs.able.core.database.UserPreferencesRepository
+import com.dragolabs.able.core.database.entity.BatteryNoteEntity
+import com.dragolabs.able.core.database.entity.BatterySessionEntity
 import com.dragolabs.able.core.database.entity.DnsProfileEntity
 import com.dragolabs.able.core.database.entity.GpsPointEntity
 import com.dragolabs.able.core.database.entity.HomeCardConfigEntity
 import com.dragolabs.able.core.database.entity.ShortcutCollectionEntity
 import com.dragolabs.able.core.database.entity.ShortcutDefinitionEntity
 import com.dragolabs.able.core.model.ActionExecutionStatus
-import com.dragolabs.able.core.model.AppInterventionLevel
 import com.dragolabs.able.core.model.GpsPoint
 import com.dragolabs.able.core.model.HomeCardConfig
 import com.dragolabs.able.core.model.ShortcutTargetType
@@ -28,6 +29,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import java.io.File
 import java.io.IOException
 import java.time.Instant
@@ -48,6 +51,15 @@ data class SectionPreview(
     val unresolved: Int,
     val needRepin: Int = 0,
     val iconsReset: Int = 0,
+    /** Battery history: sessions already on this device (same start/end); never overwritten. */
+    val duplicates: Int = 0,
+    /** Battery history: sessions older than [retentionDays]; not imported. */
+    val expiring: Int = 0,
+    val retentionDays: Int = 0,
+    /** Battery history: notes/tags attached to the sessions. */
+    val notes: Int = 0,
+    /** Battery profiles came from a schema-1 archive and are converted to built-in profiles. */
+    val legacy: Boolean = false,
 )
 
 data class ImportPreview(
@@ -65,6 +77,10 @@ data class SectionOutcome(
     val skipped: Int,
     val unresolved: Int,
     val failed: Boolean = false,
+    /** Battery history: sessions already present and left untouched. */
+    val duplicates: Int = 0,
+    /** Battery history: sessions not imported because retention would delete them. */
+    val expired: Int = 0,
 )
 
 data class ImportReport(
@@ -76,6 +92,16 @@ data class ImportReport(
 ) {
     val anyFailed: Boolean get() = sections.any { it.failed }
 }
+
+/** Size of the optional battery-history section, shown in the export dialog (CFG-003). */
+data class HistorySummary(
+    val sessions: Int,
+    val notes: Int,
+    /** Uncompressed JSON size; the archive is compressed and therefore smaller. */
+    val approxBytes: Long,
+    val oldestEpochMs: Long?,
+    val newestEpochMs: Long?,
+)
 
 sealed interface ExportResult {
     data class Success(val fileName: String, val sections: Int) : ExportResult
@@ -98,9 +124,11 @@ class BackupRepository(
     private val context: Context,
     private val preferences: UserPreferencesRepository,
     private val database: AbleDatabase,
+    private val batteryProfiles: BatteryProfileRepository,
     private val actionLog: ActionLogRepository,
     private val language: AppLanguageController,
     private val io: CoroutineDispatcher = Dispatchers.IO,
+    private val clock: () -> Long = System::currentTimeMillis,
 ) {
     private val rollbackFile: File get() = File(File(context.filesDir, "backup"), "rollback.$EXT")
     private val _rollbackAvailable = MutableStateFlow(rollbackFile.exists())
@@ -127,7 +155,14 @@ class BackupRepository(
     suspend fun buildPayload(sections: Set<BackupSection>): BackupPayload {
         val prefs = preferences.userPreferencesFlow.first()
         return BackupPayload(
-            battery = if (BackupSection.BATTERY in sections) prefs.toBatteryDto() else null,
+            batteryProfiles = if (BackupSection.BATTERY_PROFILES in sections) {
+                BatteryProfilesSectionDto(
+                    profiles = batteryProfiles.profiles.first().map(BackupSanitizer::profileToDto),
+                    protectedApps = prefs.protectedAppPackages.sorted(),
+                )
+            } else {
+                null
+            },
             homeAppearance = if (BackupSection.HOME_APPEARANCE in sections) {
                 HomeAppearanceSectionDto(
                     cards = database.homeCardDao().getAllCards().first()
@@ -174,24 +209,70 @@ class BackupRepository(
             } else {
                 null
             },
+            // Opt-in only (CFG-003): included solely when the user selected it for this export.
+            batteryHistory = if (BackupSection.BATTERY_HISTORY in sections) historyDto() else null,
         )
     }
 
-    private fun UserPreferences.toBatteryDto() = BatterySectionDto(
-        savingsTriggerPercent = savingsTriggerPercent,
-        savingsResetPercent = savingsResetPercent,
-        emergencyTriggerPercent = emergencyTriggerPercent,
-        emergencyResetPercent = emergencyResetPercent,
-        notteScheduleEnabled = notteScheduleEnabled,
-        notteScreenOffEnabled = notteScreenOffEnabled,
-        notteStartTime = notteStartTime,
-        notteEndTime = notteEndTime,
-        screenOffDelayMinutes = screenOffDelayMinutes,
-        protectedApps = protectedAppPackages.sorted(),
-        appRules = appBatteryRules.flatMap { (pkg, rules) ->
-            rules.map { (profile, level) -> AppRuleDto(pkg, profile.name, level.name) }
-        }.sortedWith(compareBy({ it.packageName }, { it.profile })),
+    /** Session summaries with their notes, oldest first, capped to what an import accepts. */
+    private suspend fun historyDto(): BatteryHistorySectionDto {
+        val dao = database.batteryDao()
+        val notes = dao.getAllNotes().first().associateBy { it.sessionId }
+        val sessions = dao.getAllSessions().first()
+            .sortedByDescending { it.startTimeEpochMs }
+            .take(BackupSanitizer.MAX_HISTORY_SESSIONS)
+            .sortedBy { it.startTimeEpochMs }
+        return BatteryHistorySectionDto(sessions.map { it.toDto(notes[it.id]) })
+    }
+
+    suspend fun historySummary(): HistorySummary = withContext(io) {
+        val dto = historyDto()
+        HistorySummary(
+            sessions = dto.sessions.size,
+            notes = dto.sessions.count { it.note != null },
+            approxBytes = BackupArchive.encodedSize(dto),
+            oldestEpochMs = dto.sessions.minOfOrNull { it.startTimeEpochMs },
+            newestEpochMs = dto.sessions.maxOfOrNull { it.endTimeEpochMs },
+        )
+    }
+
+    private fun BatterySessionEntity.toDto(note: BatteryNoteEntity?) = BatterySessionDto(
+        startTimeEpochMs, endTimeEpochMs, isCharging, startLevelPercent, endLevelPercent,
+        avgTemperatureCelsius, maxTemperatureCelsius, avgCurrentMilliAmperes, avgVoltageMillivolts,
+        avgPowerMilliWatts, screenOnDurationMs, screenOffDurationMs, deepSleepDurationMs, hasThermalAlert,
+        isPartial, screenOnDropPercent, screenOffDropPercent,
+        note = note?.let { BatterySessionNoteDto(it.noteText, decodeTags(it.tagsJson), it.createdAtEpochMs) },
     )
+
+    private fun BatterySessionDto.toEntity() = BatterySessionEntity(
+        startTimeEpochMs = startTimeEpochMs,
+        endTimeEpochMs = endTimeEpochMs,
+        isCharging = isCharging,
+        startLevelPercent = startLevelPercent,
+        endLevelPercent = endLevelPercent,
+        avgTemperatureCelsius = avgTemperatureCelsius,
+        maxTemperatureCelsius = maxTemperatureCelsius,
+        avgCurrentMilliAmperes = avgCurrentMilliAmperes,
+        avgVoltageMillivolts = avgVoltageMillivolts,
+        avgPowerMilliWatts = avgPowerMilliWatts,
+        screenOnDurationMs = screenOnDurationMs,
+        screenOffDurationMs = screenOffDurationMs,
+        deepSleepDurationMs = deepSleepDurationMs,
+        hasThermalAlert = hasThermalAlert,
+        isPartial = isPartial,
+        screenOnDropPercent = screenOnDropPercent,
+        screenOffDropPercent = screenOffDropPercent,
+    )
+
+    private fun noteEntity(sessionId: Long, note: BatterySessionNoteDto) = BatteryNoteEntity(
+        sessionId = sessionId,
+        noteText = note.text,
+        tagsJson = BackupArchive.json.encodeToString(tagsSerializer, note.tags),
+        createdAtEpochMs = note.createdAtEpochMs,
+    )
+
+    private fun decodeTags(json: String): List<String> =
+        runCatching { BackupArchive.json.decodeFromString(tagsSerializer, json) }.getOrDefault(emptyList())
 
     // --- Import: read, validate, preview ---------------------------------------------------
 
@@ -214,21 +295,18 @@ class BackupRepository(
         val prefs = preferences.userPreferencesFlow.first()
         val p = backup.payload
         val sections = buildList {
-            p.battery?.let { dto ->
-                val s = BackupSanitizer.battery(dto)
-                val ruleConflicts = s.rules.count { r ->
-                    val existing = prefs.appBatteryRules[r.packageName]?.get(r.profile)
-                    existing != null && existing != r.level
-                }
-                val scalarConflict = if (s.scalars != null && s.scalars != prefs.scalars()) 1 else 0
-                val packages = (s.rules.map { it.packageName } + s.protectedApps).toSet()
+            if (BackupSection.BATTERY_PROFILES in p.sections) {
+                val local = batteryProfiles.profiles.first()
+                val s = sanitizeProfiles(p, local)
+                val plan = BackupMerge.planProfiles(local, s.profiles, replace = false, useImported = false)
                 add(
                     SectionPreview(
-                        BackupSection.BATTERY,
-                        items = s.rules.size + s.protectedApps.size + (if (s.scalars != null) 1 else 0),
+                        BackupSection.BATTERY_PROFILES,
+                        items = s.profiles.size + s.protectedApps.size,
                         invalid = s.rejected,
-                        conflicts = ruleConflicts + scalarConflict,
-                        unresolved = packages.count { !isInstalled(it) },
+                        conflicts = plan.conflicts,
+                        unresolved = s.packages.count { !isInstalled(it) },
+                        legacy = s.legacy,
                     ),
                 )
             }
@@ -279,6 +357,27 @@ class BackupRepository(
                         unresolved = s.shortcuts.count { !isResolvable(it.targetType, it.targetPackage) },
                         needRepin = s.needRepin,
                         iconsReset = s.iconsReset,
+                    ),
+                )
+            }
+            p.batteryHistory?.let { dto ->
+                val now = clock()
+                val s = BackupSanitizer.batteryHistory(dto, now)
+                val existing = database.batteryDao().getAllSessions().first()
+                    .associate { (it.startTimeEpochMs to it.endTimeEpochMs) to false }
+                val plan = BackupMerge.planHistory(s.sessions, existing, replace = false, prefs.batteryHistoryRetentionDays, now)
+                add(
+                    SectionPreview(
+                        BackupSection.BATTERY_HISTORY,
+                        items = s.sessions.size,
+                        invalid = s.rejected + s.duplicatesInFile,
+                        // Existing sessions are never overwritten, so there is nothing to choose.
+                        conflicts = 0,
+                        unresolved = 0,
+                        duplicates = plan.duplicates,
+                        expiring = plan.expired,
+                        retentionDays = prefs.batteryHistoryRetentionDays,
+                        notes = s.notes,
                     ),
                 )
             }
@@ -344,7 +443,9 @@ class BackupRepository(
         val replace = mode == ImportMode.REPLACE
         val useImported = replace || policy == ConflictPolicy.USE_IMPORTED
 
-        payload.battery?.let { outcomes += guarded(BackupSection.BATTERY) { applyBattery(BackupSanitizer.battery(it), replace, useImported) } }
+        if (BackupSection.BATTERY_PROFILES in payload.sections) {
+            outcomes += guarded(BackupSection.BATTERY_PROFILES) { applyProfiles(payload, replace, useImported) }
+        }
         payload.homeAppearance?.let { outcomes += guarded(BackupSection.HOME_APPEARANCE) { applyHome(BackupSanitizer.homeAppearance(it), useImported) } }
         payload.gps?.let { outcomes += guarded(BackupSection.GPS_POINTS) { applyGps(BackupSanitizer.gps(it), replace, useImported) } }
         payload.dns?.let { outcomes += guarded(BackupSection.DNS_PROFILES) { applyDns(BackupSanitizer.dns(it), replace, useImported) } }
@@ -354,6 +455,7 @@ class BackupRepository(
             iconsReset = s.iconsReset
             outcomes += guarded(BackupSection.SHORTCUTS) { applyShortcuts(s, replace, useImported) }
         }
+        payload.batteryHistory?.let { outcomes += guarded(BackupSection.BATTERY_HISTORY) { applyHistory(it, replace) } }
         return ImportReport(mode, outcomes, rollbackSaved, needRepin, iconsReset)
     }
 
@@ -365,49 +467,65 @@ class BackupRepository(
         SectionOutcome(section, applied = 0, skipped = 0, unresolved = 0, failed = true)
     }
 
-    private suspend fun applyBattery(s: SanitizedBattery, replace: Boolean, useImported: Boolean): SectionOutcome {
-        val prefs = preferences.userPreferencesFlow.first()
-        var applied = 0
-        var skipped = s.rejected
-        s.scalars?.let { sc ->
-            if (sc == prefs.scalars()) {
-                applied++
-            } else if (useImported) {
-                preferences.setBatteryProfileThresholds(sc.savingsTrigger, sc.savingsReset, sc.emergencyTrigger, sc.emergencyReset)
-                preferences.setNotteTriggers(sc.notteScheduleEnabled, sc.notteScreenOffEnabled)
-                preferences.setNotteScheduleTimes(sc.notteStart, sc.notteEnd)
-                preferences.setScreenOffDelayMinutes(sc.screenOffDelayMinutes)
-                applied++
-            } else {
-                skipped++
-            }
-        }
-        if (replace) {
-            prefs.protectedAppPackages.filterNot { it in s.protectedApps }.forEach { preferences.setAppProtected(it, false) }
-            prefs.appBatteryRules.forEach { (pkg, rules) ->
-                rules.keys.forEach { profile ->
-                    if (s.rules.none { it.packageName == pkg && it.profile == profile }) {
-                        preferences.setAppBatteryRule(pkg, profile, AppInterventionLevel.OSSERVA)
-                    }
-                }
-            }
-        }
-        s.protectedApps.forEach {
-            preferences.setAppProtected(it, true)
-            applied++
-        }
-        s.rules.forEach { rule ->
-            val existing = prefs.appBatteryRules[rule.packageName]?.get(rule.profile)
-            if (replace || existing == null || existing == rule.level || useImported) {
-                preferences.setAppBatteryRule(rule.packageName, rule.profile, rule.level)
-                applied++
-            } else {
-                skipped++
-            }
-        }
+    private suspend fun sanitizeProfiles(payload: BackupPayload, local: List<com.dragolabs.able.core.model.BatteryProfile>): SanitizedBatteryProfiles =
+        payload.batteryProfiles?.let(BackupSanitizer::batteryProfiles)
+            ?: BackupSanitizer.legacyBatteryProfiles(requireNotNull(payload.legacyBattery), local)
+
+    private suspend fun applyProfiles(payload: BackupPayload, replace: Boolean, useImported: Boolean): SectionOutcome {
+        val local = batteryProfiles.profiles.first()
+        val s = sanitizeProfiles(payload, local)
+        val plan = BackupMerge.planProfiles(local, s.profiles, replace, useImported)
+        plan.deleteCustomIds.forEach { batteryProfiles.delete(it) }
+        plan.resetBuiltIns.forEach { batteryProfiles.save(it) }
+        // save() also mirrors built-in app rules to the legacy preferences.
+        plan.save.forEach { batteryProfiles.save(it) }
+        val protectedNow = preferences.userPreferencesFlow.first().protectedAppPackages
+        if (replace) protectedNow.filterNot { it in s.protectedApps }.forEach { preferences.setAppProtected(it, false) }
+        s.protectedApps.filterNot { it in protectedNow }.forEach { preferences.setAppProtected(it, true) }
         // Rules for apps missing on this device are kept but stay inert until the app is installed.
-        val unresolved = (s.rules.map { it.packageName } + s.protectedApps).toSet().count { !isInstalled(it) }
-        return SectionOutcome(BackupSection.BATTERY, applied, skipped, unresolved)
+        val unresolved = s.packages.count { !isInstalled(it) }
+        return SectionOutcome(
+            BackupSection.BATTERY_PROFILES,
+            applied = plan.applied + s.protectedApps.size,
+            skipped = plan.skipped + s.rejected,
+            unresolved = unresolved,
+        )
+    }
+
+    /**
+     * Merge adds missing sessions (and missing notes of existing ones); Replace clears the
+     * history first. Both skip sessions the retention setting would delete. Runs in one
+     * transaction, so a failure leaves the history unchanged.
+     */
+    private suspend fun applyHistory(dto: BatteryHistorySectionDto, replace: Boolean): SectionOutcome {
+        val now = clock()
+        val s = BackupSanitizer.batteryHistory(dto, now)
+        val retention = preferences.userPreferencesFlow.first().batteryHistoryRetentionDays
+        val dao = database.batteryDao()
+        val plan = database.withTransaction {
+            if (replace) {
+                dao.clearAllSessions()
+                dao.clearAllNotes()
+            }
+            val local = if (replace) emptyList() else dao.getAllSessions().first()
+            val withNotes = if (replace) emptySet() else dao.getAllNotes().first().mapTo(mutableSetOf()) { it.sessionId }
+            val idByKey = local.associate { (it.startTimeEpochMs to it.endTimeEpochMs) to it.id }
+            val existing = local.associate { (it.startTimeEpochMs to it.endTimeEpochMs) to (it.id in withNotes) }
+            val plan = BackupMerge.planHistory(s.sessions, existing, replace, retention, now)
+            val ids = dao.insertSessions(plan.insert.map { it.toEntity() })
+            val notes = plan.insert.zip(ids).mapNotNull { (session, id) -> session.note?.let { noteEntity(id, it) } } +
+                plan.notesForExisting.mapNotNull { (key, note) -> idByKey[key]?.let { noteEntity(it, note) } }
+            if (notes.isNotEmpty()) dao.insertNotes(notes)
+            plan
+        }
+        return SectionOutcome(
+            BackupSection.BATTERY_HISTORY,
+            applied = plan.insert.size,
+            skipped = s.rejected + s.duplicatesInFile,
+            unresolved = 0,
+            duplicates = plan.duplicates,
+            expired = plan.expired,
+        )
     }
 
     private suspend fun applyHome(s: SanitizedHomeAppearance, useImported: Boolean): SectionOutcome {
@@ -532,11 +650,6 @@ class BackupRepository(
         return stored.sortedBy { it.displayOrder }.mapIndexed { i, c -> c.copy(displayOrder = i) }
     }
 
-    private fun UserPreferences.scalars() = BatteryScalars(
-        savingsTriggerPercent, savingsResetPercent, emergencyTriggerPercent, emergencyResetPercent,
-        notteScheduleEnabled, notteScreenOffEnabled, notteStartTime, notteEndTime, screenOffDelayMinutes,
-    )
-
     private fun GpsPoint.gpsKey() = Triple(timestampEpochMs, latitude, longitude)
     private fun GpsPointEntity.gpsKey() = Triple(timestampEpochMs, latitude, longitude)
 
@@ -566,7 +679,7 @@ class BackupRepository(
 
     private suspend fun log(report: ImportReport, restore: Boolean) {
         val applied = report.sections.sumOf { it.applied }
-        val skipped = report.sections.sumOf { it.skipped }
+        val skipped = report.sections.sumOf { it.skipped + it.duplicates + it.expired }
         val detail = context.getString(
             if (restore) R.string.settings_backup_log_restore else R.string.settings_backup_log_import,
             applied,
@@ -584,5 +697,6 @@ class BackupRepository(
 
     companion object {
         const val EXT = BackupArchive.FILE_EXTENSION
+        private val tagsSerializer = ListSerializer(String.serializer())
     }
 }

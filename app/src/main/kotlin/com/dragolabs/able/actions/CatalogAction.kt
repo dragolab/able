@@ -2,6 +2,7 @@ package com.dragolabs.able.actions
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.dragolabs.able.R
@@ -42,6 +43,13 @@ data class ActionState(
     fun status(context: Context): String? = statusText ?: statusRes?.let(context::getString)
 }
 
+/** The same state shown while Android is still switching to [target] ("Turning on…"). */
+fun ActionState.transitioningTo(target: Boolean): ActionState = copy(
+    active = target,
+    statusRes = if (target) R.string.action_state_turning_on else R.string.action_state_turning_off,
+    statusText = null,
+)
+
 /** How a surface (tile, widget, in-app row) should handle a tap right now. */
 sealed interface ActionRoute {
     /** The action can run without showing a screen. */
@@ -78,6 +86,23 @@ abstract class CatalogAction(
 
     /** Broadcasts after which surfaces showing this action re-read its state (e.g. NFC adapter changes). */
     open val stateChangedActions: List<String> = emptyList()
+
+    /** Settings URIs (ContentObserver) after which surfaces re-read this action's state. */
+    open fun stateChangedUris(context: Context): List<Uri> = emptyList()
+
+    /**
+     * Re-read interval while a tile is listening, for state Android may change behind Able's back
+     * (e.g. wireless debugging turning off when Wi-Fi changes). Needed in addition to
+     * [stateChangedUris]: Android defers ContentObserver callbacks to cached processes, and a
+     * tile service process usually is cached even while its tile is visible. `null` = no polling.
+     */
+    open val listeningPollMs: Long? = null
+
+    /**
+     * State Android reports while a change is still in progress (e.g. NFC STATE_TURNING_ON in an
+     * adapter broadcast), or `null` when [intent] reports a settled state.
+     */
+    open fun transitionalState(context: Context, intent: Intent): ActionState? = null
 
     open fun isSupported(context: Context): Boolean = true
 

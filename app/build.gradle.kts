@@ -16,8 +16,8 @@ android {
         applicationId = "com.dragolabs.able"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 6
-        versionName = "0.6.0-beta"
+        versionCode = 7
+        versionName = "0.7.0-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -80,6 +80,10 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     implementation(libs.androidx.biometric)
+    // Floating navigation bar background blur (Apache-2.0).
+    implementation(libs.haze)
+    // Blur effect for Haze 2.x lives in its own artifact (same project, same version and license).
+    implementation("dev.chrisbanes.haze:haze-blur:${libs.versions.haze.get()}")
 
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)

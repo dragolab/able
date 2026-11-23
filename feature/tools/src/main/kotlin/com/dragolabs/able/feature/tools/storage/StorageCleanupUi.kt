@@ -6,27 +6,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.DeleteSweep
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,6 +44,9 @@ import com.dragolabs.able.core.designsystem.component.rememberAbleHaptics
 import com.dragolabs.able.core.designsystem.component.statusLevel
 import com.dragolabs.able.core.designsystem.theme.AbleSpacing
 import com.dragolabs.able.feature.tools.R
+import com.dragolabs.able.feature.tools.common.AppIcon
+import com.dragolabs.able.feature.tools.common.SelectableRow
+import com.dragolabs.able.feature.tools.common.SelectionSlot
 import com.dragolabs.able.feature.tools.common.asString
 
 /** "Clear all caches" through Shizuku, or the honest fallback to Android's own screens (STO-002). */
@@ -117,17 +114,18 @@ internal fun SystemCacheCard(
     }
 }
 
-/** Top apps by size with their cache. Multi-select clears caches with Shizuku; otherwise App info. */
+/**
+ * Top apps by size with their cache. With Shizuku, rows are selectable and the selection bar
+ * clears their caches (same pattern as the RAM tool); otherwise each row offers App info.
+ */
 @Composable
 internal fun LargestAppsCard(
     state: StorageUiState,
     onToggleApp: (String) -> Unit,
-    onClearSelected: () -> Unit,
     onOpenAppInfo: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val haptics = rememberAbleHaptics()
     AbleCard(
         modifier = modifier,
         title = stringResource(R.string.storage_largest_apps),
@@ -151,36 +149,27 @@ internal fun LargestAppsCard(
         }
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             state.largestApps.forEachIndexed { index, app ->
-                val shape = listGroupItemShape(index, state.largestApps.size)
                 val selected = app.packageName in state.selectedApps
                 val meta = stringResource(
                     R.string.storage_app_meta,
                     Formatter.formatShortFileSize(context, app.totalBytes),
                     Formatter.formatShortFileSize(context, app.cacheBytes),
                 )
-                val rowModifier = if (state.shizukuReady) {
-                    Modifier
-                        .clip(shape)
-                        .focusRing(shape)
-                        .toggleable(value = selected, role = Role.Checkbox, enabled = !state.cleanupBusy) {
-                            haptics.tick(); onToggleApp(app.packageName)
-                        }
-                } else {
-                    Modifier.clip(shape)
-                }
-                ListItem(
-                    modifier = rowModifier.fillMaxWidth(),
-                    colors = ListItemDefaults.colors(
-                        containerColor = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
-                    ),
-                    leadingContent = if (state.shizukuReady) {
-                        { Checkbox(checked = selected, onCheckedChange = null) }
-                    } else {
-                        null
+                val clearing = state.clearingApps && selected
+                SelectableRow(
+                    selected = selected,
+                    onToggle = { onToggleApp(app.packageName) },
+                    slot = when {
+                        !state.shizukuReady -> SelectionSlot.NONE
+                        clearing -> SelectionSlot.BUSY
+                        else -> SelectionSlot.CHECKBOX
                     },
-                    headlineContent = { Text(app.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    supportingContent = { Text(meta) },
-                    trailingContent = {
+                    shape = listGroupItemShape(index, state.largestApps.size),
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    leading = { AppIcon(app.packageName) },
+                    headline = { Text(app.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    supporting = { Text(meta, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+                    trailing = {
                         val infoLabel = stringResource(R.string.storage_app_info, app.label)
                         AbleIconButton(
                             onClick = { onOpenAppInfo(app.packageName) },
@@ -188,24 +177,6 @@ internal fun LargestAppsCard(
                         ) { Icon(Icons.Rounded.Info, contentDescription = null) }
                     },
                 )
-            }
-        }
-        if (state.shizukuReady) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
-                AbleFilledTonalButton(
-                    onClick = { onClearSelected() },
-                    enabled = state.selectedApps.isNotEmpty() && !state.cleanupBusy,
-                    modifier = Modifier.weight(1f, fill = false).focusRing(),
-                ) {
-                    Text(
-                        stringResource(
-                            R.string.storage_apps_clear_action,
-                            state.selectedApps.size,
-                            Formatter.formatShortFileSize(context, state.selectedAppsCacheBytes),
-                        ),
-                    )
-                }
-                if (state.clearingApps) LoadingIndicator(modifier = Modifier.padding(2.dp))
             }
         }
     }

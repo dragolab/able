@@ -92,6 +92,7 @@ fun SettingsRoute(
         onLanguageSelected = viewModel::setLanguage,
         onDynamicColorChanged = viewModel::setUseDynamicColor,
         onHapticsChanged = viewModel::setHapticsEnabled,
+        onHapticsIntensitySelected = viewModel::setHapticsIntensity,
         onAccessAction = { kind ->
             val access = state.access
             when (kind) {

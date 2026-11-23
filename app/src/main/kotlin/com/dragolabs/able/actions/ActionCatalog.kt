@@ -2,14 +2,15 @@ package com.dragolabs.able.actions
 
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.nfc.NfcAdapter
 import android.os.Vibrator
-import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.dragolabs.able.R
 import com.dragolabs.able.core.capability.NfcToggleRoute
+import com.dragolabs.able.core.capability.mapNfcAdapterState
 import com.dragolabs.able.core.common.AbleResult
 import com.dragolabs.able.core.data.ableContainer
 import com.dragolabs.able.core.model.ActionCategory
@@ -86,6 +87,9 @@ object ActionCatalog {
     )
 }
 
+/** Tile re-read interval for Settings.Global-backed actions (see CatalogAction.listeningPollMs). */
+private const val SETTINGS_POLL_MS = 1_000L
+
 private fun Boolean.onOffRes(): Int = if (this) R.string.action_state_on else R.string.action_state_off
 
 // region Toggles
@@ -124,9 +128,10 @@ private object TorchAction : CatalogAction(
 }
 
 /**
- * NFC (SYS-001). Advanced mode toggles in place (WRITE_SECURE_SETTINGS granted through ADB, or
- * Shizuku); basic mode opens Android's NFC settings page. Routes follow Paul Colby's "NFC Quick
- * Settings" (GPL-3.0-or-later, https://github.com/pcolby/nfc-quick-settings).
+ * NFC (SYS-001). Advanced mode toggles in place from Able's own process (NfcAdapter with
+ * WRITE_SECURE_SETTINGS, granted through ADB or self-granted through Shizuku); basic mode opens
+ * Android's NFC settings page. Routes follow Paul Colby's "NFC Quick Settings"
+ * (GPL-3.0-or-later, https://github.com/pcolby/nfc-quick-settings).
  */
 private object NfcAction : CatalogAction(
     id = ActionIds.NFC,
@@ -150,11 +155,18 @@ private object NfcAction : CatalogAction(
         return ActionState(on, true, iconRes, status)
     }
 
+    override fun transitionalState(context: Context, intent: Intent): ActionState? {
+        if (intent.action != NfcAdapter.ACTION_ADAPTER_STATE_CHANGED) return null
+        val live = mapNfcAdapterState(intent.getIntExtra(NfcAdapter.EXTRA_ADAPTER_STATE, -1)) ?: return null
+        if (!live.transitioning) return null
+        return ActionState(live.enabled, true, iconRes).transitioningTo(live.enabled)
+    }
+
     override fun route(context: Context): ActionRoute {
         val settings = context.ableContainer.secureSettings
         return when (settings.nfcToggleRoute()) {
             NfcToggleRoute.UNSUPPORTED -> ActionRoute.Unsupported(null)
-            NfcToggleRoute.ADVANCED, NfcToggleRoute.SHIZUKU -> ActionRoute.RunInPlace
+            NfcToggleRoute.ADVANCED, NfcToggleRoute.SHIZUKU_SELF_GRANT -> ActionRoute.RunInPlace
             NfcToggleRoute.SETTINGS -> ActionRoute.OpenScreen(settings.getNfcSettingsIntent())
         }
     }
@@ -205,6 +217,10 @@ private object UsbDebuggingAction : CatalogAction(
     privilege = ActionPrivilege.SECURE_SETTINGS,
     requiresUnlock = true,
 ) {
+    override fun stateChangedUris(context: Context) = context.ableContainer.secureSettings.debuggingSettingUris()
+
+    override val listeningPollMs: Long = SETTINGS_POLL_MS
+
     override suspend fun readState(context: Context): ActionState {
         val on = context.ableContainer.secureSettings.isUsbDebuggingEnabled()
         return ActionState(on, true, iconRes, on.onOffRes())
@@ -218,28 +234,59 @@ private object UsbDebuggingAction : CatalogAction(
     override suspend fun execute(context: Context): ActionOutcome {
         val settings = context.ableContainer.secureSettings
         val target = !settings.isUsbDebuggingEnabled()
+        DeviceActions.ensureSecureAccess(context)
         if (settings.setUsbDebuggingEnabled(target) !is AbleResult.Success) return ActionOutcome.REJECTED
         delay(300)
         return if (settings.isUsbDebuggingEnabled() == target) ActionOutcome.APPLIED else ActionOutcome.UNVERIFIED
     }
 }
 
-/** Wireless debugging (SYS-003): real state shown, Android's Wireless debugging screen opened to change it. */
+/**
+ * Wireless debugging (SYS-003): toggles `adb_wifi_enabled` in place with WRITE_SECURE_SETTINGS
+ * (self-granted through Shizuku when needed); otherwise opens Android's Wireless debugging screen.
+ * Android turns it back off without Wi-Fi, so the result is always read back.
+ */
 private object WirelessDebuggingAction : CatalogAction(
     id = ActionIds.WIRELESS_DEBUGGING,
     titleRes = R.string.action_wireless_debugging_title,
     descriptionRes = R.string.action_wireless_debugging_desc,
     iconRes = R.drawable.ic_tile_wireless_adb,
     category = ActionCategory.SYSTEM,
-    type = ActionExecutionType.LAUNCH_SCREEN,
+    type = ActionExecutionType.IMMEDIATE_TOGGLE,
+    privilege = ActionPrivilege.SECURE_SETTINGS,
+    requiresUnlock = true,
 ) {
+    override fun stateChangedUris(context: Context) = context.ableContainer.secureSettings.debuggingSettingUris()
+
+    override val listeningPollMs: Long = SETTINGS_POLL_MS
+
     override suspend fun readState(context: Context): ActionState {
-        val on = runCatching { Settings.Global.getInt(context.contentResolver, "adb_wifi_enabled", 0) == 1 }.getOrDefault(false)
-        return ActionState(on, true, iconRes, if (on) R.string.action_state_on else R.string.action_state_opens_settings)
+        val settings = context.ableContainer.secureSettings
+        val on = runCatching { settings.isWirelessDebuggingEnabled() }.getOrDefault(false)
+        val status = when {
+            on -> R.string.action_state_on
+            settings.canToggleDirectly() -> R.string.action_state_off
+            else -> R.string.action_state_opens_settings
+        }
+        return ActionState(on, true, iconRes, status)
     }
 
-    override fun route(context: Context): ActionRoute =
-        ActionRoute.OpenScreen(context.ableContainer.secureSettings.getWirelessDebuggingIntent())
+    override fun route(context: Context): ActionRoute {
+        val settings = context.ableContainer.secureSettings
+        return if (settings.canToggleDirectly()) ActionRoute.RunInPlace else ActionRoute.OpenScreen(settings.getWirelessDebuggingIntent())
+    }
+
+    override suspend fun execute(context: Context): ActionOutcome {
+        val settings = context.ableContainer.secureSettings
+        val target = !settings.isWirelessDebuggingEnabled()
+        DeviceActions.ensureSecureAccess(context)
+        if (settings.setWirelessDebuggingEnabled(target) !is AbleResult.Success) return ActionOutcome.REJECTED
+        repeat(10) {
+            if (settings.isWirelessDebuggingEnabled() == target) return ActionOutcome.APPLIED
+            delay(250)
+        }
+        return if (settings.isWirelessDebuggingEnabled() == target) ActionOutcome.APPLIED else ActionOutcome.UNVERIFIED
+    }
 }
 
 /** Private DNS (SYS-004): Off <-> Automatic when privileged, DNS tool otherwise. */
@@ -253,6 +300,10 @@ private object PrivateDnsAction : CatalogAction(
     privilege = ActionPrivilege.SECURE_SETTINGS,
     requiresUnlock = true,
 ) {
+    override fun stateChangedUris(context: Context) = context.ableContainer.secureSettings.privateDnsSettingUris()
+
+    override val listeningPollMs: Long = SETTINGS_POLL_MS
+
     override suspend fun readState(context: Context): ActionState {
         val settings = context.ableContainer.secureSettings
         return when (settings.getPrivateDnsMode()) {
@@ -281,6 +332,7 @@ private object PrivateDnsAction : CatalogAction(
             PrivateDnsMode.OFF -> DnsProfile.Opportunistic
             PrivateDnsMode.OPPORTUNISTIC, PrivateDnsMode.HOSTNAME -> DnsProfile.Off
         }
+        DeviceActions.ensureSecureAccess(context)
         if (settings.setPrivateDnsProfile(next) !is AbleResult.Success) return ActionOutcome.REJECTED
         delay(300)
         return if (settings.getPrivateDnsMode() == next.mode) ActionOutcome.APPLIED else ActionOutcome.UNVERIFIED

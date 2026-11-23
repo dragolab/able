@@ -8,10 +8,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import com.dragolabs.able.core.model.StorageCategory
-import com.dragolabs.able.core.model.StorageReviewItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -58,36 +57,41 @@ class StorageScanner(private val context: Context) {
             context.checkSelfPermission(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) == PackageManager.PERMISSION_GRANTED &&
             context.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED
 
+    /**
+     * Lists files of at least [minSizeBytes], optionally modified more than [olderThanDays] ago
+     * and (media library only) under [location]. Results are the largest [MAX_RESULTS] matches.
+     */
     suspend fun scan(
         source: StorageSource,
-        category: StorageCategory,
         minSizeBytes: Long,
-        olderThanDays: Int,
-    ): List<StorageReviewItem> = withContext(Dispatchers.IO) {
-        val cutoffMs = System.currentTimeMillis() - olderThanDays * DAY_MS
-        when (source) {
-            StorageSource.MediaLibrary -> when (category) {
-                StorageCategory.LARGE_FILES -> queryMediaLargeFiles(minSizeBytes)
-                StorageCategory.OLD_DOWNLOADS -> queryMediaOldDownloads(cutoffMs)
-                StorageCategory.ABLE_CACHE -> emptyList()
-            }
-            is StorageSource.Folder -> scanTree(Uri.parse(source.treeUri), category, minSizeBytes, cutoffMs)
-        }.sortedByDescending { it.sizeBytes }
+        olderThanDays: Int?,
+        location: FileLocation,
+    ): ScanResult = withContext(Dispatchers.IO) {
+        val cutoffMs = olderThanDays?.let { System.currentTimeMillis() - it * DAY_MS }
+        val items = when (source) {
+            StorageSource.MediaLibrary -> queryMedia(minSizeBytes, cutoffMs, location)
+            is StorageSource.Folder -> scanTree(Uri.parse(source.treeUri), minSizeBytes, cutoffMs)
+        }
+        ScanResult(items.sortedByDescending { it.sizeBytes }.take(MAX_RESULTS), truncated = items.size > MAX_RESULTS)
     }
 
-    private fun queryMediaLargeFiles(minSizeBytes: Long): List<StorageReviewItem> = queryFiles(
-        selection = "${MediaStore.MediaColumns.SIZE} >= ?",
-        args = arrayOf(minSizeBytes.toString()),
-        category = StorageCategory.LARGE_FILES,
-    )
-
-    private fun queryMediaOldDownloads(cutoffMs: Long): List<StorageReviewItem> = queryFiles(
-        selection = "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? AND ${MediaStore.MediaColumns.DATE_MODIFIED} < ?",
-        args = arrayOf("Download/%", (cutoffMs / 1000).toString()),
-        category = StorageCategory.OLD_DOWNLOADS,
-    )
-
-    private fun queryFiles(selection: String, args: Array<String>, category: StorageCategory): List<StorageReviewItem> {
+    private fun queryMedia(minSizeBytes: Long, cutoffMs: Long?, location: FileLocation): List<ReviewFile> {
+        val clauses = mutableListOf<String>()
+        val args = mutableListOf<String>()
+        // Files Android has not finished scanning have no size yet; they cannot be judged.
+        clauses += "${MediaStore.MediaColumns.SIZE} IS NOT NULL"
+        if (minSizeBytes > 0) {
+            clauses += "${MediaStore.MediaColumns.SIZE} >= ?"
+            args += minSizeBytes.toString()
+        }
+        if (cutoffMs != null) {
+            clauses += "${MediaStore.MediaColumns.DATE_MODIFIED} < ?"
+            args += (cutoffMs / 1000).toString()
+        }
+        if (location.pathPrefixes.isNotEmpty()) {
+            clauses += location.pathPrefixes.joinToString(" OR ", "(", ")") { "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?" }
+            args += location.pathPrefixes.map { "$it%" }
+        }
         val collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
         val projection = arrayOf(
             MediaStore.Files.FileColumns._ID,
@@ -96,24 +100,43 @@ class StorageScanner(private val context: Context) {
             MediaStore.Files.FileColumns.DATE_MODIFIED,
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.MEDIA_TYPE,
+            MediaStore.MediaColumns.RELATIVE_PATH,
         )
-        val items = mutableListOf<StorageReviewItem>()
-        resolver.query(collection, projection, selection, args, "${MediaStore.MediaColumns.SIZE} DESC")?.use { cursor ->
+        val queryArgs = Bundle().apply {
+            putString(ContentResolver.QUERY_ARG_SQL_SELECTION, clauses.joinToString(" AND "))
+            putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, args.toTypedArray())
+            putStringArray(ContentResolver.QUERY_ARG_SORT_COLUMNS, arrayOf(MediaStore.MediaColumns.SIZE))
+            putInt(ContentResolver.QUERY_ARG_SORT_DIRECTION, ContentResolver.QUERY_SORT_DIRECTION_DESCENDING)
+            // One more than shown, so the UI can say the list was cut.
+            putInt(ContentResolver.QUERY_ARG_LIMIT, MAX_RESULTS + 1)
+        }
+        val items = mutableListOf<ReviewFile>()
+        resolver.query(collection, projection, queryArgs, null)?.use { cursor ->
             val idCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
             val nameCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
             val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
             val dateCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
             val mimeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
             val typeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE)
-            while (cursor.moveToNext() && items.size < MAX_RESULTS) {
+            val pathCol = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
+            while (cursor.moveToNext() && items.size <= MAX_RESULTS) {
                 val id = cursor.getLong(idCol)
-                items += StorageReviewItem(
-                    uriString = mediaUri(id, cursor.getInt(typeCol)).toString(),
-                    displayName = cursor.getString(nameCol) ?: id.toString(),
+                val name = cursor.getString(nameCol) ?: id.toString()
+                val mime = cursor.getString(mimeCol)
+                val mediaType = cursor.getInt(typeCol)
+                items += ReviewFile(
+                    uriString = mediaUri(id, mediaType).toString(),
+                    displayName = name,
                     sizeBytes = cursor.getLong(sizeCol),
                     lastModifiedEpochMs = cursor.getLong(dateCol) * 1000,
-                    category = category,
-                    mimeType = cursor.getString(mimeCol),
+                    mimeType = mime,
+                    kind = when (mediaType) {
+                        MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE -> FileKind.IMAGE
+                        MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO -> FileKind.VIDEO
+                        MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO -> FileKind.AUDIO
+                        else -> classifyFile(mime, name)
+                    },
+                    relativePath = cursor.getString(pathCol),
                 )
             }
         }
@@ -130,8 +153,8 @@ class StorageScanner(private val context: Context) {
         return ContentUris.withAppendedId(base, id)
     }
 
-    private fun scanTree(treeUri: Uri, category: StorageCategory, minSizeBytes: Long, cutoffMs: Long): List<StorageReviewItem> {
-        val items = mutableListOf<StorageReviewItem>()
+    private fun scanTree(treeUri: Uri, minSizeBytes: Long, cutoffMs: Long?): List<ReviewFile> {
+        val items = mutableListOf<ReviewFile>()
         val rootId = DocumentsContract.getTreeDocumentId(treeUri)
         val pending = ArrayDeque<Pair<String, Int>>().apply { add(rootId to 0) }
         var visited = 0
@@ -143,7 +166,7 @@ class StorageScanner(private val context: Context) {
             DocumentsContract.Document.COLUMN_LAST_MODIFIED,
             DocumentsContract.Document.COLUMN_FLAGS,
         )
-        while (pending.isNotEmpty() && visited < MAX_VISITED && items.size < MAX_RESULTS) {
+        while (pending.isNotEmpty() && visited < MAX_VISITED) {
             val (parentId, depth) = pending.removeFirst()
             val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId)
             runCatching {
@@ -159,20 +182,17 @@ class StorageScanner(private val context: Context) {
                         val size = if (cursor.isNull(3)) 0L else cursor.getLong(3)
                         val modified = if (cursor.isNull(4)) 0L else cursor.getLong(4)
                         val flags = cursor.getInt(5)
-                        val matches = when (category) {
-                            StorageCategory.LARGE_FILES -> size >= minSizeBytes
-                            StorageCategory.OLD_DOWNLOADS -> modified in 1 until cutoffMs
-                            StorageCategory.ABLE_CACHE -> false
-                        }
+                        val matches = size >= minSizeBytes && (cutoffMs == null || modified in 1 until cutoffMs)
                         // Only list files the provider says can be deleted, so selection is honest.
                         if (matches && flags and DocumentsContract.Document.FLAG_SUPPORTS_DELETE != 0) {
-                            items += StorageReviewItem(
+                            val name = cursor.getString(1) ?: docId
+                            items += ReviewFile(
                                 uriString = DocumentsContract.buildDocumentUriUsingTree(treeUri, docId).toString(),
-                                displayName = cursor.getString(1) ?: docId,
+                                displayName = name,
                                 sizeBytes = size,
                                 lastModifiedEpochMs = modified,
-                                category = category,
                                 mimeType = mime,
+                                kind = classifyFile(mime, name),
                             )
                         }
                     }
@@ -257,7 +277,7 @@ class StorageScanner(private val context: Context) {
 
     private companion object {
         const val DAY_MS = 24L * 60 * 60 * 1000
-        const val MAX_RESULTS = 500
+        const val MAX_RESULTS = 1000
         const val MAX_VISITED = 20_000
         const val MAX_DEPTH = 8
     }

@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aggiunte Interruttori di sistema: modalità avanzata NFC (SYS-001). Prefisso tools_toggles_. -->
+<!-- Aggiunte Interruttori di sistema: modalità avanzata NFC (SYS-001), stato in tempo reale e autoconcessione (SYS-001, SYS-003). Prefisso tools_toggles_. -->
 <resources>
     <string name="tools_toggles_nfc_direct_advanced">Modificato direttamente (modalità avanzata)</string>
-    <string name="tools_toggles_nfc_direct_shizuku">Modificato direttamente tramite Shizuku</string>
+    <string name="tools_toggles_nfc_direct_shizuku">Modificato direttamente: al primo utilizzo Able si concede la modalità avanzata tramite Shizuku</string>
     <string name="tools_toggles_nfc_copy_adb">Copia il comando ADB per la modalità avanzata</string>
     <string name="tools_toggles_nfc_help_title">Modalità avanzata NFC</string>
-    <string name="tools_toggles_nfc_help_text">Android non offre alle app un modo pubblico per attivare o disattivare l\'NFC, quindi per impostazione predefinita Able, il suo riquadro NFC e il widget aprono le impostazioni NFC di Android.\n\nLa modalità avanzata cambia l\'NFC direttamente. Concedi una volta \"Scrittura impostazioni sicure\" da un computer con ADB:\n\n%1$s\n\nLo stesso permesso consente ad Able di cambiare il debug USB/wireless e il DNS privato. Anche Shizuku, se connesso, cambia l\'NFC direttamente. Per annullare, esegui lo stesso comando con \"revoke\" al posto di \"grant\", oppure disinstalla Able.\n\nLa modalità avanzata segue l\'app open source \"NFC Quick Settings\" di Paul Colby.</string>
+    <string name="tools_toggles_nfc_help_text">Android non offre alle app un modo pubblico per attivare o disattivare l\'NFC, quindi per impostazione predefinita Able, il suo riquadro NFC e il widget aprono le impostazioni NFC di Android.\n\nLa modalità avanzata cambia l\'NFC direttamente. Concedi una volta \"Scrittura impostazioni sicure\" da un computer con ADB:\n\n%1$s\n\nLo stesso permesso consente ad Able di cambiare il debug USB/wireless e il DNS privato. Con Shizuku connesso, Able si concede questo permesso la prima volta che usi uno di questi interruttori, e te lo comunica. Per annullare, esegui lo stesso comando con \"revoke\" al posto di \"grant\", oppure disinstalla Able.\n\nLa modalità avanzata segue l\'app open source \"NFC Quick Settings\" di Paul Colby.</string>
+    <string name="tools_toggles_turning_on">Attivazione…</string>
+    <string name="tools_toggles_turning_off">Disattivazione…</string>
+    <string name="tools_toggles_access_shizuku_grant">Shizuku è connesso: al primo utilizzo Able si concede \"Scrittura impostazioni sicure\", poi cambia queste impostazioni direttamente e verifica il risultato.</string>
+    <string name="tools_toggles_access_self_granted">Able ha usato Shizuku per concedersi \"Scrittura impostazioni sicure\": queste impostazioni cambiano direttamente, anche da riquadri e widget.</string>
+    <string name="tools_toggles_self_grant_help_title">Scrittura impostazioni sicure</string>
+    <string name="tools_toggles_self_grant_help_text">Able ha usato Shizuku per concedersi \"Scrittura impostazioni sicure\" (lo stesso permesso concesso dal comando ADB). Consente ad Able di cambiare direttamente NFC, debug USB/wireless e DNS privato, e resta concesso anche quando Shizuku si ferma. La concessione è registrata nella cronologia azioni.\n\nPer revocarlo, esegui da un computer con ADB (o nella shell di Shizuku senza \"adb shell\"):\n\n%1$s</string>
 </resources>

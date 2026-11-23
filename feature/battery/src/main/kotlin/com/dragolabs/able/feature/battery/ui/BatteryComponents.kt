@@ -3,6 +3,11 @@ package com.dragolabs.able.feature.battery.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +28,10 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.heading
+import com.dragolabs.able.core.designsystem.component.HelpButton
+import com.dragolabs.able.core.designsystem.component.MetricTile
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -110,6 +119,63 @@ internal fun TrendBars(values: List<Float>, modifier: Modifier = Modifier) {
                 cornerRadius = CornerRadius(4.dp.toPx()),
             )
         }
+    }
+}
+
+@Composable
+internal fun rateShort(rate: Float?): String =
+    rate?.let { stringResource(R.string.battery_rate_per_hour, BatteryFormat.decimal(it)) }
+        ?: stringResource(R.string.battery_not_enough_data)
+
+/** A labeled value for [MetricTiles]; [supporting] holds the source, raw value or "estimate". */
+internal data class Metric(val label: String, val value: String, val supporting: String? = null)
+
+/**
+ * Metric tiles in rows of equal height. Two columns normally; one column when the width at the
+ * current font scale would squeeze the values (large font scales, narrow windows).
+ */
+@Composable
+internal fun MetricTiles(metrics: List<Metric>, modifier: Modifier = Modifier) {
+    if (metrics.isEmpty()) return
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val fontScale = LocalDensity.current.fontScale
+        val columns = if (maxWidth / fontScale >= 240.dp) 2 else 1
+        Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+            metrics.chunked(columns).forEach { row ->
+                Row(
+                    modifier = Modifier.height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm),
+                ) {
+                    row.forEach { metric ->
+                        MetricTile(
+                            label = metric.label,
+                            value = metric.value,
+                            supportingText = metric.supporting,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                        )
+                    }
+                    repeat(columns - row.size) { Box(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+/** Section title with an optional help button, used inside cards and the settings group. */
+@Composable
+internal fun SectionTitle(text: String, helpText: String? = null, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .weight(1f)
+                .semantics { heading() },
+        )
+        if (helpText != null) HelpButton(title = text, text = helpText)
     }
 }
 

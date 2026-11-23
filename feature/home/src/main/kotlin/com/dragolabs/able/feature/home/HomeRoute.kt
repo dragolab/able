@@ -81,6 +81,7 @@ fun HomeRoute(
             },
             onOpenShortcutMaker = { onOpenTool(ToolId.SHORTCUT_MAKER) },
             onOpenToolFrom = onOpenToolFrom,
+            onDismissFailures = viewModel::dismissFailures,
         ),
         modifier = modifier,
     )

@@ -7,6 +7,7 @@ import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
 import com.dragolabs.able.MainActivity
+import com.dragolabs.able.core.capability.SelfGrantResult
 import com.dragolabs.able.core.common.AbleResult
 import com.dragolabs.able.core.data.ableContainer
 import com.dragolabs.able.core.model.ToolId
@@ -74,13 +75,16 @@ object DeviceActions {
     }
 
     /**
-     * Toggles NFC through NfcAdapter (WRITE_SECURE_SETTINGS, advanced mode) or Shizuku, then
-     * polls the adapter: enabling NFC is asynchronous and can take a few seconds.
+     * Toggles NFC from Able's own process (NfcAdapter.enable()/disable() with
+     * WRITE_SECURE_SETTINGS, self-granted through Shizuku when needed), then polls the adapter:
+     * enabling NFC is asynchronous and can take a few seconds. Used by the NFC tile, catalog
+     * action, widgets and button mappings (ActionRunner).
      */
     suspend fun toggleNfc(context: Context): DeviceActionOutcome {
         val settings = context.ableContainer.secureSettings
         val current = settings.isNfcEnabled() ?: return DeviceActionOutcome.UNSUPPORTED
         if (!settings.canToggleNfcDirectly()) return DeviceActionOutcome.REJECTED
+        if (SecureAccess.ensure(context) !in GRANTED) return DeviceActionOutcome.REJECTED
         val target = !current
         if (settings.setNfcEnabled(target) !is AbleResult.Success) return DeviceActionOutcome.REJECTED
         // Logged by the caller (ActionRunner) together with the user-visible report.
@@ -91,7 +95,12 @@ object DeviceActions {
         return if (settings.isNfcEnabled() == target) DeviceActionOutcome.APPLIED else DeviceActionOutcome.UNVERIFIED
     }
 
-    private const val NFC_READ_BACK_STEPS = 20
+    /** Ensures WRITE_SECURE_SETTINGS (self-grant through Shizuku) before a secure-settings write. */
+    suspend fun ensureSecureAccess(context: Context): Boolean = SecureAccess.ensure(context) in GRANTED
+
+    private val GRANTED = setOf(SelfGrantResult.ALREADY_GRANTED, SelfGrantResult.GRANTED_VIA_SHIZUKU)
+
+    private const val NFC_READ_BACK_STEPS = 24
     private const val NFC_READ_BACK_INTERVAL_MS = 250L
 
     fun openAbleIntent(context: Context, route: String): Intent =

@@ -10,13 +10,13 @@
     <string name="action_torch_title">Torch</string>
     <string name="action_torch_desc">Turns the flashlight on or off.</string>
     <string name="action_nfc_title">NFC</string>
-    <string name="action_nfc_desc">Turns NFC on or off directly when \"Write secure settings\" is granted through ADB or Shizuku is connected; otherwise opens the NFC settings.</string>
+    <string name="action_nfc_desc">Turns NFC on or off directly when \"Write secure settings\" is granted (through ADB, or by Able itself through Shizuku); otherwise opens the NFC settings.</string>
     <string name="action_auto_brightness_title">Auto brightness</string>
     <string name="action_auto_brightness_desc">Switches between automatic and manual brightness.</string>
     <string name="action_usb_debugging_title">USB debugging</string>
     <string name="action_usb_debugging_desc">Turns USB debugging on or off; otherwise opens Developer options.</string>
     <string name="action_wireless_debugging_title">Wireless debugging</string>
-    <string name="action_wireless_debugging_desc">Shows whether wireless debugging is on and opens the Wireless debugging screen.</string>
+    <string name="action_wireless_debugging_desc">Turns wireless debugging on or off directly with \"Write secure settings\" or Shizuku (Wi-Fi must be connected); otherwise opens the Wireless debugging screen.</string>
     <string name="action_private_dns_title">Private DNS</string>
     <string name="action_private_dns_desc">Switches Private DNS between Off and Automatic; otherwise opens the DNS tool.</string>
     <string name="action_screen_lock_title">Lock screen</string>
@@ -48,6 +48,9 @@
 
     <!-- Action states, read back from Android -->
     <string name="action_state_on">On</string>
+    <string name="action_state_turning_on">Turning on…</string>
+    <string name="action_state_turning_off">Turning off…</string>
+    <string name="action_self_grant_done">Able used Shizuku to grant itself \"Write secure settings\". Revoke it with: %1$s</string>
     <string name="action_state_off">Off</string>
     <string name="action_state_automatic">Automatic</string>
     <string name="action_state_manual">Manual</string>
@@ -71,7 +74,7 @@
 
     <!-- Access needed by privileged actions (ADR-023) -->
     <string name="action_privilege_secure">Needs ADB or Shizuku</string>
-    <string name="action_privilege_secure_help">This action changes a protected system setting. With Shizuku running, or after granting WRITE_SECURE_SETTINGS through ADB, it runs directly from the tile or widget. Without that access it opens the matching Android settings screen instead. NFC can be switched only through Shizuku. Able reads the setting back and tells you if Android did not apply it.</string>
+    <string name="action_privilege_secure_help">This action changes a protected system setting. After granting \"Write secure settings\" through ADB, or with Shizuku connected (Able then grants itself that permission once and tells you), it runs directly from the tile or widget. Without that access it opens the matching Android settings screen instead. Able reads the setting back and tells you if Android did not apply it.</string>
     <string name="action_privilege_write_settings">Needs “Modify system settings”</string>
     <string name="action_privilege_write_settings_help">Android asks you to allow Able to modify system settings. Until you allow it, the tile or widget opens that permission screen. You can revoke the permission at any time in Android settings.</string>
     <string name="action_privilege_accessibility">Needs the Able screen lock service</string>

@@ -2,6 +2,9 @@ package com.dragolabs.able.core.designsystem.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
@@ -62,11 +65,12 @@ import kotlin.math.roundToInt
  */
 
 /** Semantic haptic performed by an Able control. */
-enum class AbleHaptic { None, Click, Tick, Confirm, Reject, LongPress }
+enum class AbleHaptic { None, Navigate, Click, Tick, Confirm, Reject, LongPress }
 
 fun AbleHaptics.perform(kind: AbleHaptic) {
     when (kind) {
         AbleHaptic.None -> Unit
+        AbleHaptic.Navigate -> navigate()
         AbleHaptic.Click -> click()
         AbleHaptic.Tick -> tick()
         AbleHaptic.Confirm -> confirm()
@@ -87,6 +91,64 @@ fun Modifier.hapticClickable(
     val haptics = rememberAbleHaptics()
     return clickable(enabled = enabled, onClickLabel = onClickLabel, role = role) {
         haptics.perform(haptic)
+        onClick()
+    }
+}
+
+/**
+ * [Modifier.combinedClickable] with haptics: [haptic] on tap, a long-press haptic before
+ * [onLongClick] and a click before [onDoubleClick].
+ */
+@Composable
+fun Modifier.hapticCombinedClickable(
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
+    onLongClickLabel: String? = null,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
+    haptic: AbleHaptic = AbleHaptic.Click,
+    onClick: () -> Unit,
+): Modifier {
+    val haptics = rememberAbleHaptics()
+    return combinedClickable(
+        enabled = enabled,
+        onClickLabel = onClickLabel,
+        role = role,
+        onLongClickLabel = onLongClickLabel,
+        onLongClick = onLongClick?.let { callback -> { haptics.longPress(); callback() } },
+        onDoubleClick = onDoubleClick?.let { callback -> { haptics.click(); callback() } },
+        onClick = { haptics.perform(haptic); onClick() },
+    )
+}
+
+/** [Modifier.toggleable] that plays the on/off toggle haptic before [onValueChange]. */
+@Composable
+fun Modifier.hapticToggleable(
+    value: Boolean,
+    enabled: Boolean = true,
+    role: Role? = Role.Switch,
+    onValueChange: (Boolean) -> Unit,
+): Modifier {
+    val haptics = rememberAbleHaptics()
+    return toggleable(value = value, enabled = enabled, role = role) { on ->
+        haptics.toggle(on)
+        onValueChange(on)
+    }
+}
+
+/** [Modifier.selectable] with a selection tick (only when the selection actually changes). */
+@Composable
+fun Modifier.hapticSelectable(
+    selected: Boolean,
+    enabled: Boolean = true,
+    role: Role? = Role.RadioButton,
+    haptic: AbleHaptic = AbleHaptic.Tick,
+    onClick: () -> Unit,
+): Modifier {
+    val haptics = rememberAbleHaptics()
+    return selectable(selected = selected, enabled = enabled, role = role) {
+        if (!selected) haptics.perform(haptic)
         onClick()
     }
 }

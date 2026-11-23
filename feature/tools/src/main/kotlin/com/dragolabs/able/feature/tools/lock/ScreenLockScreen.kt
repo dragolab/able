@@ -153,6 +153,8 @@ class ScreenLockViewModel(
 
     fun setHomeMode(mode: HomeDoubleTapMode) = settings.setHomeMode(mode)
 
+    fun setHomeArea(area: HomeDoubleTapArea) = settings.setHomeArea(area)
+
     fun setTimeoutMs(value: Int) = settings.setTimeoutMs(value)
 
     fun setHapticOnLock(enabled: Boolean) = settings.setHapticOnLock(enabled)
@@ -226,6 +228,7 @@ fun ScreenLockRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             onStatusBarChange = viewModel::setStatusBarEnabled,
             onHomeChange = viewModel::setHomeEnabled,
             onHomeModeChange = viewModel::setHomeMode,
+            onHomeAreaChange = viewModel::setHomeArea,
             onTimeoutChange = viewModel::setTimeoutMs,
             onHapticChange = viewModel::setHapticOnLock,
             onAddWidget = viewModel::requestWidget,
@@ -244,6 +247,7 @@ class ScreenLockActions(
     val onStatusBarChange: (Boolean) -> Unit,
     val onHomeChange: (Boolean) -> Unit,
     val onHomeModeChange: (HomeDoubleTapMode) -> Unit,
+    val onHomeAreaChange: (HomeDoubleTapArea) -> Unit,
     val onTimeoutChange: (Int) -> Unit,
     val onHapticChange: (Boolean) -> Unit,
     val onAddWidget: () -> Unit,
@@ -483,6 +487,39 @@ private fun PlacesCard(state: ScreenLockUiState, actions: ScreenLockActions) {
                         onSelect = { actions.onHomeModeChange(HomeDoubleTapMode.LIGHT) },
                         shape = shape,
                     )
+                }
+                if (state.config.homeMode == HomeDoubleTapMode.PRECISE) {
+                    item { shape ->
+                        ListItem(
+                            modifier = Modifier.fillMaxWidth().clip(shape),
+                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                            headlineContent = { Text(stringResource(R.string.lock_home_area_title)) },
+                            trailingContent = {
+                                HelpButton(
+                                    title = stringResource(R.string.lock_help_swipe_title),
+                                    text = stringResource(R.string.lock_help_swipe_text),
+                                )
+                            },
+                        )
+                    }
+                    item { shape ->
+                        RadioRow(
+                            title = stringResource(R.string.lock_home_area_above_dock_title),
+                            supportingText = stringResource(R.string.lock_home_area_above_dock_summary),
+                            selected = state.config.homeArea == HomeDoubleTapArea.ABOVE_DOCK,
+                            onSelect = { actions.onHomeAreaChange(HomeDoubleTapArea.ABOVE_DOCK) },
+                            shape = shape,
+                        )
+                    }
+                    item { shape ->
+                        RadioRow(
+                            title = stringResource(R.string.lock_home_area_whole_title),
+                            supportingText = stringResource(R.string.lock_home_area_whole_summary),
+                            selected = state.config.homeArea == HomeDoubleTapArea.WHOLE_SCREEN,
+                            onSelect = { actions.onHomeAreaChange(HomeDoubleTapArea.WHOLE_SCREEN) },
+                            shape = shape,
+                        )
+                    }
                 }
             }
             item { shape ->

@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Loop
 import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.WhereToVote
 import androidx.compose.material.icons.rounded.MonitorHeart
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Notifications
@@ -135,6 +136,7 @@ object SearchIndex {
         ToolId.HOTSPOT -> ToolsR.string.tools_hotspot_title to Icons.Rounded.WifiTethering
         ToolId.STORAGE -> ToolsR.string.tools_storage_title to Icons.Rounded.FolderOpen
         ToolId.MEMORY -> ToolsR.string.tools_memory_title to Icons.Rounded.Memory
+        ToolId.FAKE_GPS -> ToolsR.string.tools_fakegps_title to Icons.Rounded.WhereToVote
         ToolId.SCREEN_LOCK -> ToolsR.string.tools_lock_title to Icons.Rounded.Lock
         ToolId.ACTIVITY_LAUNCHER -> ToolsR.string.tools_activities_title to Icons.Rounded.Apps
         ToolId.SHORTCUT_MAKER -> ToolsR.string.tools_shortcuts_title to Icons.AutoMirrored.Rounded.AddToHomeScreen
@@ -153,6 +155,7 @@ object SearchIndex {
         ToolId.HOTSPOT -> R.string.search_kw_tool_hotspot
         ToolId.STORAGE -> R.string.search_kw_tool_storage
         ToolId.MEMORY -> R.string.search_kw_tool_memory
+        ToolId.FAKE_GPS -> R.string.search_kw_tool_fakegps
         ToolId.SCREEN_LOCK -> R.string.search_kw_tool_lock
         ToolId.ACTIVITY_LAUNCHER -> R.string.search_kw_tool_activities
         ToolId.SHORTCUT_MAKER -> R.string.search_kw_tool_shortcuts

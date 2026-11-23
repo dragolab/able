@@ -259,4 +259,6 @@
     <string name="tools_hint_shell">Esegui comandi shell tramite Shizuku</string>
     <string name="tools_memory_title">Memoria RAM e processi</string>
     <string name="tools_hint_memory">Uso della RAM e app in esecuzione</string>
+    <string name="tools_fakegps_title">Fake GPS</string>
+    <string name="tools_hint_fakegps">Simula una posizione sulla mappa</string>
 </resources>

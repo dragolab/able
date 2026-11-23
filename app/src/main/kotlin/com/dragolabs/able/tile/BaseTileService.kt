@@ -4,6 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.ContentObserver
+import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -12,9 +16,14 @@ import com.dragolabs.able.actions.ActionRunner
 import com.dragolabs.able.actions.ActionState
 import com.dragolabs.able.actions.ReportMode
 import com.dragolabs.able.actions.TileBinding
+import com.dragolabs.able.actions.transitioningTo
+import com.dragolabs.able.core.model.ActionExecutionType
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -42,24 +51,60 @@ abstract class BaseTileService : TileService() {
 
     protected open fun onUnboundClick() = Unit
 
-    /** Re-reads the bound action's state when Android broadcasts a change (e.g. NFC adapter on/off). */
+    /**
+     * Re-reads the bound action's state when Android broadcasts a change (e.g. NFC adapter on/off).
+     * A broadcast that reports a transition (NFC STATE_TURNING_ON) is shown as "Turning on…".
+     */
     private val stateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            scope.launch { refresh() }
+            scope.launch {
+                val action = binding()?.action
+                val transitional = action?.let { runCatching { it.transitionalState(this@BaseTileService, intent) }.getOrNull() }
+                if (transitional != null) render(transitional) else refresh()
+            }
         }
     }
     private var receiverRegistered = false
 
+    /** Re-reads the state when a watched setting changes (adb_enabled, adb_wifi_enabled, Private DNS...). */
+    private val settingsObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            if (!running) scope.launch { refresh() }
+        }
+    }
+    private var observerRegistered = false
+
+    private var pollJob: Job? = null
+
     override fun onStartListening() {
         super.onStartListening()
+        lastRendered = null
         scope.launch {
-            registerStateReceiver(binding()?.action?.stateChangedActions.orEmpty())
+            val action = binding()?.action
+            registerStateReceiver(action?.stateChangedActions.orEmpty())
+            registerSettingsObserver(action?.let { runCatching { it.stateChangedUris(this@BaseTileService) }.getOrNull() }.orEmpty())
             refresh()
+            startPolling(action?.listeningPollMs)
+        }
+    }
+
+    /** Re-reads the state while the tile is visible (only between onStartListening/onStopListening). */
+    private fun startPolling(intervalMs: Long?) {
+        pollJob?.cancel()
+        if (intervalMs == null) return
+        pollJob = scope.launch {
+            while (isActive) {
+                delay(intervalMs)
+                if (!running) refresh()
+            }
         }
     }
 
     override fun onStopListening() {
+        pollJob?.cancel()
+        pollJob = null
         unregisterStateReceiver()
+        unregisterSettingsObserver()
         super.onStopListening()
     }
 
@@ -79,17 +124,43 @@ abstract class BaseTileService : TileService() {
         receiverRegistered = false
     }
 
+    private fun registerSettingsObserver(uris: List<Uri>) {
+        unregisterSettingsObserver()
+        if (uris.isEmpty()) return
+        runCatching { uris.forEach { contentResolver.registerContentObserver(it, false, settingsObserver) } }
+            .onSuccess { observerRegistered = true }
+    }
+
+    private fun unregisterSettingsObserver() {
+        if (!observerRegistered) return
+        runCatching { contentResolver.unregisterContentObserver(settingsObserver) }
+        observerRegistered = false
+    }
+
     protected suspend fun refresh() {
         val bound = binding()
         val tile = qsTile ?: return
         if (bound == null) {
+            lastRendered = null
             renderUnbound(tile)
             return
         }
         val action = bound.action
         val state = runCatching { action.readState(this) }
             .getOrElse { ActionState(active = null, available = false, iconRes = action.iconRes) }
-        if (labelFollowsAction) tile.label = bound.customLabel ?: getString(action.titleRes)
+        render(state, bound)
+    }
+
+    private var lastRendered: Pair<String, ActionState>? = null
+
+    private suspend fun render(state: ActionState, bound: TileBinding? = null) {
+        val tile = qsTile ?: return
+        val binding = bound ?: binding() ?: return
+        // Polling re-reads often: only push a tile update when something changed.
+        val key = binding.action.id + "|" + binding.customLabel
+        if (lastRendered == key to state) return
+        lastRendered = key to state
+        if (labelFollowsAction) tile.label = binding.customLabel ?: getString(binding.action.titleRes)
         tile.icon = Icon.createWithResource(this, state.iconRes)
         tile.state = when {
             !state.available -> Tile.STATE_UNAVAILABLE
@@ -125,6 +196,12 @@ abstract class BaseTileService : TileService() {
         if (running) return
         running = true
         try {
+            // Show "Turning on…/off…" until the read-back confirms (enabling NFC is asynchronous).
+            val before = runCatching { bound.action.readState(this) }.getOrNull()
+            val current = before?.active
+            if (before != null && current != null && bound.action.type == ActionExecutionType.IMMEDIATE_TOGGLE) {
+                render(before.transitioningTo(!current), bound)
+            }
             ActionRunner.execute(this, bound.action, ReportMode.FAILURES_ONLY)
         } finally {
             running = false
@@ -133,7 +210,9 @@ abstract class BaseTileService : TileService() {
     }
 
     override fun onDestroy() {
+        pollJob?.cancel()
         unregisterStateReceiver()
+        unregisterSettingsObserver()
         scope.cancel()
         super.onDestroy()
     }

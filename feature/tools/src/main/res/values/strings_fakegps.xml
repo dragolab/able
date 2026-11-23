@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fake GPS tool (FGPS). -->
+    <string name="fakegps_start">Start fake location</string>
+    <string name="fakegps_stop">Stop and restore real location</string>
+    <string name="fakegps_search">Search coordinates</string>
+    <string name="fakegps_locate_me">Center on my real location</string>
+    <string name="fakegps_center_fake">Center on fake position</string>
+    <string name="fakegps_zoom_in">Zoom in</string>
+    <string name="fakegps_zoom_out">Zoom out</string>
+    <string name="fakegps_osm_attribution">© OpenStreetMap contributors</string>
+    <string name="fakegps_map_cd_position">Map. Fake position %1$s. Tap to move it.</string>
+    <string name="fakegps_map_cd_empty">Map. Tap to place the fake position.</string>
+    <string name="fakegps_no_position">No position yet: tap the map or search coordinates</string>
+
+    <string name="fakegps_status_running">Fake location on</string>
+    <string name="fakegps_status_starting">Starting…</string>
+    <string name="fakegps_status_failed">Not running</string>
+    <string name="fakegps_status_off">Off · real location</string>
+    <string name="fakegps_status_setup">Setup needed</string>
+    <string name="fakegps_status_details">Providers: %1$s · Google fused: %2$s · %3$d km/h · ±%4$d m</string>
+    <string name="fakegps_fused_on">on</string>
+    <string name="fakegps_fused_off">not available</string>
+    <string name="fakegps_fused_pending">checking</string>
+
+    <string name="fakegps_failed_title">Fake location could not run</string>
+    <string name="fakegps_dismiss">Dismiss</string>
+    <string name="fakegps_fail_not_mock_app">Android rejected the test providers: Able is not selected as mock location app.</string>
+    <string name="fakegps_fail_permission">Android requires the location permission to run the location service. Grant it and try again.</string>
+    <string name="fakegps_fail_foreground">Android did not allow the location service to start. Open Able and try again.</string>
+    <string name="fakegps_fail_no_provider">No test location provider could be registered on this device.</string>
+    <string name="fakegps_fail_revoked">Mock location access was removed while running. Fake location stopped.</string>
+    <string name="fakegps_fail_generic">Something went wrong. Fake location stopped.</string>
+
+    <string name="fakegps_setup_title">Select Able as mock location app</string>
+    <string name="fakegps_setup_steps">1. Open Developer options.\n2. Tap “Select mock location app”.\n3. Choose Able, then come back here.</string>
+    <string name="fakegps_setup_steps_devoff">Developer options are off.\n1. In About phone, tap “Build number” 7 times.\n2. Open Developer options, tap “Select mock location app” and choose Able.\n3. Come back here.</string>
+    <string name="fakegps_setup_shizuku_hint">With Shizuku running, Able can do this in one tap.</string>
+    <string name="fakegps_open_dev_options">Open Developer options</string>
+    <string name="fakegps_open_about_phone">Open About phone</string>
+    <string name="fakegps_set_with_shizuku">Set with Shizuku</string>
+    <string name="fakegps_location_off_title">Location is off</string>
+    <string name="fakegps_location_off_text">Apps receive no location, real or fake, while Location is off.</string>
+    <string name="fakegps_open_location_settings">Location settings</string>
+    <string name="fakegps_permission_title">Location permission needed</string>
+    <string name="fakegps_permission_text">Android requires it for the service that feeds the fake position. Able asks when you start.</string>
+
+    <string name="fakegps_section_mode">Mode</string>
+    <string name="fakegps_mode_point">Point</string>
+    <string name="fakegps_mode_joystick">Joystick</string>
+    <string name="fakegps_mode_route">Route</string>
+    <string name="fakegps_mode_point_hint">Tap or long-press the map, search coordinates or pick a saved point. Changes apply immediately while running.</string>
+    <string name="fakegps_mode_joystick_hint">Start fake location, then drag the joystick on the map to walk, ride or drive.</string>
+    <string name="fakegps_mode_route_hint">Tap the map to add waypoints (long-press moves the pin). The fake position travels along the route at the chosen speed.</string>
+    <string name="fakegps_speed_walk">Walk %1$d km/h</string>
+    <string name="fakegps_speed_bike">Bike %1$d km/h</string>
+    <string name="fakegps_speed_car">Car %1$d km/h</string>
+    <string name="fakegps_repeat_once">Once</string>
+    <string name="fakegps_repeat_loop">Loop</string>
+    <string name="fakegps_repeat_back_forth">Back and forth</string>
+    <string name="fakegps_route_summary">%1$d waypoints · %2$s</string>
+    <string name="fakegps_route_progress">Route progress %1$d%%</string>
+    <string name="fakegps_route_finished">Route finished: staying at the last waypoint</string>
+    <string name="fakegps_route_undo">Undo</string>
+    <string name="fakegps_route_clear">Clear</string>
+    <string name="fakegps_route_restart">Restart</string>
+    <string name="fakegps_waypoint_n">Waypoint %1$d</string>
+    <string name="fakegps_meters_value">%1$d m</string>
+    <string name="fakegps_km_value">%1$s km</string>
+
+    <string name="fakegps_section_realism">Realism</string>
+    <string name="fakegps_jitter">Natural jitter</string>
+    <string name="fakegps_jitter_desc">Small random wander and varying accuracy, like a real fix</string>
+    <string name="fakegps_altitude">Altitude</string>
+    <string name="fakegps_accuracy">Reported accuracy</string>
+
+    <string name="fakegps_section_saved">Saved points</string>
+    <string name="fakegps_save_point">Save</string>
+    <string name="fakegps_saved_empty">No saved points yet. Save the current pin here, or save real points with the GPS tool.</string>
+    <string name="fakegps_saved_more">%1$d more in the GPS tool</string>
+    <string name="fakegps_apply">Use</string>
+    <string name="fakegps_add_to_route">Add</string>
+    <string name="fakegps_section_history">Recent fake locations</string>
+    <string name="fakegps_history_clear">Clear</string>
+
+    <string name="fakegps_save_title">Save point</string>
+    <string name="fakegps_save_label">Name</string>
+    <string name="fakegps_save_label_required">Enter a name</string>
+    <string name="fakegps_save_custom_tag">Custom tag</string>
+    <string name="fakegps_save_add_tag">Add tag</string>
+    <string name="fakegps_save_confirm">Save</string>
+    <string name="fakegps_save_default_label">Fake point %1$s</string>
+    <string name="fakegps_saved_note">Created in Fake GPS (not a measured position)</string>
+
+    <string name="fakegps_search_title">Go to coordinates</string>
+    <string name="fakegps_search_label">Coordinates</string>
+    <string name="fakegps_search_hint">Decimal, DMS (45°27\'51.2\"N 9°11\'29.0\"E), geo: or map links</string>
+    <string name="fakegps_search_found">Found %1$s</string>
+    <string name="fakegps_search_invalid">Not recognized as coordinates</string>
+    <string name="fakegps_search_go">Go</string>
+
+    <string name="fakegps_joystick_cd">Joystick. Drag to move the fake position, or use the actions to step north, east, south or west.</string>
+    <string name="fakegps_joystick_north">Step north</string>
+    <string name="fakegps_joystick_east">Step east</string>
+    <string name="fakegps_joystick_south">Step south</string>
+    <string name="fakegps_joystick_west">Step west</string>
+
+    <string name="fakegps_msg_need_target">Place the fake position on the map first</string>
+    <string name="fakegps_msg_need_route">Add at least 2 waypoints to the route</string>
+    <string name="fakegps_msg_not_mock_app">Select Able as mock location app first</string>
+    <string name="fakegps_msg_stopped">Fake location stopped. Apps get the real location at their next update.</string>
+    <string name="fakegps_msg_mock_app_set">Able is now the mock location app (verified)</string>
+    <string name="fakegps_msg_mock_app_rejected">Android rejected the change</string>
+    <string name="fakegps_msg_mock_app_not_confirmed">Command ran but Android does not confirm the change yet</string>
+    <string name="fakegps_msg_shizuku_unavailable">Shizuku is not ready</string>
+    <string name="fakegps_msg_point_saved">Point saved</string>
+    <string name="fakegps_msg_save_failed">Could not save the point</string>
+    <string name="fakegps_msg_route_full">A route can have at most 25 waypoints</string>
+    <string name="fakegps_msg_location_failed">Could not get your real location</string>
+    <string name="fakegps_msg_location_while_running">While fake location is on, Android reports the fake position. Stop it first.</string>
+    <string name="fakegps_msg_permission_denied">Location permission not granted</string>
+    <string name="fakegps_msg_location_off">Location is off</string>
+
+    <string name="fakegps_safety_short">Use fake location only for testing and privacy, never to deceive others.</string>
+    <string name="fakegps_help_mock_title">What is mock location?</string>
+    <string name="fakegps_help_mock_text">Android lets one app, chosen in Developer options as “mock location app”, replace the position that other apps receive. Able registers test providers (GPS, network and fused where allowed) and, when Google Play services accept it, also feeds their fused location.\n\nNothing is changed permanently: stopping removes the test providers and apps get the real location again at their next update. To revoke access, choose “Nothing” under Select mock location app.</string>
+    <string name="fakegps_help_detect_title">Apps can detect it</string>
+    <string name="fakegps_help_detect_text">Android marks every simulated location as mock, and apps can check which app is the mock location app. Banking, ride-sharing, delivery, dating, games and work apps often detect it and may refuse to work, flag or suspend your account. Some apps keep using a cached real position until their next update.</string>
+    <string name="fakegps_help_safety_title">Use it responsibly</string>
+    <string name="fakegps_help_safety_text">Fake GPS is meant for testing apps, demos and protecting your privacy. Do not use it to deceive other people or services, cheat in games, falsify work attendance or evade restrictions: it may break terms of service or the law. Emergency calls may still use your real location.</string>
+
+    <string name="fakegps_notif_title">Fake location on</string>
+    <string name="fakegps_notif_text">Apps see %1$s</string>
+    <string name="fakegps_notif_starting">Starting…</string>
+    <string name="fakegps_notif_stop">Stop</string>
+    <string name="fakegps_channel">Fake GPS</string>
+    <string name="fakegps_channel_desc">Shown while Able simulates your location</string>
+
+    <string name="fakegps_log_started">Fake location started at %1$s (providers: %2$s)</string>
+    <string name="fakegps_log_stopped">Fake location stopped, %1$d test providers removed</string>
+    <string name="fakegps_log_failed">Fake location failed: %1$s</string>
+    <string name="fakegps_log_mock_app">Mock location app via Shizuku: %1$s</string>
+</resources>

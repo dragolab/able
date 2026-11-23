@@ -32,7 +32,9 @@ This is a product-level model, not a committed database schema. Field types, per
 | `KeyShortcutMapping` | Gesture (`volume_both`, `double_up`, `double_down`, `long_up`, `long_down`), target (`AbleAction` ID, camera, package, activity component), enabled flag | Destructive actions and shell commands are not valid targets; unresolved targets are marked, not dropped silently (KEY-001). |
 | `ApkBackup` | Package, version code, file list (base + splits) with sizes and SHA-256, created time, installer of record | Stored in no-backup private storage; never exported; deleted with its archive entry or by the user (ADR-033). |
 | `SearchEntry` / `RecentSearch` | Bundled entry ID, IT/EN titles and keywords, destination, capability gate / query text and time | Index is bundled and read-only; recent searches are local and excluded from export (SEARCH-001). |
-| `BackupManifest` | Archive/schema version, Able version, creation time, selected sections, checksums | Untrusted input; no executable content; unsupported versions fail before mutation. |
+| `BackupManifest` | Archive/schema version, Able version, creation time, selected sections, checksums | Untrusted input; no executable content; unsupported versions fail before mutation. New exports use schema 2; schema 1 and 2 are importable (ADR-046). |
+| `FakeLocationPoint` / `FakeRoute` | Point: ID, name, latitude, longitude, optional altitude/accuracy. Route: ID, name, ordered points, speed, loop flag | User configuration for Fake GPS (GPS-003); exportable with the GPS section; no history of simulated positions is kept. |
+| `MockLocationSession` | Mode (fixed, joystick, route), current position, jitter/altitude/accuracy settings, started time | Runtime state of the foreground service only; not persisted beyond process lifetime; removed on Stop. |
 
 ## Data boundaries
 

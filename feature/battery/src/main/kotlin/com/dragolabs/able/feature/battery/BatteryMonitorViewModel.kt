@@ -14,6 +14,12 @@ import com.dragolabs.able.feature.battery.domain.rates
 import com.dragolabs.able.feature.battery.monitor.BatteryMonitorController
 import com.dragolabs.able.feature.battery.monitor.MonitorStateStore
 import com.dragolabs.able.feature.battery.monitor.ResetReason
+import com.dragolabs.able.feature.battery.monitor.SessionAccumulator
+import com.dragolabs.able.feature.battery.domain.ScreenInterval
+import com.dragolabs.able.feature.battery.domain.ScreenTimeMath
+import com.dragolabs.able.feature.battery.domain.ScreenTimeToday
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -80,6 +86,8 @@ class BatteryMonitorViewModel(
             baseline = baseline,
             sessions = items,
             totalSessions = items.size,
+            screenToday = screenTimeToday(items, if (running) stored.session else null),
+            latestCharging = items.filter { it.session.isCharging }.maxByOrNull { it.session.endTimeEpochMs },
         )
     }
 
@@ -212,6 +220,17 @@ class BatteryMonitorViewModel(
             history.saveNote(sessionId, text, tags)
             setMessage(BatteryMessage.NOTE_SAVED)
         }
+    }
+
+    private fun screenTimeToday(items: List<SessionItem>, current: SessionAccumulator?): ScreenTimeToday? {
+        val now = System.currentTimeMillis()
+        val dayStart = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val intervals = items.map {
+            ScreenInterval(it.session.startTimeEpochMs, it.session.endTimeEpochMs, it.session.screenOnDurationMs, it.session.screenOffDurationMs)
+        } + listOfNotNull(
+            current?.let { ScreenInterval(it.startEpochMs, it.lastUpdateEpochMs, it.screenOnMs, it.screenOffMs) },
+        )
+        return ScreenTimeMath.today(intervals, dayStart, now)
     }
 
     companion object {

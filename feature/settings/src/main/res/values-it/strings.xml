@@ -79,7 +79,7 @@
     <string name="settings_backup_export_done">Salvato “%1$s”</string>
     <string name="settings_backup_export_failed">Impossibile scrivere il file. Non è stato salvato nulla.</string>
     <string name="settings_backup_section_battery">Profili batteria e regole app</string>
-    <string name="settings_backup_section_battery_desc">Soglie dei profili, orari di Notte, app protette e livelli per app</string>
+    <string name="settings_backup_section_battery_desc">Profili predefiniti e personalizzati con attivatori, icona, colore, livelli per app e app protette</string>
     <string name="settings_backup_section_home">Layout Home e aspetto</string>
     <string name="settings_backup_section_home_desc">Ordine e visibilità delle schede, tema e lingua</string>
     <string name="settings_backup_section_gps">Punti GPS salvati</string>
@@ -88,8 +88,8 @@
     <string name="settings_backup_section_dns_desc">Nomi e hostname dei profili DNS salvati</string>
     <string name="settings_backup_section_shortcuts">Scorciatoie e raccolte</string>
     <string name="settings_backup_section_shortcuts_desc">Definizioni delle scorciatoie e relative raccolte</string>
-    <string name="settings_backup_excluded_title">Mai inclusi</string>
-    <string name="settings_backup_excluded_battery_history">Cronologia batteria e misurazioni del monitor</string>
+    <string name="settings_backup_excluded_title">Esclusi per impostazione predefinita</string>
+    <string name="settings_backup_excluded_battery_history">Cronologia batteria e misurazioni (facoltativa: inclusa solo se la selezioni sopra)</string>
     <string name="settings_backup_excluded_usage">Osservazioni di utilizzo e accessibilità</string>
     <string name="settings_backup_excluded_permissions">Autorizzazioni concesse in Android</string>
     <string name="settings_backup_excluded_shizuku">Stato di Shizuku</string>
@@ -171,6 +171,38 @@
         <item quantity="one">%d elemento saltato</item>
         <item quantity="other">%d elementi saltati</item>
     </plurals>
+    <!-- Backup schema 2: battery history (opt-in) and battery profiles -->
+    <string name="settings_backup_section_history">Cronologia batteria e misurazioni</string>
+    <string name="settings_backup_section_history_desc">Riepiloghi delle sessioni di carica e scarica con metriche, note e tag</string>
+    <string name="settings_backup_optional_title">Dati personali facoltativi</string>
+    <string name="settings_backup_history_counting">Conteggio sessioni…</string>
+    <string name="settings_backup_history_empty">Nessuna sessione registrata</string>
+    <string name="settings_backup_history_summary">%1$s, %2$s · circa %3$s prima della compressione</string>
+    <string name="settings_backup_history_privacy_title">La cronologia batteria rivela le tue abitudini d\'uso</string>
+    <string name="settings_backup_history_privacy_body">Orari delle sessioni, abitudini di ricarica e periodi a schermo acceso mostrano quando e come usi il telefono. Il file di backup non è cifrato: chiunque possa aprirlo può leggere questi dati. Includila solo se ti serve e conserva il file in un posto privato.</string>
+    <string name="settings_backup_replace_history">Cronologia batteria e misurazioni: tutte le sessioni e le note attuali vengono prima eliminate</string>
+    <string name="settings_backup_preview_legacy_battery">Da un formato di backup precedente: soglie, orari di Notte e livelli per app vengono convertiti nei profili predefiniti.</string>
+    <string name="settings_backup_preview_expiring_body">La cronologia batteria conserva le sessioni per %1$d giorni. Le sessioni più vecchie non vengono importate perché la conservazione le eliminerebbe. Per mantenerle, modifica “Conserva i riepiloghi delle sessioni” in Batteria → Monitor, poi importa di nuovo.</string>
+    <plurals name="settings_backup_history_sessions">
+        <item quantity="one">%d sessione</item>
+        <item quantity="other">%d sessioni</item>
+    </plurals>
+    <plurals name="settings_backup_history_notes">
+        <item quantity="one">%d nota</item>
+        <item quantity="other">%d note</item>
+    </plurals>
+    <plurals name="settings_backup_preview_duplicates">
+        <item quantity="one">%d sessione è già su questo dispositivo e resta invariata</item>
+        <item quantity="other">%d sessioni sono già su questo dispositivo e restano invariate</item>
+    </plurals>
+    <plurals name="settings_backup_preview_expiring_title">
+        <item quantity="one">%d sessione è più vecchia della conservazione impostata</item>
+        <item quantity="other">%d sessioni sono più vecchie della conservazione impostata</item>
+    </plurals>
+    <plurals name="settings_backup_result_expired">
+        <item quantity="one">%d sessione non importata (più vecchia della conservazione)</item>
+        <item quantity="other">%d sessioni non importate (più vecchie della conservazione)</item>
+    </plurals>
 
     <!-- Home layout -->
     <string name="settings_home_reset_title">Reimposta layout Home</string>
@@ -220,6 +252,10 @@
     <string name="settings_dynamic_color_supporting">Se disattivato usa la palette di Able</string>
     <string name="settings_haptics_title">Feedback aptico</string>
     <string name="settings_haptics_supporting">Leggere vibrazioni per tocchi, interruttori e conferme</string>
+    <string name="settings_haptics_intensity_off">Spento</string>
+    <string name="settings_haptics_intensity_light">Leggero</string>
+    <string name="settings_haptics_intensity_normal">Normale</string>
+    <string name="settings_haptics_intensity_strong">Forte</string>
     <string name="settings_section_help">Aiuto</string>
     <string name="settings_help_tour_title">Rivedi il tour</string>
     <string name="settings_help_tour_supporting">Una breve guida alle sezioni e alle opzioni principali</string>
@@ -307,4 +343,8 @@
     <string name="tour_settings_crash_body">Disattivati per impostazione predefinita. Se attivi, dopo ogni arresto scegli tu se inviare il rapporto per email.</string>
     <string name="tour_settings_backup_title">Backup</string>
     <string name="tour_settings_backup_body">Esporta e importa la configurazione come file .ablebackup.</string>
+    <string name="settings_licenses_haze_name">Haze</string>
+    <string name="settings_licenses_haze_detail">Sfocatura dello sfondo della barra di navigazione · Apache License 2.0</string>
+    <string name="settings_licenses_osm_name">osmdroid e OpenStreetMap</string>
+    <string name="settings_licenses_osm_detail">Mappa del Fake GPS · osmdroid Apache License 2.0 · dati mappa © collaboratori di OpenStreetMap (ODbL)</string>
 </resources>

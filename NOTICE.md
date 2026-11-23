@@ -23,6 +23,8 @@ different name and different branding and must keep attribution to Drago Labs.
 - **Universal Android Debloater (UAD-ng) package list** — GPL-3.0
   (`feature/apps/src/main/assets/uad/`).
 - **ACRA** — Apache License 2.0.
+- **Haze** (background blur) — Apache License 2.0.
+- **osmdroid** — Apache License 2.0; map tiles and data © OpenStreetMap contributors (ODbL).
 - **Shizuku API**, AndroidX, Jetpack Compose, Kotlin libraries — see their respective licenses
   (listed in the app under Settings → Open-source licenses).
 - Code adapted with attribution from **TapLock** (Apache-2.0) and **NFC Quick Settings**

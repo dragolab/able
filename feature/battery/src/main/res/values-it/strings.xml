@@ -97,7 +97,7 @@
     <string name="battery_live_title">Letture in tempo reale</string>
 
     <!-- Statistics since reset (MON-001, MON-002, MON-003) -->
-    <string name="battery_stats_title">Dall\'ultimo azzeramento</string>
+    <string name="battery_stats_title">Statistiche dall\'azzeramento</string>
     <string name="battery_stats_since">Dal %1$s · %2$s</string>
     <string name="battery_stats_waiting">Avvia il monitor per raccogliere statistiche.</string>
     <string name="battery_screen_on">Schermo acceso</string>
@@ -475,4 +475,60 @@
     <string name="battery_diag_settings_body">Pagine gestite da Android.</string>
     <string name="battery_diag_diary">Diario sessioni</string>
     <string name="battery_diag_diary_body">Sessioni salvate e note nella scheda Monitor</string>
+
+    <!-- Layout scheda Monitor (richiesta 2026-11-23) -->
+    <string name="battery_monitor_stop_long">Ferma monitor</string>
+    <string name="battery_monitor_off_hint">Attivalo per registrare tempo schermo, consumo e sessioni su questo dispositivo.</string>
+    <string name="battery_live_current_label">Consumo attuale</string>
+    <string name="battery_live_charging_current">Corrente di ricarica</string>
+    <string name="battery_screen_on_today">Schermo acceso oggi</string>
+    <string name="battery_screen_off_today">Schermo spento oggi</string>
+    <string name="battery_not_recorded">Non registrato</string>
+    <string name="battery_today_estimate">Registrato dal monitor (stima)</string>
+    <string name="battery_last_update">Ultimo aggiornamento %1$s</string>
+    <string name="battery_estimate">Stima</string>
+    <string name="battery_charging_speed">Velocità di ricarica</string>
+    <string name="battery_charging_speed_now">Ricarica in corso</string>
+    <string name="battery_charging_speed_last">Ultima ricarica · %1$s</string>
+    <string name="battery_session_levels">%1$d%% → %2$d%%</string>
+    <string name="battery_session_open_details">mostrare i dettagli della sessione</string>
+    <string name="battery_session_has_note">Nota</string>
+    <string name="battery_note_edit">Modifica nota</string>
+    <string name="battery_percent_drop">−%1$d%%</string>
+    <string name="battery_settings_title">Impostazioni monitor</string>
+    <string name="battery_settings_notification">Notifica</string>
+    <string name="battery_history_summary">%1$s · sessioni salvate: %2$d</string>
+    <string name="battery_notif_summary_power">%1$s · corrente e potenza</string>
+    <string name="battery_reset_summary_plug">alla ricarica</string>
+    <string name="battery_reset_summary_boot">dopo il riavvio</string>
+    <string name="battery_reset_summary_level">al %1$d%%</string>
+    <string name="battery_reset_summary_none">Solo azzeramento manuale</string>
+    <string name="battery_reset_summary_auto">Automatico: %1$s</string>
+    <string name="battery_alerts_summary_off">Disattivati</string>
+    <string name="battery_alerts_summary_fixed">Oltre %1$s%%/h</string>
+    <string name="battery_alerts_summary_range">Oltre il tuo intervallo abituale</string>
+    <string name="battery_alerts_summary_both">Soglia fissa e intervallo abituale</string>
+
+    <!-- Layout scheda Salute (richiesta 2026-11-23) -->
+    <string name="battery_health_summary_title">Salute della batteria</string>
+    <string name="battery_capacity_ratio_note">Anello: capacità piena rispetto a quella di progetto, calcolata dai valori del kernel.</string>
+    <string name="battery_capacity_ratio_missing">La capacità non è ancora nota. La lettura avanzata qui sotto può mostrarla su alcuni dispositivi.</string>
+    <string name="battery_capacity_ring_cd">Rapporto di capacità %1$s percento, stima</string>
+    <string name="battery_percent_text">%1$s%%</string>
+    <string name="battery_cycles_source_api">API Android</string>
+    <string name="battery_cycles_source_kernel">Kernel, tramite Shizuku</string>
+    <string name="battery_cycles_needs_14">Richiede Android 14</string>
+    <string name="battery_cycles_not_exposed">Non esposto da questo dispositivo</string>
+    <string name="battery_capacity_section">Capacità</string>
+    <string name="battery_not_read">Non ancora letto</string>
+    <string name="battery_capacity_needs_advanced">Capacità di progetto e piena arrivano solo dalla lettura avanzata e molti dispositivi non le espongono.</string>
+    <string name="battery_capacity_ratio_line">Rapporto di capacità: %1$s</string>
+    <string name="battery_lifecycle_section">Ciclo di vita</string>
+    <string name="battery_lifecycle_needs_advanced">Le date arrivano dalla lettura avanzata, se il dispositivo le espone.</string>
+    <string name="battery_raw_unparsed">Valore grezzo, non è una data riconosciuta</string>
+    <string name="battery_charging_section">Ricarica</string>
+    <string name="battery_w_value">%1$s W</string>
+    <string name="battery_advanced_short">Facoltativa, in sola lettura. Molti dispositivi non espongono questi campi.</string>
+    <string name="battery_advanced_read_again">Leggi di nuovo</string>
+    <string name="battery_advanced_done">Valori letti</string>
 </resources>

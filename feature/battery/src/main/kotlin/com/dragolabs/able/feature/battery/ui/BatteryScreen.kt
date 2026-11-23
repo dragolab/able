@@ -20,8 +20,20 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -45,7 +57,12 @@ import com.dragolabs.able.feature.battery.BatteryUiState
 import com.dragolabs.able.feature.battery.MonitorUiState
 import com.dragolabs.able.feature.battery.R
 
-/** Stateless Battery destination with in-screen tabs. */
+/**
+ * Stateless Battery destination with in-screen tabs. The tab row and a [HorizontalPager] are
+ * kept in sync: swiping changes the tab, tapping a tab animates the pager. Each page keeps its
+ * own scroll position; re-selecting Battery scrolls the visible page to the top and returns to
+ * the first tab.
+ */
 @Composable
 fun BatteryScreen(
     state: BatteryUiState,
@@ -59,17 +76,54 @@ fun BatteryScreen(
     /** Incremented when the destination is re-selected: scroll the visible tab to the top. */
     scrollToTopRequests: Int = 0,
 ) {
+    val tabs = BatteryTab.entries
+    val pagerState = rememberPagerState(initialPage = selectedTab.ordinal) { tabs.size }
+    // One saveable scroll state per page, so swiping away and back keeps the position.
+    val gridStates = tabs.map { rememberLazyStaggeredGridState() }
+    val haptics = rememberAbleHaptics()
+    val currentSelected by rememberUpdatedState(selectedTab)
+    val currentOnSelect by rememberUpdatedState(onSelectTab)
+
+    // Tab tap (or external selection) -> pager.
+    LaunchedEffect(selectedTab) {
+        if (pagerState.targetPage != selectedTab.ordinal) pagerState.animateScrollToPage(selectedTab.ordinal)
+    }
+    // Swipe -> tab. Only settled pages update the selection, so a tab-tap animation that passes
+    // through intermediate pages does not bounce the selection.
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.collect { page ->
+            val tab = tabs[page]
+            if (tab != currentSelected && !pagerState.isScrollInProgress) {
+                haptics.tick()
+                currentOnSelect(tab)
+            }
+        }
+    }
+    // Re-select: scroll the visible page to the top, then go back to the first tab.
+    // Requests already handled (a fresh composition, e.g. after the editor closes, must not replay one).
+    var handledScrollRequests by rememberSaveable { mutableIntStateOf(scrollToTopRequests) }
+    LaunchedEffect(scrollToTopRequests) {
+        if (scrollToTopRequests != handledScrollRequests) {
+            handledScrollRequests = scrollToTopRequests
+            gridStates[pagerState.currentPage].animateScrollToItem(0)
+            if (pagerState.currentPage != 0) {
+                gridStates[0].scrollToItem(0)
+                pagerState.animateScrollToPage(0)
+            }
+        }
+    }
+
     AbleTopLevelScaffold(
         title = stringResource(R.string.battery_title),
         modifier = modifier,
         onOpenSettings = onOpenSettings,
         snackbarHostState = snackbarHostState,
     ) { scaffoldPadding ->
-        val haptics = rememberAbleHaptics()
         // The tab row is pinned directly below the (opaque) collapsing top bar and the tab content
         // scrolls beneath the tab row, never over the title. The top inset is read in the layout
         // phase so the bar can collapse smoothly without recomposing the whole screen.
         val topOnly = remember(scaffoldPadding) { TopPadding(scaffoldPadding) }
+        val scope = rememberCoroutineScope()
         Column(
             Modifier
                 .fillMaxSize()
@@ -82,15 +136,19 @@ fun BatteryScreen(
                     .background(MaterialTheme.colorScheme.surface),
                 contentAlignment = Alignment.TopCenter,
             ) {
-                // Short labels fit a fixed row on phones; with large font scales the row scrolls
-                // instead of truncating labels.
-                val tabs: @Composable () -> Unit = {
-                    BatteryTab.entries.forEach { tab ->
+                // The indicator follows the pager (also mid-swipe); short labels fit a fixed row on
+                // phones; with large font scales the row scrolls instead of truncating labels.
+                val selectedIndex = pagerState.targetPage
+                val tabContent: @Composable () -> Unit = {
+                    tabs.forEach { tab ->
                         Tab(
-                            selected = tab == selectedTab,
+                            selected = tab.ordinal == selectedIndex,
                             onClick = {
-                                if (tab != selectedTab) haptics.tick()
-                                onSelectTab(tab)
+                                if (tab.ordinal != pagerState.currentPage) {
+                                    haptics.tick()
+                                    onSelectTab(tab)
+                                    scope.launch { pagerState.animateScrollToPage(tab.ordinal) }
+                                }
                             },
                             icon = { Icon(tab.icon(), contentDescription = null) },
                             text = { Text(stringResource(tab.labelRes()), maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -99,34 +157,60 @@ fun BatteryScreen(
                 }
                 if (LocalDensity.current.fontScale > 1.3f) {
                     PrimaryScrollableTabRow(
-                        selectedTabIndex = selectedTab.ordinal,
+                        selectedTabIndex = selectedIndex,
                         modifier = Modifier.widthIn(max = AbleSpacing.maxContentWidth),
                         edgePadding = 0.dp,
-                        tabs = tabs,
+                        tabs = tabContent,
                     )
                 } else {
                     PrimaryTabRow(
-                        selectedTabIndex = selectedTab.ordinal,
+                        selectedTabIndex = selectedIndex,
                         modifier = Modifier.widthIn(max = AbleSpacing.maxContentWidth),
-                        tabs = tabs,
+                        tabs = tabContent,
                     )
                 }
             }
             val contentPadding = remember(scaffoldPadding) { TabContentPadding(scaffoldPadding) }
             Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
-            when {
-                state.loading || monitor.loading -> LoadingState()
-                !state.hasBattery -> UnsupportedState(reason = stringResource(R.string.battery_no_battery))
-                else -> when (selectedTab) {
-                    BatteryTab.OVERVIEW -> OverviewTab(state, contentPadding, onEvent, scrollToTopRequests)
-                    BatteryTab.MONITOR -> MonitorTab(monitor, contentPadding, onEvent, onOpenDiagnostics = { onSelectTab(BatteryTab.DIAGNOSTICS) })
-                    BatteryTab.HEALTH -> HealthTab(state, contentPadding, onEvent)
-                    BatteryTab.DIAGNOSTICS -> DiagnosticsTab(state, contentPadding, onEvent, onOpenMonitor = { onSelectTab(BatteryTab.MONITOR) }, scrollToTopRequests = scrollToTopRequests)
+                when {
+                    state.loading || monitor.loading -> LoadingState()
+                    !state.hasBattery -> UnsupportedState(reason = stringResource(R.string.battery_no_battery))
+                    else -> HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        // Keep the neighbours composed so a swipe never shows an empty page; pages
+                        // further away are disposed but keep their hoisted scroll state.
+                        beyondViewportPageCount = 1,
+                        key = { tabs[it].name },
+                        verticalAlignment = Alignment.Top,
+                    ) { page ->
+                        val gridState = gridStates[page]
+                        when (tabs[page]) {
+                            BatteryTab.OVERVIEW -> OverviewTab(state, contentPadding, onEvent, gridState)
+                            BatteryTab.MONITOR -> MonitorTab(
+                                monitor,
+                                contentPadding,
+                                onEvent,
+                                gridState,
+                                onOpenDiagnostics = { onSelectTab(BatteryTab.DIAGNOSTICS) },
+                            )
+                            BatteryTab.HEALTH -> HealthTab(state, contentPadding, onEvent, gridState)
+                            BatteryTab.DIAGNOSTICS -> DiagnosticsTab(
+                                state,
+                                contentPadding,
+                                onEvent,
+                                onOpenMonitor = { onSelectTab(BatteryTab.MONITOR) },
+                                gridState = gridState,
+                            )
+                        }
+                    }
                 }
-            }
             }
         }
     }
+
+    // Monitor dialogs live outside the pager so they never depend on which pages are composed.
+    MonitorDialogs(monitor, onEvent)
 }
 
 /** Only the scaffold's top inset, delegated on every read (the flexible top bar changes it while collapsing). */

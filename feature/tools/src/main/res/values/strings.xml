@@ -258,4 +258,6 @@
     <string name="tools_hint_shell">Run shell commands via Shizuku</string>
     <string name="tools_memory_title">Memory and processes</string>
     <string name="tools_hint_memory">RAM use and running apps</string>
+    <string name="tools_fakegps_title">Fake GPS</string>
+    <string name="tools_hint_fakegps">Simulate a location on a map</string>
 </resources>

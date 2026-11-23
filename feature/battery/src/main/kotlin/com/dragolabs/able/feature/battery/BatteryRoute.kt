@@ -55,9 +55,14 @@ fun BatteryRoute(
     var scrollToTop by rememberSaveable { mutableIntStateOf(0) }
 
     OnTopLevelReselect("battery") {
-        editorToken = null
-        tab = BatteryTab.OVERVIEW
-        scrollToTop++
+        if (editorToken != null) {
+            // Closing the editor recreates the tabs at the first page.
+            editorToken = null
+            tab = BatteryTab.OVERVIEW
+        } else {
+            // BatteryScreen scrolls the visible page to the top and then returns to the first tab.
+            scrollToTop++
+        }
     }
 
     LifecycleResumeEffect(Unit) {

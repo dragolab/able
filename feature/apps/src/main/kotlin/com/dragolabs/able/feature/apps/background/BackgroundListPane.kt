@@ -400,7 +400,7 @@ private fun BackgroundAppRow(
             onClickLabel = openLabel,
             onLongClickLabel = selectLabel.takeIf { !blocked },
             onLongClick = if (blocked) null else ({ haptics.longPress(); onToggle(row.packageName) }),
-            onClick = { onOpen(row.packageName) },
+            onClick = { haptics.click(); onOpen(row.packageName) },
         )
     }
     ListItem(

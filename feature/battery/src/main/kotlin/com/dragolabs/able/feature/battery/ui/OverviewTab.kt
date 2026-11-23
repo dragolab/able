@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -78,12 +79,8 @@ internal fun OverviewTab(
     state: BatteryUiState,
     contentPadding: PaddingValues,
     onEvent: (BatteryEvent) -> Unit,
-    scrollToTopRequests: Int = 0,
+    gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
 ) {
-    val gridState = rememberLazyStaggeredGridState()
-    LaunchedEffect(scrollToTopRequests) {
-        if (scrollToTopRequests > 0) gridState.animateScrollToItem(0)
-    }
     val profiles = state.profiles
     BatteryCardGrid(contentPadding, state = gridState) {
         fullLine("hero") { BatteryHeroCard(state, onEvent) }

@@ -57,6 +57,7 @@ private fun ToolDetailContent(
         ToolId.SCREEN_LOCK -> ScreenLockRoute(onBack = onBack, modifier = modifier)
         ToolId.ACTIVITY_LAUNCHER -> ActivityLauncherRoute(onBack = onBack, modifier = modifier)
         ToolId.SHORTCUT_MAKER -> ShortcutMakerRoute(onBack = onBack, modifier = modifier)
+        ToolId.FAKE_GPS -> com.dragolabs.able.feature.tools.fakegps.FakeGpsRoute(onBack = onBack, modifier = modifier)
         ToolId.MEMORY -> com.dragolabs.able.feature.tools.memory.MemoryRoute(onBack = onBack, modifier = modifier)
         ToolId.SHELL -> com.dragolabs.able.feature.tools.shell.ShellRoute(onBack = onBack, modifier = modifier)
         ToolId.APP_LOCK -> com.dragolabs.able.feature.tools.applock.AppLockRoute(onBack = onBack, modifier = modifier)

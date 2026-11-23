@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.pm.ApplicationInfo
 import android.graphics.Path
+import android.graphics.PathMeasure
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Handler
@@ -19,10 +20,12 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 import com.dragolabs.able.applock.ForegroundPackages
+import com.dragolabs.able.feature.tools.lock.HomeDoubleTapArea
 import com.dragolabs.able.feature.tools.lock.HomeDoubleTapMode
 import com.dragolabs.able.feature.tools.lock.HomeDoubleTapStatus
 import com.dragolabs.able.feature.tools.lock.LockGestureSettings
@@ -45,8 +48,20 @@ import kotlin.math.roundToLong
  *   to a replayed tap);
  * - single tap on empty space → replayed tap once the double-tap window has closed;
  * - swipe, long press, drag → the overlay becomes `FLAG_NOT_TOUCHABLE` and the recorded path is
- *   replayed with `dispatchGesture` (long presses are replayed with a hold just past the
- *   long-press timeout, swipes at most [MAX_SWIPE_REPLAY_MS] long to keep latency low).
+ *   replayed with `dispatchGesture` when the finger lifts (long presses with a hold just past
+ *   the long-press timeout, swipes as a fast head plus the real last [SwipeReplayPlan.TAIL_MS]
+ *   so the launcher sees the real final velocity).
+ *
+ * Swipe responsiveness (owner feedback 2026-11-23: page scrolling felt slow):
+ * - the overlay becomes untouchable as soon as a touch moves past the slop, so the wait for
+ *   Android to apply the flag overlaps the rest of the finger's motion and the replay usually
+ *   starts right at finger up;
+ * - after a swipe, a [HomeBrowseWindow] keeps the overlay untouchable while the user keeps
+ *   touching the home screen (1×1 `FLAG_WATCH_OUTSIDE_TOUCH` watcher: time of each touch down
+ *   only) or the launcher reports page scrolls, so the following swipes, taps and long presses
+ *   reach the launcher natively; it closes after a short quiet period. A double tap made while
+ *   it is open is recognised with the timing-only rule of [HomeTapClassifier] (no position);
+ * - with [HomeDoubleTapArea.ABOVE_DOCK] (default) the dock and the search bar are not covered.
  *
  * Robustness: the scene is re-evaluated (throttled) on window changes, launcher/SystemUI content
  * changes, screen on/off and configuration changes; it is re-checked live on a touch down when
@@ -85,6 +100,24 @@ internal class HomePreciseController(
     private var unknownSinceMs = 0L
     private var passThroughGesture = false
     private var ignoringGesture = false
+    private var area = HomeDoubleTapArea.ABOVE_DOCK
+
+    /** Top of the launcher dock (hotseat) in screen pixels, or -1 when unknown. */
+    private var dockTopPx = -1
+
+    /** The current gesture already made the overlay untouchable (it moved past the slop). */
+    private var earlyUntouchable = false
+
+    /** Uptime at which the overlay was last made untouchable / touchable again. */
+    private var untouchableSinceMs = 0L
+    private var touchableSinceMs = 0L
+
+    /** A touch seen by the watcher just after the overlay was made touchable (see [onOutsideTouch]). */
+    private var transitionalDownMs = 0L
+
+    private val browse = HomeBrowseWindow()
+    private val browseTaps = HomeTapClassifier(settleMs = BROWSE_TAP_SETTLE_MS)
+    private var watcher: View? = null
 
     private val replayQueue = ArrayDeque<TouchGesture>()
     private var replaying = false
@@ -100,6 +133,16 @@ internal class HomePreciseController(
     private val evaluateRunnable = Runnable { evaluate() }
     private val watchdogRunnable = Runnable { evaluate() }
     private val timeoutRunnable = Runnable { process(classifier.onTimeout(SystemClock.uptimeMillis())) }
+    private val browseEndRunnable = Runnable {
+        if (debug) Log.d(TAG, "browse window closed")
+        evaluate()
+    }
+    private val browseTapRunnable = Runnable { decideBrowseTap() }
+    private val transitionalRunnable = Runnable {
+        val downMs = transitionalDownMs
+        transitionalDownMs = 0L
+        if (downMs != 0L) onNativeTouch(downMs)
+    }
     private val touchExplorationListener = AccessibilityManager.TouchExplorationStateChangeListener { requestEvaluate(0) }
     private var listening = false
 
@@ -110,6 +153,7 @@ internal class HomePreciseController(
         val wasEnabled = enabled
         enabled = config.homeEnabled && config.homeMode == HomeDoubleTapMode.PRECISE
         timeoutMs = config.timeoutMs
+        area = config.homeArea
         if (enabled && !wasEnabled) {
             settings.reportHomeStatus(HomeDoubleTapStatus.UNKNOWN)
             packages.refresh()
@@ -166,8 +210,41 @@ internal class HomePreciseController(
         }
     }
 
+    /** True while the feature wants the launcher's click/scroll events (browse window, fallback). */
+    val wantsInteractionEvents: Boolean get() = enabled
+
+    /**
+     * Launcher click, long click, scroll, window or content change. Scrolls keep the browse
+     * window open; any of them means a touch pair seen while browsing was not a double tap on
+     * empty space.
+     */
+    fun onLauncherEvent(event: AccessibilityEvent) {
+        if (!enabled || view == null) return
+        if (event.packageName?.toString() != packages.launcherPackage) return
+        when (event.eventType) {
+            AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
+                browseTaps.onLauncherInteraction(event.eventTime)
+                // Only while still open: a page settling just after the window closed must not
+                // make the overlay flip back to untouchable.
+                if (browse.isOpen(SystemClock.uptimeMillis())) {
+                    browse.onLauncherScroll(event.eventTime)
+                    scheduleBrowseEnd()
+                }
+            }
+            // Content changes too: Pixel Launcher reports them every ~0.2 s while a page moves,
+            // also when a swipe at the first/last page bounces without scrolling (API 36
+            // emulator, 2026-11-23), and not for a tap on empty space.
+            AccessibilityEvent.TYPE_VIEW_CLICKED,
+            AccessibilityEvent.TYPE_VIEW_LONG_CLICKED,
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+            -> browseTaps.onLauncherInteraction(event.eventTime)
+        }
+    }
+
     fun onScreenStateChanged() {
         if (!enabled) return
+        closeBrowse()
         classifier.onCancel() // a pending tap on empty space needs no replay across screen off/on
         if (!launcherInFront) handler.postDelayed(frontCheckRunnable, FRONT_CHECK_THROTTLE_MS)
         evaluate()
@@ -209,6 +286,12 @@ internal class HomePreciseController(
             return
         }
         val overlay = view ?: attach() ?: return
+        if (replaying || browse.isOpen(SystemClock.uptimeMillis())) {
+            // The overlay is untouchable anyway: do not query the launcher's tree (an IPC served
+            // on its UI thread) while it animates a page; the scene is read again afterwards.
+            if (!classifier.inGesture) applyLayout(overlay, touchable = false)
+            return
+        }
         val started = SystemClock.uptimeMillis()
         scene = runCatching { readScene() }.getOrDefault(HomeScene.UNKNOWN)
         lastEvaluatedMs = SystemClock.uptimeMillis()
@@ -223,7 +306,8 @@ internal class HomePreciseController(
         if (isTouchable()) handler.postDelayed(watchdogRunnable, WATCHDOG_MS)
     }
 
-    private fun isTouchable(): Boolean = scene == HomeScene.WORKSPACE && !replaying && a11y?.isTouchExplorationEnabled != true
+    private fun isTouchable(): Boolean = scene == HomeScene.WORKSPACE && !replaying &&
+        !browse.isOpen(SystemClock.uptimeMillis()) && a11y?.isTouchExplorationEnabled != true
 
     private fun reportScene() {
         when (scene) {
@@ -280,11 +364,20 @@ internal class HomePreciseController(
         val dragLayer = root.findAccessibilityNodeInfosByViewId("$launcher:id/drag_layer").firstOrNull()
             ?: return HomeScene.UNKNOWN
         val ids = ArrayList<String?>(dragLayer.childCount)
+        var dockTop = -1
         for (i in 0 until dragLayer.childCount) {
             val child = dragLayer.getChild(i) ?: continue
-            if (child.isVisibleToUser) ids += child.viewIdResourceName
+            if (!child.isVisibleToUser) continue
+            val id = child.viewIdResourceName
+            ids += id
+            if (id != null && id.endsWith(":id/hotseat")) {
+                child.getBoundsInScreen(rect)
+                if (rect.height() > 0) dockTop = rect.top
+            }
         }
-        return HomeHitTest.scene(dragLayerFound = true, dragLayerChildIds = ids)
+        val result = HomeHitTest.scene(dragLayerFound = true, dragLayerChildIds = ids)
+        if (result == HomeScene.WORKSPACE) dockTopPx = dockTop
+        return result
     }
 
     private fun targetAt(x: Float, y: Float): HomeTarget {
@@ -315,7 +408,12 @@ internal class HomePreciseController(
         val bottom = maxOf(bars.bottom, mandatory.bottom, gestures.bottom, cutout.bottom, fallback)
         val left = maxOf(gestures.left, bars.left, cutout.left)
         val right = maxOf(gestures.right, bars.right, cutout.right)
-        return Frame(left, top, max(1, bounds.width() - left - right), max(1, bounds.height() - top - bottom))
+        val bottomEdge = HomeHitTest.interceptBottom(
+            screenBottom = bounds.height() - bottom,
+            dockTop = dockTopPx,
+            aboveDock = area == HomeDoubleTapArea.ABOVE_DOCK,
+        )
+        return Frame(left, top, max(1, bounds.width() - left - right), max(1, bottomEdge - top))
     }
 
     private fun flags(touchable: Boolean): Int {
@@ -349,10 +447,46 @@ internal class HomePreciseController(
         return runCatching {
             wm.addView(overlay, params)
             view = overlay
+            attachWatcher(wm)
             overlay
         }.getOrElse {
             settings.reportHomeStatus(HomeDoubleTapStatus.FAILED)
             null
+        }
+    }
+
+    /**
+     * 1×1 px watcher, as in Light mode ([HomeDoubleTapController]): Android sends it one
+     * `ACTION_OUTSIDE` per touch that starts elsewhere (time only; the position of touches on
+     * the launcher is withheld), while the touch itself still reaches the launcher. Used only
+     * while the overlay is untouchable, to keep the browse window open.
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private fun attachWatcher(wm: WindowManager) {
+        if (watcher != null) return
+        val w = View(service).apply {
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_OUTSIDE) onOutsideTouch(event.eventTime)
+                false
+            }
+        }
+        val params = WindowManager.LayoutParams(
+            1,
+            1,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSLUCENT,
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            title = "AbleHomeDoubleTapWatcher"
+        }
+        runCatching {
+            wm.addView(w, params)
+            watcher = w
         }
     }
 
@@ -366,10 +500,13 @@ internal class HomePreciseController(
         armed = null
         handler.removeCallbacks(armRunnable)
         replayGeneration++
+        closeBrowse()
         launcherWindow = null
         scene = HomeScene.UNKNOWN
         view?.let { runCatching { windowManager?.removeView(it) } }
         view = null
+        watcher?.let { runCatching { windowManager?.removeView(it) } }
+        watcher = null
     }
 
     private fun applyLayout(overlay: View, touchable: Boolean) {
@@ -377,6 +514,9 @@ internal class HomePreciseController(
         val f = frame()
         val flags = flags(touchable)
         if (params.flags == flags && params.x == f.x && params.y == f.y && params.width == f.width && params.height == f.height) return
+        val wasTouchable = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE == 0
+        if (!touchable && wasTouchable) untouchableSinceMs = SystemClock.uptimeMillis()
+        if (touchable && !wasTouchable) touchableSinceMs = SystemClock.uptimeMillis()
         params.flags = flags
         params.x = f.x
         params.y = f.y
@@ -384,6 +524,11 @@ internal class HomePreciseController(
         params.height = f.height
         if (debug) Log.d(TAG, "layout touchable=$touchable frame=$f")
         runCatching { windowManager?.updateViewLayout(overlay, params) }
+    }
+
+    private fun overlayTouchable(): Boolean {
+        val params = view?.layoutParams as? WindowManager.LayoutParams ?: return false
+        return params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE == 0
     }
 
     // ---- Touches ----
@@ -408,7 +553,13 @@ internal class HomePreciseController(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 handler.removeCallbacks(timeoutRunnable)
+                if (event.eventTime == transitionalDownMs) {
+                    // The watcher's copy of this touch: it did reach the overlay.
+                    transitionalDownMs = 0L
+                    handler.removeCallbacks(transitionalRunnable)
+                }
                 passThroughGesture = false
+                earlyUntouchable = false
                 if (SystemClock.uptimeMillis() - lastEvaluatedMs > STALE_MS) {
                     scene = runCatching { readScene() }.getOrDefault(HomeScene.UNKNOWN)
                     lastEvaluatedMs = SystemClock.uptimeMillis()
@@ -416,8 +567,10 @@ internal class HomePreciseController(
                 if (scene != HomeScene.WORKSPACE || !launcherInFront) passThroughGesture = true
                 process(classifier.onDown(id, event.getX(index) + dx, event.getY(index) + dy, event.eventTime, timeoutMs))
             }
-            MotionEvent.ACTION_POINTER_DOWN ->
+            MotionEvent.ACTION_POINTER_DOWN -> {
                 process(classifier.onDown(id, event.getX(index) + dx, event.getY(index) + dy, event.eventTime, timeoutMs))
+                untouchableIfReplaying(v)
+            }
             MotionEvent.ACTION_MOVE -> {
                 for (h in 0 until event.historySize) {
                     for (p in 0 until event.pointerCount) {
@@ -427,12 +580,14 @@ internal class HomePreciseController(
                 for (p in 0 until event.pointerCount) {
                     classifier.onMove(event.getPointerId(p), event.getX(p) + dx, event.getY(p) + dy, event.eventTime)
                 }
+                untouchableIfReplaying(v)
             }
             MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP -> {
                 val decisions = classifier.onUp(id, event.getX(index) + dx, event.getY(index) + dy, event.eventTime, timeoutMs, ::targetAt)
                 if (event.actionMasked == MotionEvent.ACTION_UP) {
                     v.performClick()
                     process(decisions)
+                    completeMixedDoubleTap(decisions)
                     if (!replaying && replayQueue.isNotEmpty()) pump()
                     if (!replaying) evaluate()
                 } else {
@@ -448,10 +603,25 @@ internal class HomePreciseController(
         return true
     }
 
+    /**
+     * The gesture moved past the slop (or became multi-touch): it will be replayed, so stop
+     * intercepting already. Android keeps delivering the rest of this gesture to the overlay
+     * (touch targets are chosen on the down), and the time until the finger lifts covers the
+     * wait for the flag to apply, so the replay can usually start right at finger up.
+     */
+    private fun untouchableIfReplaying(v: View) {
+        if (earlyUntouchable || !classifier.willReplay) return
+        earlyUntouchable = true
+        applyLayout(v, touchable = false)
+    }
+
     private fun process(decisions: List<HomeDecision>) {
         for (decision in decisions) {
             when (decision) {
-                is HomeDecision.Replay -> enqueue(decision.gesture)
+                is HomeDecision.Replay -> {
+                    if (decision.gesture.kind == TouchGesture.Kind.SWIPE) openBrowse(decision.gesture.upMs)
+                    enqueue(decision.gesture)
+                }
                 HomeDecision.Lock -> lockIfStillHome()
             }
         }
@@ -466,7 +636,85 @@ internal class HomePreciseController(
         val systemUi = runCatching { SystemUiLockState.read(service.windows, keyguardLocked = false) }
             .getOrDefault(SystemUiLockState.Scene.UNKNOWN)
         if (systemUi == SystemUiLockState.Scene.PANEL_OR_BOUNCER) return
+        closeBrowse()
         onDoubleTap(view)
+    }
+
+    // ---- Browse window ----
+
+    private fun openBrowse(upMs: Long) {
+        browse.onSwipe(upMs)
+        browseTaps.reset()
+        scheduleBrowseEnd()
+        if (debug) Log.d(TAG, "browse window open until ${browse.untilMs}")
+    }
+
+    private fun scheduleBrowseEnd() {
+        handler.removeCallbacks(browseEndRunnable)
+        if (browse.untilMs > 0L) handler.postAtTime(browseEndRunnable, browse.untilMs)
+    }
+
+    private fun closeBrowse() {
+        browse.close()
+        browseTaps.reset()
+        handler.removeCallbacks(browseEndRunnable)
+        handler.removeCallbacks(browseTapRunnable)
+        handler.removeCallbacks(transitionalRunnable)
+        transitionalDownMs = 0L
+    }
+
+    /** A touch started somewhere other than the 1×1 watcher (time only). */
+    private fun onOutsideTouch(timeMs: Long) {
+        if (!enabled || view == null) return
+        // Able's own injected replay also starts with a down: ignore the one at dispatch time.
+        if (inFlight != null && timeMs - inFlightAtMs in -INJECTED_DOWN_SLACK_MS..INJECTED_DOWN_SLACK_MS) return
+        if (overlayTouchable()) {
+            // Android applies window changes asynchronously (up to ~0.1 s on the API 36
+            // emulator, 2026-11-23): just after the browse window closed a touch may still go to
+            // the launcher. If the overlay does not receive it shortly, count it as native.
+            if (SystemClock.uptimeMillis() - touchableSinceMs > TOUCHABLE_APPLY_MS) return
+            handler.removeCallbacks(transitionalRunnable)
+            // An earlier one still waiting never reached the overlay either (a quick second tap).
+            if (transitionalDownMs != 0L) onNativeTouch(transitionalDownMs)
+            transitionalDownMs = timeMs
+            handler.postDelayed(transitionalRunnable, OVERLAY_DOWN_WAIT_MS)
+            return
+        }
+        if (!browse.onTouchDown(timeMs)) return
+        scheduleBrowseEnd()
+        if (debug) Log.d(TAG, "touch while browsing: window until ${browse.untilMs}")
+        onNativeTouch(timeMs)
+    }
+
+    /** A touch reached the launcher without Able seeing where: feed the timing-only double tap. */
+    private fun onNativeTouch(timeMs: Long) {
+        if (debug) Log.d(TAG, "native touch at $timeMs")
+        val decideAt = browseTaps.onTouchDown(timeMs, timeoutMs)
+        handler.removeCallbacks(browseTapRunnable)
+        if (decideAt != null) handler.postAtTime(browseTapRunnable, decideAt.coerceAtLeast(SystemClock.uptimeMillis()))
+    }
+
+    /**
+     * The first tap of a double tap reached the launcher natively (browse window closing) and
+     * the second one was seen by the overlay on empty space: complete the double tap.
+     */
+    private fun completeMixedDoubleTap(decisions: List<HomeDecision>) {
+        if (decisions.any { it == HomeDecision.Lock }) return
+        val downMs = classifier.pendingTapDownMs ?: return
+        if (!browseTaps.pairsWith(downMs, timeoutMs) || !classifier.consumePendingTap()) return
+        handler.removeCallbacks(timeoutRunnable)
+        if (debug) Log.d(TAG, "double tap: first tap native, second on the overlay")
+        lockIfStillHome()
+    }
+
+    /**
+     * Two quick touches reached the launcher while browsing and it reported no click, long
+     * click, scroll or window change around them: treat them as a double tap on empty space.
+     */
+    private fun decideBrowseTap() {
+        if (!browseTaps.decide()) return
+        if (debug) Log.d(TAG, "double tap while browsing (timing only)")
+        lockIfStillHome()
     }
 
     // ---- Replay ----
@@ -503,7 +751,9 @@ internal class HomePreciseController(
         restoreDelayMs = if (gesture.kind == TouchGesture.Kind.TAP) TAP_RESTORE_MS else GESTURE_RESTORE_MS
         retries = 0
         armed = gesture
-        handler.postDelayed(armRunnable, armMs)
+        // The flag may have been set while the finger was still moving: wait only for the rest.
+        val wait = armMs - (SystemClock.uptimeMillis() - untouchableSinceMs)
+        if (wait <= 0L) armRunnable.run() else handler.postDelayed(armRunnable, wait)
     }
 
     /** Gesture waiting for FLAG_NOT_TOUCHABLE to apply (not dispatched yet). */
@@ -537,11 +787,13 @@ internal class HomePreciseController(
         val generation = ++replayGeneration
         inFlight = gesture
         inFlightAtMs = SystemClock.uptimeMillis()
-        if (debug) Log.d(TAG, "replay ${gesture.kind} try ${retries + 1} after arm ${armMs} ms (lag ${inFlightAtMs - gesture.upMs} ms)")
+        val untouchableFor = inFlightAtMs - untouchableSinceMs
+        if (debug) Log.d(TAG, "replay ${gesture.kind} try ${retries + 1} untouchable for $untouchableFor ms, arm $armMs ms (lag ${inFlightAtMs - gesture.upMs} ms)")
         val accepted = dispatch(gesture) {
             if (generation != replayGeneration) return@dispatch // superseded by a retry
             inFlight = null
-            if (retries == 0) armMs = (armMs - ARM_DECAY_MS).coerceAtLeast(ARM_MS)
+            // Learn only from replays whose wait was the arm delay itself.
+            if (retries == 0 && untouchableFor <= armMs + ARM_DECAY_MS) armMs = (armMs - ARM_DECAY_MS).coerceAtLeast(ARM_MS)
             pump()
         }
         if (!accepted) {
@@ -601,6 +853,7 @@ internal class HomePreciseController(
                 }
             }
             TouchGesture.Kind.SWIPE -> {
+                if (gesture.strokes.size == 1) return dispatchSwipe(gesture.strokes.single()) { done() }
                 val start = gesture.downMs
                 val total = (gesture.upMs - start).coerceAtLeast(1)
                 val scale = if (total > MAX_SWIPE_REPLAY_MS) MAX_SWIPE_REPLAY_MS.toDouble() / total else 1.0
@@ -612,6 +865,37 @@ internal class HomePreciseController(
             }
         }
         return dispatchStrokes(strokes) { done() }
+    }
+
+    /**
+     * One-finger swipe: a fast head stroke continued by the real tail ([SwipeReplayPlan]), so the
+     * launcher sees the real final velocity (fling to the next page or settle back).
+     */
+    private fun dispatchSwipe(stroke: TouchStroke, done: () -> Unit): Boolean {
+        val plan = SwipeReplayPlan.of(stroke.samples)
+        val head = plan.head
+        if (head == null) {
+            val single = runCatching { GestureDescription.StrokeDescription(path(plan.tail), 0, plan.tailMs) }.getOrNull() ?: return false
+            return dispatchStrokes(listOf(single)) { done() }
+        }
+        val headPath = path(head)
+        val first = runCatching { GestureDescription.StrokeDescription(headPath, 0, plan.headMs, true) }.getOrNull() ?: return false
+        // Start the tail exactly where Android's sampling ends the head, or the continuation is refused.
+        val end = FloatArray(2)
+        val measure = PathMeasure(headPath, false)
+        if (!measure.getPosTan(measure.length, end, null)) return false
+        val tailPath = Path().apply {
+            moveTo(end[0], end[1])
+            for (i in 1 until plan.tail.size) lineTo(plan.tail[i].x.coerceAtLeast(0f), plan.tail[i].y.coerceAtLeast(0f))
+        }
+        return dispatchStrokes(listOf(first)) { completed ->
+            if (!completed) {
+                done()
+            } else {
+                val rest = runCatching { first.continueStroke(tailPath, 0, plan.tailMs, false) }.getOrNull()
+                if (rest == null || !dispatchStrokes(listOf(rest)) { done() }) done()
+            }
+        }
     }
 
     private fun dispatchStrokes(strokes: List<GestureDescription.StrokeDescription>, done: (Boolean) -> Unit): Boolean {
@@ -681,6 +965,18 @@ internal class HomePreciseController(
         const val LONG_PRESS_EXTRA_MS = 150L
         const val MIN_STROKE_MS = 16L
         const val MAX_SWIPE_REPLAY_MS = 350L
+
+        /** Settle delay of the timing-only double tap while browsing ([HomeTapClassifier]). */
+        const val BROWSE_TAP_SETTLE_MS = 700L
+
+        /** How long after asking for a touchable overlay a touch may still reach the launcher. */
+        const val TOUCHABLE_APPLY_MS = 250L
+
+        /** Wait for the overlay's own copy of a watcher touch before counting it as native. */
+        const val OVERLAY_DOWN_WAIT_MS = 40L
+
+        /** An outside down this close to a replay's dispatch is the replay itself. */
+        const val INJECTED_DOWN_SLACK_MS = 40L
         const val MAX_DRAG_REPLAY_MS = 2_000L
         const val MAX_STROKES = 10
         const val TAP_RESTORE_MS = 60L

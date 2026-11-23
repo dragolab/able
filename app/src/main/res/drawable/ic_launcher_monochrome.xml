@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Themed-icon layer: Android tints it, so only the shape matters. -->
+<!-- Themed-icon layer of the Pulse mark: Android tints it, so only the shape (ring + stem) matters. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M38,77L38,53A16,16 0,0 1,70 53L70,77"
-        android:strokeWidth="11"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round" />
+        android:pathData="M37.35,54a15.3,15.3 0,1 0,30.6 0a15.3,15.3 0,1 0,-30.6 0"
+        android:strokeWidth="9"
+        android:strokeColor="#FFFFFFFF" />
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M47,58.5h14a5.5,5.5 0,0 1,0 11h-14a5.5,5.5 0,0 1,0 -11z" />
+        android:pathData="M66.15,38.7a4.5,4.5 0,0 1,9 0v27a4.5,4.5 0,0 1,-9 0z" />
 </vector>

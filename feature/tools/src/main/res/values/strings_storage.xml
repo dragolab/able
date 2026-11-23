@@ -55,7 +55,6 @@
     <string name="storage_freed_none">0 bytes freed. Android had nothing more to clear.</string>
     <string name="storage_trim_unmeasured">Android accepted the request, but free space could not be measured.</string>
     <string name="storage_trim_failed">Android rejected the cache cleanup.</string>
-    <string name="storage_apps_clear_action">Clear cache · %1$d selected (%2$s)</string>
     <string name="storage_apps_select_hint">Select apps to clear only their cache.</string>
     <string name="storage_apps_help_title">Clear an app\'s cache</string>
     <string name="storage_apps_help_text">Deletes only the selected apps\' temporary files, like Android\'s own \"Clear cache\" button in App info. Data, logins and settings stay. Able re-reads each app\'s cache afterwards and reports the measured difference.</string>
@@ -77,4 +76,58 @@
     <!-- Review files (STO-001) -->
     <string name="storage_delete_help_title">Delete files</string>
     <string name="storage_delete_help_text">Select files to review them. For media, Android shows its own confirmation before anything is deleted; for a folder, Able asks first. Deleted files cannot be recovered. Able checks afterwards which files are really gone.</string>
+
+    <!-- Review files: filters (STO-001) -->
+    <string name="storage_search_files">Search by name</string>
+    <string name="storage_filter_type">Type</string>
+    <string name="storage_filter_all_types">All types</string>
+    <string name="storage_filekind_images">Images</string>
+    <string name="storage_filekind_videos">Videos</string>
+    <string name="storage_filekind_audio">Audio</string>
+    <string name="storage_filekind_documents">Documents</string>
+    <string name="storage_filekind_archives">Archives and APKs</string>
+    <string name="storage_filekind_other">Other</string>
+    <string name="storage_filter_size">Minimum size</string>
+    <string name="storage_size_any">Any size</string>
+    <string name="storage_size_custom">Custom…</string>
+    <string name="storage_custom_size_title">Custom minimum size</string>
+    <string name="storage_custom_size_label">Size in MB</string>
+    <string name="storage_custom_size_invalid">Enter a whole number of megabytes.</string>
+    <string name="storage_filter_age">Modified before</string>
+    <string name="storage_age_any">Any date</string>
+    <string name="storage_age_days">%1$d days ago</string>
+    <string name="storage_age_year">1 year ago</string>
+    <string name="storage_filter_location">Location</string>
+    <string name="storage_location_all">Everywhere</string>
+    <string name="storage_location_downloads">Downloads</string>
+    <string name="storage_location_pictures">Photos (DCIM, Pictures)</string>
+    <string name="storage_location_movies">Movies</string>
+    <string name="storage_location_music">Music</string>
+    <string name="storage_location_documents">Documents</string>
+    <string name="storage_filter_sort">Sort by</string>
+    <string name="storage_sort_size">Largest</string>
+    <string name="storage_sort_date">Oldest</string>
+    <string name="storage_sort_name">Name</string>
+    <string name="storage_results_filtered">%1$d of %2$d files · %3$s</string>
+    <string name="storage_results_truncated">Showing the largest %1$d matches. Raise the minimum size to narrow the list.</string>
+    <string name="storage_empty_media_hint">Android shows Able only photos, videos and audio here. To review documents, archives or APKs, choose a folder.</string>
+    <string name="storage_folder_limits">Android does not allow choosing the Download folder itself or the root of the storage. Choose a subfolder.</string>
+    <string name="storage_file_location">%1$s · %2$s</string>
+
+    <!-- Selection bars -->
+    <string name="storage_clear_selection">Clear selection</string>
+    <plurals name="storage_selected_files">
+        <item quantity="one">%1$d file selected</item>
+        <item quantity="other">%1$d files selected</item>
+    </plurals>
+    <string name="storage_selected_total">%1$s in total</string>
+    <string name="storage_delete_action">Delete…</string>
+    <string name="storage_deleting">Deleting and checking…</string>
+    <plurals name="storage_selected_apps">
+        <item quantity="one">%1$d app selected</item>
+        <item quantity="other">%1$d apps selected</item>
+    </plurals>
+    <string name="storage_selected_apps_cache">%1$s of cache</string>
+    <string name="storage_clear_cache_action">Clear cache</string>
+    <string name="storage_clear_progress">Clearing %1$d of %2$d…</string>
 </resources>

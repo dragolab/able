@@ -41,6 +41,7 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Status:** Accepted
 - **Decision:** V1 supports local `.ablebackup` export/import. The user chooses included sections on each export. Import validates and previews data, offers merge/replace, creates rollback before replace, and reports unresolved device-specific items.
 - **Consequence:** Standard export excludes battery/usage history, OS permissions, Shizuku state, installed app data, and hotspot credentials. Import never preselects merge or replace; the user chooses each time.
+- **Revision 2026-11-23 (owner decision, v0.19, ADR-046):** battery history and measurements may be exported through an optional section that is off by default, never preselected, and preceded by a privacy notice; usage history, permissions, Shizuku state, app data, and hotspot credentials stay non-exportable. Custom battery profiles become their own backup section. The archive moves to schema version 2; import keeps accepting schema 1.
 
 ### ADR-007 — Shortcut and activity tools
 
@@ -52,7 +53,7 @@ This log separates decisions confirmed by the owner from implementation proposal
 
 - **Status:** Accepted
 - **Decision:** Keep battery-session summaries locally for 90 days by default. Offer 30 days or until manually deleted, plus immediate deletion. Temporary high-frequency readings are not kept as long-term history.
-- **Consequence:** Expiring/deleting session history also deletes the derived idle-drain baseline, but preserves profiles and app rules. Battery observations remain excluded from standard configuration export.
+- **Consequence:** Expiring/deleting session history also deletes the derived idle-drain baseline, but preserves profiles and app rules. Battery observations remain excluded from standard configuration export unless the user selects the optional battery-history section (revised 2026-11-23, ADR-046); imported sessions follow the same retention and the import preview warns when they would expire.
 
 ### ADR-013 — Opt-in for personal idle-drain alerts
 
@@ -100,6 +101,7 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Status:** Accepted
 - **Decision:** The Storage cleanup tool uses default presets of files >100 MB for "Large files" (with selectable filter chips: 50 MB, 100 MB, 500 MB, 1 GB) and files >30 days old for "Old downloads" (with selectable filter chips: 7, 30, 90 days). File deletion is strictly user-confirmed and executed through Android-mediated Storage Access Framework (SAF) / MediaStore flows. Able can directly clear only its own internal cache.
 - **Consequence:** Eliminates arbitrary or hardcoded scanning criteria. Users have transparent controls over file scan scopes. No automated or background file deletions are permitted. Private app data directories remain inaccessible in accordance with modern Android security boundaries.
+- **Revision 2026-11-23 (owner request, v0.19):** the defaults stay (>100 MB, >30 days). Size adds a custom value; age adds 365 days; the large-file finder adds filters by type, location (all accessible storage, Downloads, DCIM/Pictures, user-picked SAF folder), sort, name search, and thumbnails (STO-001). The finder's unreliable results are a defect to fix. With Shizuku, a per-app cache-clear bulk action consistent with the RAM tool is added (STO-002); it clears caches only, never app data.
 
 ### ADR-020 — Shortcut collection deletion and item preservation choice
 
@@ -140,6 +142,7 @@ This log separates decisions confirmed by the owner from implementation proposal
   2. **Tier 2 (Safe Intent Fallback):** When privileged access is ungranted, the tile or tool gracefully opens the corresponding native Android settings screen (e.g. NFC settings, Display settings, Developer Options, Private DNS dialog) with a clear explanation of how to unlock direct toggling.
 - **Consequence:** Provides immediate utility for standard non-privileged users while offering instant one-tap power controls for advanced users with Shizuku/ADB. No silent failures or false success reports.
 - **Revision 2026-11-22 (v0.18):** the NFC tile follows `pcolby/nfc-quick-settings` (GPL-3.0) with three routes in order: `WRITE_SECURE_SETTINGS` granted via ADB (direct `NfcAdapter` enable/disable), Shizuku, then the NFC settings page; the tile reflects the real adapter state. The Wireless debugging "details" action opens the Wireless debugging page directly, falling back to Developer options and then Android Settings.
+- **Revision 2026-11-23 (v0.19, ADR-044):** the Shizuku route no longer runs commands such as `svc nfc`; with Shizuku Able self-grants `WRITE_SECURE_SETTINGS` after confirmation and then uses Tier 1 in-process. USB and Wireless debugging state is observed with Settings content observers so the UI and tiles update immediately.
 
 ### ADR-024 — Universal Action Catalog for customizable tiles and multi-action widgets
 
@@ -158,7 +161,8 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Status:** Accepted (2026-11-22)
 - **Decision:** Able gets its own logo, adaptive and monochrome (themed) launcher icon, in-app logo, and a curated Quick Settings tile icon set, with a more distinctive expressive visual style built on Material 3 Expressive and dynamic color. The open-source "Essentials" app by sameerasw is inspiration only; its branding, icons, and assets are not copied.
 - **Consequence:** Brand assets remain Drago Labs IP and are not licensed under GPLv3 (ADR-011). Assets must be legible in light, dark, and dynamic color themes (BRAND-001). Custom tiles use icons from the Able set (CUST-001).
-- **Revision 2026-11-22 (v0.18):** the owner asked for a rebrand. Status: redesign in progress; options are proposed in `docs/brand/branding-options.html`; **decision pending**. No option is accepted and no asset is replaced until the owner chooses; the requirement to own original, reserved brand assets is unchanged.
+- **Revision 2026-11-22 (v0.18):** the owner asked for a rebrand; redesign started.
+- **Revision 2026-11-23 (owner decision, v0.19): concept "Pulse" accepted.** The mark is a lowercase "a" built from a ring and a stem; the stem doubles as a level indicator with a mint segment. Colors: ink `#101418`, mint `#1FC98E`. Wordmark: Google Sans Flex, weight 650, ROND 0. Style: calm and precise. The monochrome (themed) icon uses ring and stem only; the tile icon set follows the same stroke and geometry. The options comparison is kept locally in `private-references/brand/` and is not part of the public repository or documentation. TSK-1606 is unblocked. The font license for shipping the wordmark (embedded or as outlines) is confirmed before release (R-040).
 
 ### ADR-028 — Full installed-package visibility
 
@@ -189,6 +193,7 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Status:** Accepted (owner request, 2026-11-22)
 - **Decision:** Every primary destination's top app bar has a search action (SEARCH-001) over a bundled index of tools, battery options, apps features, settings, tiles & widgets, and Home customization, with Italian and English keywords. Recent searches are stored locally.
 - **Consequence:** The index ships with the app and is maintained with each feature change (new feature → new index entries in both languages; part of the definition of done). Search is offline, never changes state, and recent searches are excluded from `.ablebackup`. Index construction is a proposal (ADR-034).
+- **Revision 2026-11-23 (ADR-042):** on compact windows the entry point is the circular Search button next to the floating navigation bar instead of the top app bar; wider windows and TV keep the top bar entry.
 
 ### ADR-033 — APK backup before uninstalling a user app
 
@@ -227,12 +232,56 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Context:** The light watcher (accessibility event timing only, no touch interception) proved unreliable on the owner's Pixel 8 Pro on 2026-11-22. The non-consuming observed-motion API is still not public (R-027). The reference double-tap app was studied only through its manifest; no decompilation.
 - **Decision:** Add a user-selectable **Precise** mode next to **Light**: while the launcher home is the foreground window, the Accessibility service shows a full-screen accessibility overlay that classifies taps, double taps, swipes, and long presses; a double tap on empty space turns the screen off; every other touch is replayed to the launcher (`dispatchGesture`, or `ACTION_CLICK`/`ACTION_LONG_CLICK` on the node); system gesture areas are excluded. The overlay is removed as soon as the launcher loses the foreground.
 - **Consequence:** This knowingly intercepts launcher touches (unlike the earlier "never consume" rule, which still applies to the Light mode and to any non-launcher context). Trade-offs: single taps are delayed by the double-tap window, replay may be imperfect for drags, scrolling widgets, and multi-touch, and launcher updates can break it (R-024, R-032). Setup discloses this and shows a measured delay; the mode is part of the Play Accessibility declaration (R-022). The transparent widget stays as fallback. Parameters are proposals (ADR-041).
+- **Revision 2026-11-23 (owner report, v0.19):** launcher page swipes are slow with Precise active on the owner's Pixel 8 Pro. Accepted mitigation: a pass-through browsing window after each recognized swipe (overlay touch-transparent, so further swipes go straight to the launcher), velocity-preserving replay of the first swipe (recorded path and timing), and a reduced intercept area (no dock/hotseat row, no search bar band, no system gesture insets). Accepted trade-offs, disclosed in setup and help: double taps during the pass-through window and in excluded areas are not detected, and the first swipe still waits for classification. Parameters are proposals (ADR-049); T-LOCK-05 measures the result.
 
 ### ADR-040 — Navigation re-select returns to the section start
 
 - **Status:** Accepted (owner request, 2026-11-22; revises SHELL-001)
 - **Decision:** Selecting the navigation item of the section already shown returns to that section's start: pop nested screens, close detail panes, scroll to top, select the first tab. If already at the start, it scrolls to the top.
 - **Consequence:** Applies to the bottom bar, the navigation rail, and the TV drawer. Dirty-form back rules still apply. Each section keeps its own back stack when switching between sections.
+
+### ADR-042 — Floating navigation bar with background blur on compact windows
+
+- **Status:** Accepted (owner request, 2026-11-23; revises SHELL-001 and the SEARCH-001 entry point)
+- **Decision:** On compact windows the four primary destinations sit in a floating pill-shaped navigation bar with a light blur of the content behind it, using the Haze library (Apache-2.0). A separate small circular Search button sits to the right of the pill and opens the options search (SEARCH-001). Content is padded by the bar height, margins, and the system navigation inset so nothing hides under the bar. The navigation rail (medium/expanded windows) and the TV drawer are unchanged.
+- **Consequence:** Contrast must meet WCAG AA over any content; an opaque tonal surface replaces the blur where blur is unsupported, too costly, or disabled. Haze is added to the third-party license inventory and About. Blur cost is measured on the Pixel 8 Pro and the tablet (T-UI-03, R-038). Re-select behavior (ADR-040) and back rules are unchanged. Parameters are proposals (ADR-049).
+
+### ADR-043 — Haptic language with per-action patterns and intensity
+
+- **Status:** Accepted (owner request, 2026-11-23; revises UX-003)
+- **Decision:** Every tap on an interactive element gives haptic feedback. Six kinds are distinguished: tick, click, toggle (on/off), confirm, reject/destructive, and long press. Patterns are composed from `VibrationEffect.Composition` primitives where `Vibrator.arePrimitivesSupported` reports them, otherwise `HapticFeedbackConstants` are used. Settings → Appearance → Haptic feedback offers Off / Light / Normal / Strong (default Normal), replacing the on/off switch; the system touch-feedback setting is respected.
+- **Consequence:** Destructive confirmations and failures never feel like a success. On fallback devices intensity levels may feel the same, and Settings says so. Haptics stay short to avoid fatigue; continuous gestures throttle ticks to the step rate. The mapping table is a proposal (ADR-049); T-HAPTIC-01 and T-HAPTIC-02 verify it.
+
+### ADR-044 — WRITE_SECURE_SETTINGS self-grant through Shizuku for NFC and secure-settings toggles
+
+- **Status:** Accepted (owner decision after a device observation, 2026-11-23; revises SYS-001, SYS-003, SYS-004 routes and ADR-023)
+- **Context:** On the owner's Pixel 8 Pro (Android 16), running `svc nfc` through Shizuku crashed with `SecurityException: Package android does not belong to 2000` (observed 2026-11-23).
+- **Decision:** With Shizuku connected and after an explicit confirmation, Able runs `pm grant <able package> android.permission.WRITE_SECURE_SETTINGS` as the shell user, verifies the grant with `checkSelfPermission`, and then toggles NFC in-process through `NfcAdapter`, the route used by `pcolby/nfc-quick-settings`. The same grant serves USB/Wireless debugging, Private DNS, and future secure-settings features. Able no longer runs `svc nfc` through Shizuku.
+- **Consequence:** The grant persists across updates until revoked or Able is uninstalled, so Able holds a powerful permission beyond the Shizuku session (R-037). The confirmation explains what it allows; the access checklist shows the state and offers Revoke (through Shizuku `pm revoke`), plus the ADB revoke command and uninstall as alternatives. Able writes only the settings keys of the features the user operates, and every write is read back. The grant is never exported.
+
+### ADR-045 — Fake GPS tool with OpenStreetMap and Android mock locations
+
+- **Status:** Accepted (owner request, 2026-11-23; new GPS-003)
+- **Decision:** Able adds a Fake GPS tool: osmdroid map (Apache-2.0) on OpenStreetMap tiles, fake position by map tap or search, saved points, joystick, route simulation with speed, optional jitter/altitude/accuracy, and a foreground service with a stop notification. Android delivers mock locations only from the selected mock-location app; Able explains the Developer options route and, with Shizuku, selects itself in one confirmed tap through AppOps with readback.
+- **Consequence:** This is Able's first network use; tiles are fetched only while the map is open, under the OSM tile usage policy (distinct User-Agent, visible attribution, cache headers honoured, no bulk or offline prefetch), and the privacy disclosure says the tile server sees the viewed area and IP address (R-036). osmdroid is archived (2024-11-20) and must be monitored or replaced later. Honest limits: apps can detect mocks (`Location.isMock()`), some refuse to work, and Able does not support deception; Play policy and misuse risks are R-035. No automation starts a mock position.
+
+### ADR-046 — Optional battery-history export and archive schema version 2
+
+- **Status:** Accepted (owner request, 2026-11-23; revises ADR-006, CFG-001–CFG-004)
+- **Decision:** `.ablebackup` gains an optional battery history and measurements section (session summaries, charging diary, notes, health history), off by default, never preselected, and shown with a privacy notice. Custom battery profiles become their own section. New archives use schema version 2; import accepts schema 1 (profiles mapped to the v0.18 model) and schema 2. Imported history is validated, deduplicated against local sessions, and the preview warns when it would be removed by the current retention period.
+- **Consequence:** Battery history can leave the device only through an explicit user export (R-039). Usage history, permission and Shizuku state, the `WRITE_SECURE_SETTINGS` grant, mock-location selection, shell history, recent searches, APK backups, and hotspot credentials remain non-exportable. The schema-1 proposal in ADR-025 is superseded for new exports. Layout details are proposals (ADR-049).
+
+### ADR-047 — Commit authorship in the public repository
+
+- **Status:** Accepted (owner decision, 2026-11-23)
+- **Decision:** The public history of `https://github.com/dragolab/able` shows only the owner (DragoLab) as commit author. Commit messages carry no tool attribution trailers (for example generated-by or co-author lines for tools).
+- **Consequence:** The contributing note in README states the rule. T-REPO-01 includes a check of authors and trailers before each push. External contributions, if accepted later, need a separate decision.
+
+### ADR-048 — Home, Battery, and Tools layout revisions
+
+- **Status:** Accepted (owner requests, 2026-11-23; revises HOME-003, adds BAT-UI-001 and TOOLS-001)
+- **Decision:** (1) Home: critical safety banners (for example missing Shizuku permission) stay at the top; the failed-actions notice moves to the bottom of Home and can be hidden until a new failure; the Recent actions card loses its "Open Battery" button and may offer a "Show all" history sheet. (2) Battery: the sub-sections Stato, Monitor, Salute, Diagnosi are swipeable horizontally; Monitor is ordered live status → statistics → sessions → settings and Health summary → capacity → lifecycle → charging → advanced. (3) Tools hub: all tiles have the same size.
+- **Consequence:** Hiding the notice never hides a critical condition or deletes log entries. Swipe navigation keeps tabs as the accessible and TV alternative and leaves system back edges alone. Uniform tiles also make the container transform (UX-004) start and end at predictable bounds. Layout details remain to be mocked up (adaptive UI spec).
 
 ## Implementation decisions still open
 
@@ -255,7 +304,7 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Monitor resume after reboot:** if the user left the live monitor running, a `BOOT_COMPLETED` receiver restarts it (disclosed in the Monitor tab). Confirm or require a manual restart.
 - **Web map link provider:** GPS sharing uses an OpenStreetMap web link (`openstreetmap.org/?mlat=…&mlon=…`) as a vendor-neutral default.
 - **Storage media permissions:** the storage review declares `READ_MEDIA_IMAGES`/`VIDEO`/`AUDIO`; Google Play's photo/video permission policy may not accept broad media access for a cleaner. Alternative: keep only the Storage Access Framework folder picker.
-- **Backup storage locations:** `.ablebackup` schema 1 (ZIP with `manifest.json` and per-section JSON, SHA-256 per entry); the replace/merge rollback snapshot is stored at `filesDir/backup/rollback.ablebackup`.
+- **Backup storage locations:** `.ablebackup` schema 1 (ZIP with `manifest.json` and per-section JSON, SHA-256 per entry); the replace/merge rollback snapshot is stored at `filesDir/backup/rollback.ablebackup`. (2026-11-23: new exports move to schema 2, ADR-046; schema 1 stays importable.)
 - **Initial focus:** Compose's initial-focus behavior is enabled only for the remote-first (TV/no-touchscreen) layout, so touch devices do not focus text fields and open the keyboard unexpectedly.
 
 ### ADR-034 — Implementation proposals for the v0.17 owner requests
@@ -281,3 +330,16 @@ This log separates decisions confirmed by the owner from implementation proposal
 - **Precise double tap (LOCK-003):** double-tap window from `ViewConfiguration.getDoubleTapTimeout()`; touch slop from `ViewConfiguration`; long press at `getLongPressTimeout()`; exclude `WindowInsets` system-gesture and tappable-element insets; replay taps with a 1-stroke `GestureDescription` at the original point and swipes with the recorded path and duration; remove the overlay on `TYPE_WINDOWS_CHANGED`/`TYPE_WINDOW_STATE_CHANGED` when the launcher loses focus; target replay delay to be measured, not assumed.
 - **Wireless debugging route (SYS-003):** try `Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS` with the Wireless debugging fragment extra used by AOSP Settings (`com.android.settings.development.WirelessDebuggingFragment`), verify the activity resolves, else Developer options, else `Settings.ACTION_SETTINGS`; record which route works on Pixel 8 Pro and the tablet.
 - **Container transform fix (UX-004):** key each small card's shared bounds by a stable tool ID, keep the origin card composed during the transition (no lazy-grid recycling), clip with the card's shape, and fall back to fade when the origin key is not laid out.
+
+### ADR-049 — Implementation proposals for the v0.19 owner requests
+
+- **Status:** Proposed (not accepted); each item needs feasibility evidence or an owner decision. ADR-027 (revised), ADR-039 (revised), and ADR-042–ADR-048 accept the product behavior only.
+- **Floating bar (SHELL-001, ADR-042):** Haze `hazeSource` on the content and `hazeEffect` on the bar with a light blur radius (≈ 20–24 dp) and a tonal tint at about 70–80% opacity; bar height ≈ 64 dp, 16 dp side and bottom margins above the navigation inset; Search button 56 dp; content padding through `Scaffold`/`contentPadding` and `WindowInsets.navigationBars`; opaque fallback when blur is unavailable or the device is in power-save mode.
+- **Haptic composition table (UX-003, ADR-043):** tick = `PRIMITIVE_TICK` (or `LOW_TICK`) at scale 0.4; click = `PRIMITIVE_CLICK` 0.7; toggle on = `QUICK_RISE` 0.5 + `TICK`, toggle off = `QUICK_FALL` 0.5; confirm = `CLICK` 0.8 + `TICK` after 60 ms; reject/destructive = `THUD` 0.8 (API 31+) or two `CLICK` at 0.9 with 80 ms gap; long press = `SLOW_RISE` 0.6 + `CLICK`. Light/Normal/Strong multiply scales by 0.6/1.0/1.3 (clamped to 1.0). Fallback constants as in the current haptics map (`CLOCK_TICK`, `VIRTUAL_KEY`, `TOGGLE_ON/OFF`, `CONFIRM`, `REJECT`, `LONG_PRESS`).
+- **Self-grant (SYS-001, ADR-044):** Shizuku command `pm grant <pkg> android.permission.WRITE_SECURE_SETTINGS`; readback with `Context.checkSelfPermission`; revoke with `pm revoke`; NFC through `NfcAdapter.enable()/disable()` via reflection as in nfc-quick-settings, state from `ACTION_ADAPTER_STATE_CHANGED`.
+- **Debug observers (SYS-003):** `ContentObserver` on `Settings.Global.getUriFor("adb_enabled")` and `"adb_wifi_enabled"`, registered while the screen or tile is listening; tiles call `requestListeningState` on change.
+- **Precise pass-through (LOCK-003, ADR-039 revised):** after a replayed swipe set `FLAG_NOT_TOUCHABLE` on the overlay for a browsing window of ≈ 1.5 s that restarts with each launcher scroll event (`TYPE_VIEW_SCROLLED` from the launcher) and ends after ≈ 1.5 s idle; replay the first swipe as a `GestureDescription` stroke with the recorded points and duration (velocity preserved), dispatched as soon as the touch slop is exceeded rather than on finger up where the launcher accepts a continued stroke (`willContinue`); exclude the hotseat and search-bar bounds found in the launcher's accessibility node tree plus a fixed band fallback. Values to be measured, not assumed.
+- **Fake GPS (GPS-003, ADR-045):** osmdroid `MapView` with `Configuration.userAgentValue` set to an Able-specific value with the repository URL, tile source `MAPNIK` over HTTPS, default osmdroid tile cache with expiry honouring headers and no `CacheManager` bulk download; mock provider through `LocationManager.addTestProvider` for GPS and network providers with `setTestProviderLocation` at 1 Hz (joystick/route) and removal on stop; foreground service type `location` or `specialUse` to be decided with the Play declaration; AppOps command `appops set <pkg> android:mock_location allow` with readback `appops get`; place search provider (for example Nominatim under its usage policy, user-triggered only) needs an owner decision because it adds a second network endpoint.
+- **Large-file finder (STO-001):** MediaStore `Files` query with `SIZE`, `DATE_MODIFIED`, `MIME_TYPE`, `RELATIVE_PATH` selection per filter, SAF `DocumentFile` walk for user-picked folders, thumbnails via `ContentResolver.loadThumbnail`; a seeded test folder for the defect regression.
+- **Per-app cache (STO-002):** `pm clear --cache-only --user <id> <pkg>` per selected app with before/after cache size from `StorageStatsManager.queryStatsForPackage`.
+- **Archive schema 2 (CFG-002, ADR-046):** ZIP with `manifest.json` (`schemaVersion: 2`, sections list), `profiles.json`, `appRules.json`, `home.json`, `shortcuts.json`, `icons/`, `gps.json`, optional `batteryHistory.json`; SHA-256 per entry as in schema 1; schema-1 `profiles` mapped to built-in profile edits with triggers disabled unless enabled in the source; dedup key (session start, end, source).

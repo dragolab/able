@@ -1,6 +1,7 @@
 package com.dragolabs.able.feature.settings.backup
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 /**
  * `.ablebackup` schema (CFG-002, ADR-006).
@@ -9,32 +10,57 @@ import kotlinx.serialization.Serializable
  *
  * ```
  * manifest.json                      BackupManifest
- * sections/battery.json              BatterySectionDto
+ * sections/battery_profiles.json     BatteryProfilesSectionDto  (schema 2)
  * sections/home_appearance.json      HomeAppearanceSectionDto
  * sections/gps_points.json           GpsSectionDto
  * sections/dns_profiles.json         DnsSectionDto
  * sections/shortcuts.json            ShortcutsSectionDto
+ * sections/battery_history.json      BatteryHistorySectionDto   (schema 2, opt-in only)
+ * sections/battery.json              BatterySectionDto          (schema 1 legacy, read only)
  * ```
  *
  * Only the paths above are ever read; every other entry is reported as unsupported and ignored.
  * Enum values are stored as strings so a newer or foreign value is reported as an unsupported
  * item instead of failing the whole section.
+ *
+ * Schema history:
+ * - 1: legacy battery preferences (`battery`), Home/appearance, GPS points, DNS profiles, shortcuts.
+ * - 2: `battery_profiles` (built-in and custom profiles from the `battery_profiles` table) replaces
+ *   `battery`, which is still imported and converted to built-in profiles; optional
+ *   `battery_history` (session summaries and notes), never preselected.
  */
-enum class BackupSection(val key: String, val entryPath: String) {
-    BATTERY("battery", "sections/battery.json"),
+enum class BackupSection(
+    val key: String,
+    val entryPath: String,
+    /** Personal data excluded by default (CFG-003): shown separately, never preselected. */
+    val optIn: Boolean = false,
+) {
+    BATTERY_PROFILES("battery_profiles", "sections/battery_profiles.json"),
     HOME_APPEARANCE("home_appearance", "sections/home_appearance.json"),
     GPS_POINTS("gps_points", "sections/gps_points.json"),
     DNS_PROFILES("dns_profiles", "sections/dns_profiles.json"),
     SHORTCUTS("shortcuts", "sections/shortcuts.json"),
+    BATTERY_HISTORY("battery_history", "sections/battery_history.json", optIn = true),
     ;
 
     companion object {
+        /** Schema-1 battery section (legacy preferences); imported as [BATTERY_PROFILES]. */
+        const val LEGACY_BATTERY_KEY = "battery"
+        const val LEGACY_BATTERY_PATH = "sections/battery.json"
+
+        /** Sections offered in the standard part of the export checklist. */
+        val standard: List<BackupSection> get() = entries.filterNot { it.optIn }
+        val optional: List<BackupSection> get() = entries.filter { it.optIn }
+
         fun fromKey(key: String): BackupSection? = entries.firstOrNull { it.key == key }
         fun fromPath(path: String): BackupSection? = entries.firstOrNull { it.entryPath == path }
     }
 }
 
-/** Data categories that the standard export never contains (CFG-003, ADR-015). */
+/**
+ * Data categories that the standard export does not contain (CFG-003, ADR-015).
+ * [BATTERY_HISTORY] can be added on purpose through the opt-in [BackupSection.BATTERY_HISTORY].
+ */
 enum class BackupExclusion(val key: String) {
     BATTERY_HISTORY("battery_history"),
     USAGE_DATA("usage_data"),
@@ -67,8 +93,9 @@ data class ManifestEntry(
     val sha256: String,
 )
 
-// --- Section payloads (schema version 1) ---------------------------------------------------
+// --- Section payloads -----------------------------------------------------------------------
 
+/** Schema-1 battery section: the pre-v6 preferences. Read only; converted to built-in profiles. */
 @Serializable
 data class BatterySectionDto(
     val savingsTriggerPercent: Int,
@@ -89,6 +116,79 @@ data class AppRuleDto(
     val packageName: String,
     val profile: String,
     val level: String,
+)
+
+/** Schema 2: every battery profile plus the global protected-app list. */
+@Serializable
+data class BatteryProfilesSectionDto(
+    val profiles: List<BatteryProfileDto> = emptyList(),
+    val protectedApps: List<String> = emptyList(),
+)
+
+@Serializable
+data class BatteryProfileDto(
+    /** Local id; built-in profiles are matched by [builtInType] instead. */
+    val id: String,
+    /** Blank for a built-in profile that keeps its localized label. */
+    val name: String = "",
+    val iconKey: String = "",
+    val colorKey: String = "",
+    /** `ProfileType` name of a built-in profile, null for a custom profile. */
+    val builtInType: String? = null,
+    val enabled: Boolean = true,
+    /**
+     * Each trigger as the JSON object written by `ProfileTrigger`'s serializer (`type`
+     * discriminator), decoded one by one so an unknown trigger type is skipped, not fatal.
+     */
+    val triggers: List<JsonObject> = emptyList(),
+    val appRules: List<ProfileAppRuleDto> = emptyList(),
+    val offerBatterySaver: Boolean = false,
+    val sortOrder: Int = 0,
+)
+
+@Serializable
+data class ProfileAppRuleDto(
+    val packageName: String,
+    val level: String,
+)
+
+/**
+ * Schema 2, opt-in: battery session summaries with their notes/tags. Health snapshots are not
+ * stored by this version of Able, so there is nothing else to export.
+ */
+@Serializable
+data class BatteryHistorySectionDto(
+    val sessions: List<BatterySessionDto> = emptyList(),
+)
+
+@Serializable
+data class BatterySessionDto(
+    val startTimeEpochMs: Long,
+    val endTimeEpochMs: Long,
+    val isCharging: Boolean,
+    val startLevelPercent: Int,
+    val endLevelPercent: Int,
+    val avgTemperatureCelsius: Float,
+    val maxTemperatureCelsius: Float,
+    val avgCurrentMilliAmperes: Float? = null,
+    val avgVoltageMillivolts: Float? = null,
+    val avgPowerMilliWatts: Float? = null,
+    val screenOnDurationMs: Long = 0,
+    val screenOffDurationMs: Long = 0,
+    val deepSleepDurationMs: Long = 0,
+    val hasThermalAlert: Boolean = false,
+    val isPartial: Boolean = false,
+    val screenOnDropPercent: Int? = null,
+    val screenOffDropPercent: Int? = null,
+    val note: BatterySessionNoteDto? = null,
+)
+
+@Serializable
+data class BatterySessionNoteDto(
+    val text: String = "",
+    /** Session tag keys (`travel`, `gaming`, …); unknown keys are ignored by the Battery screen. */
+    val tags: List<String> = emptyList(),
+    val createdAtEpochMs: Long,
 )
 
 @Serializable
@@ -166,18 +266,25 @@ data class ShortcutDto(
 
 /** Decoded content of an archive; a null section was not included. */
 data class BackupPayload(
-    val battery: BatterySectionDto? = null,
+    val batteryProfiles: BatteryProfilesSectionDto? = null,
     val homeAppearance: HomeAppearanceSectionDto? = null,
     val gps: GpsSectionDto? = null,
     val dns: DnsSectionDto? = null,
     val shortcuts: ShortcutsSectionDto? = null,
+    val batteryHistory: BatteryHistorySectionDto? = null,
+    /**
+     * Schema-1 `battery` section, read only when [batteryProfiles] is absent. It is imported as
+     * [BackupSection.BATTERY_PROFILES] (converted to built-in profiles) and never written.
+     */
+    val legacyBattery: BatterySectionDto? = null,
 ) {
     val sections: Set<BackupSection>
         get() = buildSet {
-            if (battery != null) add(BackupSection.BATTERY)
+            if (batteryProfiles != null || legacyBattery != null) add(BackupSection.BATTERY_PROFILES)
             if (homeAppearance != null) add(BackupSection.HOME_APPEARANCE)
             if (gps != null) add(BackupSection.GPS_POINTS)
             if (dns != null) add(BackupSection.DNS_PROFILES)
             if (shortcuts != null) add(BackupSection.SHORTCUTS)
+            if (batteryHistory != null) add(BackupSection.BATTERY_HISTORY)
         }
 }

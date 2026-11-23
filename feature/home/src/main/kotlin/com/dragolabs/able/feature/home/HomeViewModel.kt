@@ -37,6 +37,7 @@ class HomeViewModel(
     private val shizuku: ShizukuAdapter,
     private val shortcutDao: ShortcutDao,
     private val batteryProfiles: com.dragolabs.able.core.data.battery.BatteryProfileRepository,
+    private val notices: HomeNoticeStore,
 ) : ViewModel() {
 
     constructor(container: AbleContainer) : this(
@@ -49,6 +50,7 @@ class HomeViewModel(
         actionLog = container.actionLog,
         shizuku = container.shizuku,
         shortcutDao = container.database.shortcutDao(),
+        notices = HomeNoticeStore(container.appContext),
     )
 
     private val storageState = MutableStateFlow<StorageCardState>(StorageCardState.Loading)
@@ -114,19 +116,22 @@ class HomeViewModel(
         Triple(storageCard, msg, shortcuts)
     }
 
+    private val failureNoticeFlow = combine(actionLog.recentFailures(5), notices.failuresDismissedThrough) { failures, dismissed ->
+        failedActionsNoticeFor(failures, System.currentTimeMillis(), dismissed)
+    }
+
     val uiState: StateFlow<HomeUiState> = combine(
         baseFlow,
-        actionLog.recent(RECENT_ACTION_COUNT),
-        actionLog.recentFailures(5),
+        actionLog.recent(RECENT_HISTORY_COUNT),
+        failureNoticeFlow,
         extrasFlow,
-    ) { partial, recent, failures, (storageCard, msg, shortcuts) ->
-        val now = System.currentTimeMillis()
-        val recentFailures = failures.filter { now - it.timestampEpochMs in 0..RECENT_FAILURE_WINDOW_MS }
+    ) { partial, recent, failureNotice, (storageCard, msg, shortcuts) ->
         partial.base.copy(
             recentActions = recent,
             storage = storageCard,
             shortcuts = shortcuts,
-            alerts = alertsFor(partial.base.access.shizuku, recentFailures),
+            alerts = alertsFor(partial.base.access.shizuku),
+            failedActions = failureNotice,
             message = msg,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
@@ -174,7 +179,9 @@ class HomeViewModel(
         message.value = null
     }
 
-    private companion object {
-        const val RECENT_ACTION_COUNT = 5
+    /** Hides the failed-actions notice until a failure newer than the ones shown is logged. */
+    fun dismissFailures() {
+        val notice = uiState.value.failedActions ?: return
+        notices.dismissFailuresThrough(notice.latestEpochMs)
     }
 }

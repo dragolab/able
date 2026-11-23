@@ -26,9 +26,13 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.ui.semantics.heading
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import com.dragolabs.able.core.capability.ShizukuConnectionState
 import com.dragolabs.able.core.data.AccessSnapshot
 import com.dragolabs.able.core.designsystem.component.AbleCard
+import com.dragolabs.able.core.designsystem.component.AbleTextButton
+import com.dragolabs.able.core.designsystem.component.focusRing
 import com.dragolabs.able.core.designsystem.component.AbleCardStyle
 import com.dragolabs.able.core.designsystem.component.AbleSharedKeys
 import com.dragolabs.able.core.designsystem.component.ActionTile
@@ -65,9 +71,10 @@ import com.dragolabs.able.core.model.ToolId
 internal fun SafetyBanner(
     alert: HomeSafetyAlert,
     onRequestShizukuPermission: () -> Unit,
-    onShowFailures: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // StatusBanner buttons play their own click haptic.
+    val request = onRequestShizukuPermission
     when (alert) {
         HomeSafetyAlert.ShizukuWaitingForPermission -> StatusBanner(
             modifier = modifier,
@@ -75,7 +82,7 @@ internal fun SafetyBanner(
             title = stringResource(R.string.home_alert_shizuku_waiting_title),
             message = stringResource(R.string.home_alert_shizuku_waiting_message),
             actionLabel = stringResource(R.string.home_alert_shizuku_grant),
-            onAction = onRequestShizukuPermission,
+            onAction = request,
         )
         HomeSafetyAlert.ShizukuPermissionDenied -> StatusBanner(
             modifier = modifier,
@@ -83,27 +90,38 @@ internal fun SafetyBanner(
             title = stringResource(R.string.home_alert_shizuku_denied_title),
             message = stringResource(R.string.home_alert_shizuku_denied_message),
             actionLabel = stringResource(R.string.home_alert_shizuku_retry),
-            onAction = onRequestShizukuPermission,
+            onAction = request,
         )
-        is HomeSafetyAlert.RecentFailures -> {
-            val latest = alert.failures.first()
-            StatusBanner(
-                modifier = modifier,
-                level = StatusLevel.CRITICAL,
-                title = pluralStringResource(R.plurals.home_alert_failures_title, alert.failures.size, alert.failures.size),
-                message = latest.detailMessage,
-                actionLabel = stringResource(R.string.home_alert_failures_details),
-                onAction = onShowFailures,
-            )
-        }
     }
+}
+
+/** Failed-actions notice at the bottom of Home; "Hide" keeps it hidden until a newer failure. */
+@Composable
+internal fun FailedActionsBanner(
+    notice: FailedActionsNotice,
+    onShowDetails: () -> Unit,
+    onHide: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val latest = notice.failures.maxBy { it.timestampEpochMs }
+    StatusBanner(
+        modifier = modifier,
+        level = StatusLevel.CRITICAL,
+        title = pluralStringResource(R.plurals.home_alert_failures_title, notice.failures.size, notice.failures.size),
+        message = latest.detailMessage.ifBlank { null },
+        actionLabel = stringResource(R.string.home_alert_failures_details),
+        onAction = onShowDetails,
+        secondaryActionLabel = stringResource(R.string.home_alert_failures_hide),
+        onSecondaryAction = onHide,
+    )
 }
 
 @Composable
 internal fun RecentFailuresDialog(
-    failures: List<ActionAuditRecord>,
+    failures: FailedActionsNotice,
     onDismiss: () -> Unit,
     onOpenBattery: () -> Unit,
+    onHide: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -114,11 +132,16 @@ internal fun RecentFailuresDialog(
                 verticalArrangement = Arrangement.spacedBy(AbleSpacing.md),
             ) {
                 Text(stringResource(R.string.home_failures_dialog_message), style = MaterialTheme.typography.bodyMedium)
-                failures.forEach { ActionRecordRow(it) }
+                failures.failures.forEach { ActionRecordRow(it, absoluteTime = true) }
             }
         },
-        confirmButton = { TextButton(onClick = onOpenBattery) { Text(stringResource(R.string.home_open_battery)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.home_close)) } },
+        confirmButton = { AbleTextButton(onClick = onOpenBattery) { Text(stringResource(R.string.home_open_battery)) } },
+        dismissButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(AbleSpacing.xs)) {
+                AbleTextButton(onClick = onHide) { Text(stringResource(R.string.home_alert_failures_hide)) }
+                AbleTextButton(onClick = onDismiss) { Text(stringResource(R.string.home_close)) }
+            }
+        },
     )
 }
 
@@ -317,7 +340,7 @@ private fun CapabilityLine(name: String, value: String, level: StatusLevel) {
 // ---------------------------------------------------------------------------------------------
 
 @Composable
-internal fun RecentActionsCard(actions: List<ActionAuditRecord>, onOpenBattery: () -> Unit) {
+internal fun RecentActionsCard(actions: List<ActionAuditRecord>, onShowAll: () -> Unit) {
     AbleCard(
         title = stringResource(R.string.home_card_recent_title),
         icon = HomeCardType.RECENT_WARNINGS.icon(),
@@ -330,37 +353,91 @@ internal fun RecentActionsCard(actions: List<ActionAuditRecord>, onOpenBattery: 
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         } else {
-            actions.forEach { ActionRecordRow(it) }
+            actions.take(RECENT_CARD_COUNT).forEach { ActionRecordRow(it) }
+            // The full list adds older entries and exact times; offered only when there is more to see.
+            if (actions.size > RECENT_CARD_COUNT) {
+                AbleTextButton(onClick = onShowAll, modifier = Modifier.focusRing()) {
+                    Text(stringResource(R.string.home_recent_show_all, actions.size))
+                }
+            }
         }
-        OutlinedButton(onClick = onOpenBattery) { Text(stringResource(R.string.home_open_battery)) }
+    }
+}
+
+/** Bottom sheet with the last [RECENT_HISTORY_COUNT] actions, newest first, with exact local times. */
+@Composable
+internal fun RecentActionsSheet(actions: List<ActionAuditRecord>, onDismiss: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Text(
+            stringResource(R.string.home_recent_sheet_title),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .padding(horizontal = AbleSpacing.screenGutter)
+                .semantics { heading() },
+        )
+        Text(
+            pluralStringResource(R.plurals.home_recent_sheet_subtitle, actions.size, actions.size),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = AbleSpacing.screenGutter, vertical = AbleSpacing.xs),
+        )
+        LazyColumn(
+            contentPadding = PaddingValues(
+                start = AbleSpacing.screenGutter,
+                end = AbleSpacing.screenGutter,
+                top = AbleSpacing.md,
+                bottom = AbleSpacing.xxl,
+            ),
+            verticalArrangement = Arrangement.spacedBy(AbleSpacing.md),
+        ) {
+            items(actions) { record ->
+                ActionRecordRow(record, absoluteTime = true)
+            }
+        }
     }
 }
 
 @Composable
-private fun ActionRecordRow(record: ActionAuditRecord) {
+private fun ActionRecordRow(record: ActionAuditRecord, absoluteTime: Boolean = false) {
+    val context = LocalContext.current
     val now = System.currentTimeMillis()
-    val time = DateUtils.getRelativeTimeSpanString(record.timestampEpochMs, now, DateUtils.MINUTE_IN_MILLIS).toString()
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(AbleSpacing.md),
-        verticalAlignment = Alignment.CenterVertically,
+    val relative = DateUtils.getRelativeTimeSpanString(record.timestampEpochMs, now, DateUtils.MINUTE_IN_MILLIS).toString()
+    val time = if (absoluteTime) {
+        DateUtils.formatDateTime(
+            context,
+            record.timestampEpochMs,
+            DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_ABBREV_MONTH,
+        )
+    } else {
+        relative
+    }
+    val profile = record.profileType?.let { stringResource(it.labelRes()) }
+    val statusText = stringResource(record.status.labelRes())
+    // Status pill and metadata wrap under the message, so large font scales never squeeze the text.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(AbleSpacing.xs),
     ) {
-        Column(Modifier.weight(1f)) {
+        Text(
+            record.detailMessage.ifBlank { record.actionId },
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = if (absoluteTime) 6 else 3,
+            overflow = TextOverflow.Ellipsis,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm),
+            verticalArrangement = Arrangement.spacedBy(AbleSpacing.xs),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            StatusPill(text = statusText, level = record.status.statusLevel())
             Text(
-                record.detailMessage.ifBlank { record.actionId },
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                listOfNotNull(record.targetPackage, time).joinToString(" · "),
+                listOfNotNull(profile, record.targetPackage, time).joinToString(" · "),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
         }
-        StatusPill(text = stringResource(record.status.labelRes()), level = record.status.statusLevel())
     }
 }
 

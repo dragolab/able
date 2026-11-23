@@ -1,14 +1,8 @@
 package com.dragolabs.able.feature.tools.toggles
 
-import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.nfc.NfcAdapter
-import androidx.compose.runtime.DisposableEffect
-import androidx.core.content.ContextCompat
 import com.dragolabs.able.core.designsystem.component.HelpButton
 import androidx.compose.material.icons.rounded.ContentCopy
 import android.net.Uri
@@ -101,21 +95,7 @@ fun SystemTogglesRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
         viewModel.refresh()
         onPauseOrDispose { }
     }
-    // NFC changes (from Able, Quick Settings or Android settings) are broadcast by the adapter.
-    DisposableEffect(viewModel) {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) = viewModel.refresh()
-        }
-        val registered = runCatching {
-            ContextCompat.registerReceiver(
-                context,
-                receiver,
-                IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED),
-                ContextCompat.RECEIVER_EXPORTED,
-            )
-        }.isSuccess
-        onDispose { if (registered) runCatching { context.unregisterReceiver(receiver) } }
-    }
+    // Live changes (NFC broadcasts, Settings.Global observers) are collected by the ViewModel.
     LaunchedEffect(state.openSettings) {
         val target = state.openSettings ?: return@LaunchedEffect
         viewModel.consumeOpenSettings()
@@ -147,6 +127,7 @@ fun SystemTogglesRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
         onOpenDeveloperOptions = viewModel::openDeveloperOptions,
         onOpenWirelessDebugging = viewModel::openWirelessDebugging,
         adbGrantCommand = viewModel.adbGrantCommand,
+        adbRevokeCommand = viewModel.adbRevokeCommand,
         onCopyAdbCommand = {
             val clipboard = context.getSystemService(ClipboardManager::class.java)
             clipboard?.setPrimaryClip(ClipData.newPlainText("adb", viewModel.adbGrantCommand))
@@ -176,6 +157,7 @@ fun SystemTogglesScreen(
     onOpenDeveloperOptions: () -> Unit,
     onOpenWirelessDebugging: () -> Unit,
     adbGrantCommand: String,
+    adbRevokeCommand: String,
     onCopyAdbCommand: () -> Unit,
     onApplyDns: (DnsProfile) -> Unit,
     onOpenPrivateDnsSettings: () -> Unit,
@@ -209,7 +191,7 @@ fun SystemTogglesScreen(
                     .padding(screenContentPadding(padding)),
                 verticalArrangement = Arrangement.spacedBy(AbleSpacing.md),
             ) {
-                AccessBanner(state)
+                AccessBanner(state, adbRevokeCommand)
                 if (state.busy.isNotEmpty()) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AbleSpacing.md)) {
                         LoadingIndicator()
@@ -227,15 +209,17 @@ fun SystemTogglesScreen(
                 ListGroup {
                     item { shape ->
                         if (snapshot.nfcSupported) {
+                            val nfc = state.display(ToggleKey.NFC) ?: ToggleDisplay(snapshot.nfcEnabled, false)
                             SwitchRow(
                                 title = stringResource(R.string.tools_toggles_nfc),
-                                checked = snapshot.nfcEnabled,
+                                checked = nfc.checked,
                                 onCheckedChange = onNfcChange,
                                 shape = shape,
                                 icon = Icons.Rounded.Nfc,
                                 enabled = ToggleKey.NFC !in state.busy,
                                 supportingText = stringResource(
                                     when {
+                                        nfc.transitioning -> transitionRes(nfc.checked)
                                         !state.directNfc -> R.string.tools_toggles_nfc_fallback
                                         snapshot.writeSecureSettings -> R.string.tools_toggles_nfc_direct_advanced
                                         else -> R.string.tools_toggles_nfc_direct_shizuku
@@ -270,15 +254,20 @@ fun SystemTogglesScreen(
                 SectionHeader(stringResource(R.string.tools_toggles_section_display))
                 ListGroup {
                     item { shape ->
+                        val brightness = state.display(ToggleKey.AUTO_BRIGHTNESS) ?: ToggleDisplay(snapshot.autoBrightness, false)
                         SwitchRow(
                             title = stringResource(R.string.tools_toggles_auto_brightness),
-                            checked = snapshot.autoBrightness,
+                            checked = brightness.checked,
                             onCheckedChange = onAutoBrightnessChange,
                             shape = shape,
                             icon = Icons.Rounded.BrightnessAuto,
                             enabled = ToggleKey.AUTO_BRIGHTNESS !in state.busy,
                             supportingText = stringResource(
-                                if (snapshot.writeSettingsGranted) R.string.tools_toggles_direct else R.string.tools_toggles_write_settings_needed,
+                                when {
+                                    brightness.transitioning -> transitionRes(brightness.checked)
+                                    snapshot.writeSettingsGranted -> R.string.tools_toggles_direct
+                                    else -> R.string.tools_toggles_write_settings_needed
+                                },
                             ),
                         )
                     }
@@ -298,25 +287,35 @@ fun SystemTogglesScreen(
                 val direct = stringResource(R.string.tools_toggles_direct)
                 ListGroup {
                     item { shape ->
+                        val usb = state.display(ToggleKey.USB_DEBUGGING) ?: ToggleDisplay(snapshot.usbDebugging, false)
                         SwitchRow(
                             title = stringResource(R.string.tools_toggles_usb_debugging),
-                            checked = snapshot.usbDebugging,
+                            checked = usb.checked,
                             onCheckedChange = onUsbDebuggingChange,
                             shape = shape,
                             icon = Icons.Rounded.Usb,
                             enabled = ToggleKey.USB_DEBUGGING !in state.busy,
-                            supportingText = if (state.directSecure) direct else devFallback,
+                            supportingText = when {
+                                usb.transitioning -> stringResource(transitionRes(usb.checked))
+                                state.directSecure -> direct
+                                else -> devFallback
+                            },
                         )
                     }
                     item { shape ->
+                        val wireless = state.display(ToggleKey.WIRELESS_DEBUGGING) ?: ToggleDisplay(snapshot.wirelessDebugging, false)
                         SwitchRow(
                             title = stringResource(R.string.tools_toggles_wireless_debugging),
-                            checked = snapshot.wirelessDebugging,
+                            checked = wireless.checked,
                             onCheckedChange = onWirelessDebuggingChange,
                             shape = shape,
                             icon = Icons.Rounded.Wifi,
                             enabled = ToggleKey.WIRELESS_DEBUGGING !in state.busy,
-                            supportingText = if (state.directSecure) direct else devFallback,
+                            supportingText = when {
+                                wireless.transitioning -> stringResource(transitionRes(wireless.checked))
+                                state.directSecure -> direct
+                                else -> devFallback
+                            },
                         )
                     }
                     item { shape ->
@@ -353,18 +352,36 @@ fun SystemTogglesScreen(
     }
 }
 
+private fun transitionRes(target: Boolean): Int =
+    if (target) R.string.tools_toggles_turning_on else R.string.tools_toggles_turning_off
+
 @Composable
-private fun AccessBanner(state: SystemTogglesUiState) {
-    if (state.directSecure) {
-        StatusBanner(
+private fun AccessBanner(state: SystemTogglesUiState, revokeCommand: String) {
+    val snapshot = state.snapshot
+    when {
+        snapshot?.writeSecureSettings == true && snapshot.selfGranted -> Row(verticalAlignment = Alignment.CenterVertically) {
+            StatusBanner(
+                level = StatusLevel.SUCCESS,
+                title = stringResource(R.string.tools_toggles_access_direct_title),
+                message = stringResource(R.string.tools_toggles_access_self_granted),
+                modifier = Modifier.weight(1f),
+            )
+            HelpButton(
+                title = stringResource(R.string.tools_toggles_self_grant_help_title),
+                text = stringResource(R.string.tools_toggles_self_grant_help_text, revokeCommand),
+            )
+        }
+        snapshot?.writeSecureSettings == true -> StatusBanner(
             level = StatusLevel.SUCCESS,
             title = stringResource(R.string.tools_toggles_access_direct_title),
-            message = stringResource(
-                if (state.shizukuReady) R.string.tools_toggles_access_direct_shizuku else R.string.tools_toggles_access_direct_wss,
-            ),
+            message = stringResource(R.string.tools_toggles_access_direct_wss),
         )
-    } else {
-        StatusBanner(
+        state.shizukuReady -> StatusBanner(
+            level = StatusLevel.SUCCESS,
+            title = stringResource(R.string.tools_toggles_access_direct_title),
+            message = stringResource(R.string.tools_toggles_access_shizuku_grant),
+        )
+        else -> StatusBanner(
             level = StatusLevel.INFO,
             title = stringResource(R.string.tools_toggles_access_settings_title),
             message = stringResource(R.string.tools_toggles_access_settings_message),

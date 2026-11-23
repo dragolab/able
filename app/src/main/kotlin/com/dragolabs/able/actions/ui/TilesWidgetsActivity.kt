@@ -70,6 +70,7 @@ fun AbleActivityTheme(content: @Composable () -> Unit) {
         themeMode = loaded?.themeMode ?: ThemeMode.SYSTEM,
         dynamicColor = loaded?.useDynamicColor ?: true,
         hapticsEnabled = loaded?.hapticsEnabled ?: true,
+        hapticsIntensity = loaded?.hapticsIntensity ?: com.dragolabs.able.core.model.HapticsIntensity.NORMAL,
     ) {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
             if (loaded != null) content()

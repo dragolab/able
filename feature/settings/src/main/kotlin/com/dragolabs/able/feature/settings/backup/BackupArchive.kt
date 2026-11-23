@@ -50,13 +50,17 @@ sealed interface BackupReadResult {
  */
 object BackupArchive {
     const val FORMAT_ID = "ablebackup"
-    const val SCHEMA_VERSION = 1
+    /** Written by this version; schema 1 archives are still read (legacy battery section). */
+    const val SCHEMA_VERSION = 2
     const val MANIFEST_PATH = "manifest.json"
     const val FILE_EXTENSION = "ablebackup"
     const val MIME_TYPE = "application/octet-stream"
 
     const val MAX_ARCHIVE_BYTES: Long = 8L * 1024 * 1024
-    const val MAX_ENTRY_BYTES: Long = 4L * 1024 * 1024
+    /** Uncompressed cap per entry; the optional battery history is the largest section. */
+    const val MAX_ENTRY_BYTES: Long = 16L * 1024 * 1024
+    /** Uncompressed cap for all entries together, so many large entries cannot exhaust memory. */
+    const val MAX_TOTAL_BYTES: Long = 32L * 1024 * 1024
     const val MAX_ENTRIES = 32
 
     val json: Json = Json {
@@ -75,11 +79,13 @@ object BackupArchive {
         createdAtIso: String,
     ): BackupManifest {
         val sectionBytes = linkedMapOf<BackupSection, ByteArray>()
-        payload.battery?.let { sectionBytes[BackupSection.BATTERY] = encode(BatterySectionDto.serializer(), it) }
+        // The legacy schema-1 battery section is never written.
+        payload.batteryProfiles?.let { sectionBytes[BackupSection.BATTERY_PROFILES] = encode(BatteryProfilesSectionDto.serializer(), it) }
         payload.homeAppearance?.let { sectionBytes[BackupSection.HOME_APPEARANCE] = encode(HomeAppearanceSectionDto.serializer(), it) }
         payload.gps?.let { sectionBytes[BackupSection.GPS_POINTS] = encode(GpsSectionDto.serializer(), it) }
         payload.dns?.let { sectionBytes[BackupSection.DNS_PROFILES] = encode(DnsSectionDto.serializer(), it) }
         payload.shortcuts?.let { sectionBytes[BackupSection.SHORTCUTS] = encode(ShortcutsSectionDto.serializer(), it) }
+        payload.batteryHistory?.let { sectionBytes[BackupSection.BATTERY_HISTORY] = encode(BatteryHistorySectionDto.serializer(), it) }
 
         val manifest = BackupManifest(
             schemaVersion = SCHEMA_VERSION,
@@ -89,7 +95,10 @@ object BackupArchive {
             entries = sectionBytes.map { (section, bytes) ->
                 ManifestEntry(section.entryPath, section.key, bytes.size.toLong(), sha256Hex(bytes))
             },
-            excluded = BackupExclusion.entries.map { it.key },
+            // Battery history is excluded unless the user selected its opt-in section.
+            excluded = BackupExclusion.entries
+                .filterNot { it == BackupExclusion.BATTERY_HISTORY && BackupSection.BATTERY_HISTORY in sectionBytes }
+                .map { it.key },
         )
 
         ZipOutputStream(output).use { zip ->
@@ -98,6 +107,10 @@ object BackupArchive {
         }
         return manifest
     }
+
+    /** Uncompressed JSON size of a history section, shown before export (the file is smaller). */
+    fun encodedSize(history: BatteryHistorySectionDto): Long =
+        encode(BatteryHistorySectionDto.serializer(), history).size.toLong()
 
     private fun ZipOutputStream.putEntry(path: String, bytes: ByteArray) {
         putNextEntry(ZipEntry(path))
@@ -146,37 +159,56 @@ object BackupArchive {
         }
 
         val unsupported = mutableListOf<String>()
-        val sections = linkedSetOf<BackupSection>()
-        for (key in manifest.sections.distinct()) {
+        // Section key -> (section it is imported as, fixed entry path).
+        val sections = linkedMapOf<String, Pair<BackupSection, String>>()
+        val declared = manifest.sections.distinct()
+        for (key in declared) {
             val section = BackupSection.fromKey(key)
-            if (section == null) unsupported += key else sections += section
+            when {
+                section != null -> sections[key] = section to section.entryPath
+                key == BackupSection.LEGACY_BATTERY_KEY ->
+                    // A schema-2 profiles section supersedes the legacy one; never apply both.
+                    if (BackupSection.BATTERY_PROFILES.key in declared) {
+                        unsupported += key
+                    } else {
+                        sections[key] = BackupSection.BATTERY_PROFILES to BackupSection.LEGACY_BATTERY_PATH
+                    }
+                else -> unsupported += key
+            }
         }
 
-        val verified = mutableMapOf<BackupSection, ByteArray>()
-        for (section in sections) {
-            val entry = manifest.entries.firstOrNull { it.section == section.key }
-                ?: return BackupReadResult.Invalid(BackupError.MissingEntry(section.entryPath))
+        val verified = mutableMapOf<String, ByteArray>()
+        for ((key, target) in sections) {
+            val fixedPath = target.second
+            val entry = manifest.entries.firstOrNull { it.section == key }
+                ?: return BackupReadResult.Invalid(BackupError.MissingEntry(fixedPath))
             // Never trust a path from the archive: the declared path must match the fixed one.
-            if (entry.path != section.entryPath) return BackupReadResult.Invalid(BackupError.UnsafePath(entry.path))
+            if (entry.path != fixedPath) return BackupReadResult.Invalid(BackupError.UnsafePath(entry.path))
             val bytes = entries[entry.path] ?: return BackupReadResult.Invalid(BackupError.MissingEntry(entry.path))
             if (bytes.size.toLong() != entry.sizeBytes || !sha256Hex(bytes).equals(entry.sha256, ignoreCase = true)) {
                 return BackupReadResult.Invalid(BackupError.ChecksumMismatch(entry.path))
             }
-            verified[section] = bytes
+            verified[key] = bytes
         }
 
-        val known = BackupSection.entries.map { it.entryPath }.toSet() + MANIFEST_PATH
+        val known = sections.values.map { it.second }.toSet() + MANIFEST_PATH
         entries.keys.filterNot { it in known }.forEach { unsupported += it }
 
         if (verified.isEmpty()) return BackupReadResult.Invalid(BackupError.NoSupportedSections)
 
         val payload = try {
             BackupPayload(
-                battery = verified.decode(BackupSection.BATTERY, BatterySectionDto.serializer()),
+                batteryProfiles = verified.decode(BackupSection.BATTERY_PROFILES, BatteryProfilesSectionDto.serializer()),
                 homeAppearance = verified.decode(BackupSection.HOME_APPEARANCE, HomeAppearanceSectionDto.serializer()),
                 gps = verified.decode(BackupSection.GPS_POINTS, GpsSectionDto.serializer()),
                 dns = verified.decode(BackupSection.DNS_PROFILES, DnsSectionDto.serializer()),
                 shortcuts = verified.decode(BackupSection.SHORTCUTS, ShortcutsSectionDto.serializer()),
+                batteryHistory = verified.decode(BackupSection.BATTERY_HISTORY, BatteryHistorySectionDto.serializer()),
+                legacyBattery = verified.decode(
+                    BackupSection.LEGACY_BATTERY_KEY,
+                    BackupSection.BATTERY_PROFILES,
+                    BatterySectionDto.serializer(),
+                ),
             )
         } catch (e: SectionDecodeException) {
             return BackupReadResult.Invalid(BackupError.MalformedSection(e.section))
@@ -186,8 +218,11 @@ object BackupArchive {
 
     private class SectionDecodeException(val section: BackupSection) : Exception()
 
-    private fun <T> Map<BackupSection, ByteArray>.decode(section: BackupSection, serializer: KSerializer<T>): T? {
-        val bytes = this[section] ?: return null
+    private fun <T> Map<String, ByteArray>.decode(section: BackupSection, serializer: KSerializer<T>): T? =
+        decode(section.key, section, serializer)
+
+    private fun <T> Map<String, ByteArray>.decode(key: String, section: BackupSection, serializer: KSerializer<T>): T? {
+        val bytes = this[key] ?: return null
         return try {
             json.decodeFromString(serializer, bytes.toString(Charsets.UTF_8))
         } catch (_: SerializationException) {
@@ -204,6 +239,7 @@ object BackupArchive {
 
     private fun readEntries(archive: ByteArray): EntriesResult {
         val entries = linkedMapOf<String, ByteArray>()
+        var total = 0L
         try {
             ZipInputStream(ByteArrayInputStream(archive)).use { zip ->
                 var entry = zip.nextEntry ?: return EntriesResult.Error(BackupError.NotAnArchive)
@@ -215,6 +251,8 @@ object BackupArchive {
                         if (name in entries) return EntriesResult.Error(BackupError.DuplicateEntry(name))
                         // Uncompressed size is capped while reading, so a zip bomb cannot exhaust memory.
                         val bytes = readCapped(zip, MAX_ENTRY_BYTES) ?: return EntriesResult.Error(BackupError.TooLarge)
+                        total += bytes.size
+                        if (total > MAX_TOTAL_BYTES) return EntriesResult.Error(BackupError.TooLarge)
                         entries[name] = bytes
                     }
                     zip.closeEntry()

@@ -1,9 +1,16 @@
 package com.dragolabs.able.feature.tools.toggles
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.database.ContentObserver
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.nfc.NfcAdapter
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import com.dragolabs.able.core.capability.SecureSettingsAdapter
 import com.dragolabs.able.core.capability.ShizukuAdapter
@@ -11,6 +18,11 @@ import com.dragolabs.able.core.common.AbleResult
 import com.dragolabs.able.core.common.getOrNull
 import com.dragolabs.able.core.model.DnsProfile
 import com.dragolabs.able.core.model.PrivateDnsMode
+import androidx.core.content.ContextCompat
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import java.net.Inet4Address
 
 /** Snapshot of the system values shown by the System toggles screen. */
@@ -26,6 +38,8 @@ data class SystemSnapshot(
     val dnsMode: PrivateDnsMode,
     val dnsHostname: String,
     val writeSecureSettings: Boolean,
+    /** WRITE_SECURE_SETTINGS was granted by Able itself through Shizuku. */
+    val selfGranted: Boolean = false,
 )
 
 /**
@@ -45,20 +59,52 @@ class SystemSettingsReader(
         nfcEnabled = isNfcEnabled(),
         writeSettingsGranted = Settings.System.canWrite(context),
         autoBrightness = secureSettings.isAutoBrightnessEnabled(),
-        developerOptionsEnabled = globalInt(Settings.Global.DEVELOPMENT_SETTINGS_ENABLED) == 1,
+        developerOptionsEnabled = secureSettings.isDeveloperOptionsEnabled(),
         usbDebugging = secureSettings.isUsbDebuggingEnabled(),
         wirelessDebugging = isWirelessDebuggingEnabled(),
         wifiIpAddress = wifiIpAddress(),
         dnsMode = secureSettings.getPrivateDnsMode(),
         dnsHostname = secureSettings.getPrivateDnsHostname(),
         writeSecureSettings = secureSettings.hasWriteSecureSettings(),
+        selfGranted = secureSettings.wasSelfGranted(),
     )
 
     fun isNfcEnabled(): Boolean = secureSettings.isNfcEnabled() == true
 
-    fun isWirelessDebuggingEnabled(): Boolean = globalInt(ADB_WIFI_ENABLED) == 1
+    fun isWirelessDebuggingEnabled(): Boolean = secureSettings.isWirelessDebuggingEnabled()
 
-    private fun globalInt(name: String): Int = runCatching { Settings.Global.getInt(resolver, name, 0) }.getOrDefault(0)
+    /**
+     * Emits whenever a value shown on the screen changes outside Able's control: debugging and
+     * Private DNS keys in `Settings.Global` (ContentObserver), screen brightness mode, and NFC
+     * adapter broadcasts. Collected only while the screen is visible (WhileSubscribed).
+     */
+    fun changes(): Flow<Unit> = callbackFlow {
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                trySend(Unit)
+            }
+        }
+        val uris = secureSettings.debuggingSettingUris() + secureSettings.privateDnsSettingUris() +
+            Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE)
+        uris.forEach { uri -> runCatching { resolver.registerContentObserver(uri, false, observer) } }
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                trySend(Unit)
+            }
+        }
+        val receiverRegistered = runCatching {
+            ContextCompat.registerReceiver(
+                context,
+                receiver,
+                IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED),
+                ContextCompat.RECEIVER_EXPORTED,
+            )
+        }.isSuccess
+        awaitClose {
+            runCatching { resolver.unregisterContentObserver(observer) }
+            if (receiverRegistered) runCatching { context.unregisterReceiver(receiver) }
+        }
+    }.conflate()
 
     /** IPv4 address of the current Wi-Fi network, shown next to the wireless debugging port. */
     private fun wifiIpAddress(): String? = runCatching {
@@ -81,16 +127,8 @@ class SystemSettingsReader(
             ?.takeIf { it.isNotEmpty() && it != "0" && it.all(Char::isDigit) }
     }
 
-    suspend fun setWirelessDebugging(enabled: Boolean): Boolean {
-        val value = if (enabled) 1 else 0
-        if (secureSettings.hasWriteSecureSettings()) {
-            return runCatching { Settings.Global.putInt(resolver, ADB_WIFI_ENABLED, value) }.getOrDefault(false)
-        }
-        if (shizuku.isReady()) {
-            return shizuku.executeCommand("settings put global $ADB_WIFI_ENABLED $value") is AbleResult.Success
-        }
-        return false
-    }
+    suspend fun setWirelessDebugging(enabled: Boolean): Boolean =
+        secureSettings.setWirelessDebuggingEnabled(enabled) is AbleResult.Success
 
     fun matchesDns(profile: DnsProfile): Boolean {
         val mode = secureSettings.getPrivateDnsMode()
@@ -98,9 +136,6 @@ class SystemSettingsReader(
         return profile.mode != PrivateDnsMode.HOSTNAME || secureSettings.getPrivateDnsHostname().equals(profile.hostname, ignoreCase = true)
     }
 
-    private companion object {
-        const val ADB_WIFI_ENABLED = "adb_wifi_enabled"
-    }
 }
 
 /** RFC 1123 hostname with at least one dot. Also guards the shell command used by Shizuku. */

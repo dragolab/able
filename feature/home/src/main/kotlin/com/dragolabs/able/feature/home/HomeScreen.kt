@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DashboardCustomize
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHostState
@@ -26,11 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.dragolabs.able.core.designsystem.component.AbleIconButton
 import com.dragolabs.able.core.designsystem.component.AbleLogo
 import com.dragolabs.able.core.designsystem.component.AbleTopLevelScaffold
 import com.dragolabs.able.core.designsystem.component.AbleSharedKeys
 import com.dragolabs.able.core.designsystem.component.EmptyState
-import com.dragolabs.able.core.designsystem.component.rememberAbleHaptics
 import com.dragolabs.able.core.designsystem.component.scrollToTopOnReselect
 import com.dragolabs.able.core.designsystem.component.screenContentPadding
 import com.dragolabs.able.core.designsystem.theme.AbleSpacing
@@ -55,6 +54,8 @@ class HomeActions(
      * screen can grow out of that card (app-open transform). Defaults to [onOpenTool].
      */
     val onOpenToolFrom: (ToolId, String) -> Unit = { tool, _ -> onOpenTool(tool) },
+    /** Hides the failed-actions notice until a newer failure occurs. */
+    val onDismissFailures: () -> Unit = {},
 )
 
 /** Shared-element origins of Home cards that open a tool (prefix [AbleSharedKeys.ORIGIN_HOME]). */
@@ -77,7 +78,7 @@ fun HomeScreen(
 ) {
     var showCustomize by rememberSaveable { mutableStateOf(false) }
     var showFailures by rememberSaveable { mutableStateOf(false) }
-    val haptics = rememberAbleHaptics()
+    var showAllActions by rememberSaveable { mutableStateOf(false) }
     // Saveable, so a card that opened a tool is back at the same place when the tool closes.
     val gridState = rememberLazyStaggeredGridState()
 
@@ -87,7 +88,7 @@ fun HomeScreen(
         onOpenSettings = actions.onOpenSettings,
         snackbarHostState = snackbarHostState,
         actions = {
-            IconButton(onClick = { haptics.click(); showCustomize = true }) {
+            AbleIconButton(onClick = { showCustomize = true }) {
                 Icon(Icons.Rounded.DashboardCustomize, contentDescription = stringResource(R.string.home_customize))
             }
         },
@@ -116,7 +117,6 @@ fun HomeScreen(
                         modifier = Modifier.animateItem(),
                         alert = alert,
                         onRequestShizukuPermission = actions.onRequestShizukuPermission,
-                        onShowFailures = { showFailures = true },
                     )
                 }
             }
@@ -137,8 +137,26 @@ fun HomeScreen(
                 item(key = card.cardType.name) {
                     // Expressive motion when cards are reordered, shown or hidden (HOME-002).
                     Box(Modifier.animateItem()) {
-                        HomeCard(type = card.cardType, state = state, actions = actions)
+                        HomeCard(
+                            type = card.cardType,
+                            state = state,
+                            actions = actions,
+                            onShowAllActions = { showAllActions = true },
+                        )
                     }
+                }
+            }
+
+            // Failed actions: at the end of the feed, independent of card visibility, and
+            // hideable until a newer failure occurs (owner request 2026-11-23).
+            state.failedActions?.let { notice ->
+                item(key = "notice_failures", span = StaggeredGridItemSpan.FullLine) {
+                    FailedActionsBanner(
+                        modifier = Modifier.animateItem(),
+                        notice = notice,
+                        onShowDetails = { showFailures = true },
+                        onHide = actions.onDismissFailures,
+                    )
                 }
             }
         }
@@ -154,15 +172,26 @@ fun HomeScreen(
         )
     }
 
-    val failures = state.alerts.filterIsInstance<HomeSafetyAlert.RecentFailures>().firstOrNull()
+    val failures = state.failedActions
     if (showFailures && failures != null) {
         RecentFailuresDialog(
-            failures = failures.failures,
+            failures = failures,
             onDismiss = { showFailures = false },
             onOpenBattery = {
                 showFailures = false
                 actions.onOpenBattery()
             },
+            onHide = {
+                showFailures = false
+                actions.onDismissFailures()
+            },
+        )
+    }
+
+    if (showAllActions) {
+        RecentActionsSheet(
+            actions = state.recentActions,
+            onDismiss = { showAllActions = false },
         )
     }
 }
@@ -170,11 +199,10 @@ fun HomeScreen(
 private fun HomeSafetyAlert.key(): String = when (this) {
     HomeSafetyAlert.ShizukuWaitingForPermission -> "alert_shizuku_waiting"
     HomeSafetyAlert.ShizukuPermissionDenied -> "alert_shizuku_denied"
-    is HomeSafetyAlert.RecentFailures -> "alert_failures"
 }
 
 @Composable
-private fun HomeCard(type: HomeCardType, state: HomeUiState, actions: HomeActions) {
+private fun HomeCard(type: HomeCardType, state: HomeUiState, actions: HomeActions, onShowAllActions: () -> Unit) {
     when (type) {
         HomeCardType.BATTERY_PROFILE -> BatteryProfileCard(state, onOpenBattery = actions.onOpenBattery)
         HomeCardType.QUICK_ACTIONS -> QuickActionsCard(onOpenTool = { actions.onOpenToolFrom(it, HomeOrigins.QUICK) }, onOpenTools = actions.onOpenTools)
@@ -185,7 +213,7 @@ private fun HomeCard(type: HomeCardType, state: HomeUiState, actions: HomeAction
             onLaunch = actions.onLaunchShortcut,
             onOpenShortcutMaker = actions.onOpenShortcutMaker,
         )
-        HomeCardType.RECENT_WARNINGS -> RecentActionsCard(state.recentActions, onOpenBattery = actions.onOpenBattery)
+        HomeCardType.RECENT_WARNINGS -> RecentActionsCard(state.recentActions, onShowAll = onShowAllActions)
         HomeCardType.SENSORS_OVERVIEW -> SensorsCard(
             hasAccelerometer = state.hasAccelerometer,
             hasMagnetometer = state.hasMagnetometer,

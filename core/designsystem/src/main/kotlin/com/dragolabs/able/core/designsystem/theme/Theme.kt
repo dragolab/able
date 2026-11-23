@@ -20,6 +20,9 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import com.dragolabs.able.core.designsystem.R
 import com.dragolabs.able.core.designsystem.component.LocalAbleHapticsEnabled
+import com.dragolabs.able.core.designsystem.component.LocalAbleHapticsIntensity
+import com.dragolabs.able.core.model.HapticsIntensity
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import com.dragolabs.able.core.model.ThemeMode
 
@@ -38,8 +41,10 @@ internal val AbleShapes = Shapes(
 private val BaseTypography = Typography()
 
 /**
- * Google Sans Flex (SIL OFL 1.1, bundled unmodified; license in assets/licenses). Display and
- * headline styles use the ROND axis for the softer, expressive Able look (BRAND-001).
+ * Google Sans Flex (SIL OFL 1.1, bundled unmodified; license in assets/licenses). Pulse brand
+ * (BRAND-001): every style uses ROND 0 for the calm, precise look; display and headline styles
+ * use a slightly heavier weight (the wordmark itself is wght 650), titles 600, body 400 and
+ * labels 500 for readability at small sizes.
  */
 @OptIn(ExperimentalTextApi::class)
 private fun flex(weight: Int, round: Float = 0f): FontFamily = FontFamily(
@@ -53,18 +58,24 @@ private fun flex(weight: Int, round: Float = 0f): FontFamily = FontFamily(
     ),
 )
 
-private val DisplayFlex = flex(weight = 600, round = 100f)
-private val HeadlineFlex = flex(weight = 600, round = 60f)
+private val DisplayFlex = flex(weight = 620)
+private val HeadlineFlex = flex(weight = 630)
 private val TitleFlex = flex(weight = 600)
 private val BodyFlex = flex(weight = 400)
 private val LabelFlex = flex(weight = 500)
 
-/** Material 3 type scale on Google Sans Flex; emphasized variants are derived by Material. */
+/** Wordmark face: Google Sans Flex wght 650, ROND 0 (see [com.dragolabs.able.core.designsystem.component.AbleWordmark]). */
+val AbleWordmarkFontFamily: FontFamily = flex(weight = 650)
+
+/**
+ * Material 3 type scale on Google Sans Flex; emphasized variants are derived by Material.
+ * Large display/headline sizes get a slightly tighter tracking, as in the Pulse wordmark.
+ */
 internal val AbleTypography = Typography(
-    displayLarge = BaseTypography.displayLarge.copy(fontFamily = DisplayFlex),
-    displayMedium = BaseTypography.displayMedium.copy(fontFamily = DisplayFlex),
+    displayLarge = BaseTypography.displayLarge.copy(fontFamily = DisplayFlex, letterSpacing = (-0.5).sp),
+    displayMedium = BaseTypography.displayMedium.copy(fontFamily = DisplayFlex, letterSpacing = (-0.25).sp),
     displaySmall = BaseTypography.displaySmall.copy(fontFamily = DisplayFlex),
-    headlineLarge = BaseTypography.headlineLarge.copy(fontFamily = HeadlineFlex),
+    headlineLarge = BaseTypography.headlineLarge.copy(fontFamily = HeadlineFlex, letterSpacing = (-0.25).sp),
     headlineMedium = BaseTypography.headlineMedium.copy(fontFamily = HeadlineFlex),
     headlineSmall = BaseTypography.headlineSmall.copy(fontFamily = HeadlineFlex),
     titleLarge = BaseTypography.titleLarge.copy(fontFamily = TitleFlex),
@@ -87,6 +98,8 @@ fun AbleTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
     dynamicColor: Boolean = true,
     hapticsEnabled: Boolean = true,
+    /** Haptic strength; defaults to NORMAL, or OFF when [hapticsEnabled] is false. */
+    hapticsIntensity: HapticsIntensity = if (hapticsEnabled) HapticsIntensity.NORMAL else HapticsIntensity.OFF,
     content: @Composable () -> Unit,
 ) {
     val darkTheme = when (themeMode) {
@@ -105,7 +118,8 @@ fun AbleTheme(
 
     CompositionLocalProvider(
         LocalAbleSemanticColors provides semantic,
-        LocalAbleHapticsEnabled provides hapticsEnabled,
+        LocalAbleHapticsEnabled provides (hapticsEnabled && hapticsIntensity != HapticsIntensity.OFF),
+        LocalAbleHapticsIntensity provides hapticsIntensity,
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorScheme,

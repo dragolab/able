@@ -78,10 +78,6 @@
     <string name="memory_action_force_stop">Force stop</string>
     <string name="memory_action_kill">Stop background processes</string>
     <string name="memory_action_app_info">App info</string>
-    <plurals name="memory_stop_selected">
-        <item quantity="one">Stop %1$d app</item>
-        <item quantity="other">Stop %1$d apps</item>
-    </plurals>
     <string name="memory_confirm_force_stop_title">Force stop %1$s?</string>
     <string name="memory_confirm_kill_title">Stop background processes of %1$s?</string>
     <plurals name="memory_confirm_bulk_title">
@@ -97,4 +93,11 @@
     <string name="memory_result_still_running">%1$s is still running (Android kept or restarted it).</string>
     <string name="memory_result_failed">Android rejected the request for %1$s.</string>
     <string name="memory_result_bulk">Stopped: %1$d · still running: %2$d · failed: %3$d</string>
+    <!-- Selection bar -->
+    <plurals name="memory_selected_count">
+        <item quantity="one">%1$d app selected</item>
+        <item quantity="other">%1$d apps selected</item>
+    </plurals>
+    <string name="memory_selected_rss">%1$s of RAM in use</string>
+    <string name="memory_stop_progress">Stopping %1$d of %2$d…</string>
 </resources>

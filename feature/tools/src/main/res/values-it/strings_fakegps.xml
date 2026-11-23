@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Strumento Fake GPS (FGPS). -->
+    <string name="fakegps_start">Avvia posizione falsa</string>
+    <string name="fakegps_stop">Ferma e ripristina posizione reale</string>
+    <string name="fakegps_search">Cerca coordinate</string>
+    <string name="fakegps_locate_me">Centra sulla mia posizione reale</string>
+    <string name="fakegps_center_fake">Centra sulla posizione falsa</string>
+    <string name="fakegps_zoom_in">Aumenta zoom</string>
+    <string name="fakegps_zoom_out">Riduci zoom</string>
+    <string name="fakegps_osm_attribution">© OpenStreetMap contributors</string>
+    <string name="fakegps_map_cd_position">Mappa. Posizione falsa %1$s. Tocca per spostarla.</string>
+    <string name="fakegps_map_cd_empty">Mappa. Tocca per posizionare la posizione falsa.</string>
+    <string name="fakegps_no_position">Nessuna posizione: tocca la mappa o cerca coordinate</string>
+
+    <string name="fakegps_status_running">Posizione falsa attiva</string>
+    <string name="fakegps_status_starting">Avvio…</string>
+    <string name="fakegps_status_failed">Non attiva</string>
+    <string name="fakegps_status_off">Disattivata · posizione reale</string>
+    <string name="fakegps_status_setup">Configurazione richiesta</string>
+    <string name="fakegps_status_details">Provider: %1$s · Google fused: %2$s · %3$d km/h · ±%4$d m</string>
+    <string name="fakegps_fused_on">attivo</string>
+    <string name="fakegps_fused_off">non disponibile</string>
+    <string name="fakegps_fused_pending">verifica</string>
+
+    <string name="fakegps_failed_title">Impossibile attivare la posizione falsa</string>
+    <string name="fakegps_dismiss">Chiudi</string>
+    <string name="fakegps_fail_not_mock_app">Android ha rifiutato i provider di test: Able non è selezionata come app di posizione fittizia.</string>
+    <string name="fakegps_fail_permission">Android richiede il permesso di posizione per eseguire il servizio di posizione. Concedilo e riprova.</string>
+    <string name="fakegps_fail_foreground">Android non ha consentito l\'avvio del servizio di posizione. Apri Able e riprova.</string>
+    <string name="fakegps_fail_no_provider">Su questo dispositivo non è stato possibile registrare alcun provider di test.</string>
+    <string name="fakegps_fail_revoked">L\'accesso alla posizione fittizia è stato rimosso durante l\'uso. Posizione falsa fermata.</string>
+    <string name="fakegps_fail_generic">Si è verificato un errore. Posizione falsa fermata.</string>
+
+    <string name="fakegps_setup_title">Seleziona Able come app di posizione fittizia</string>
+    <string name="fakegps_setup_steps">1. Apri Opzioni sviluppatore.\n2. Tocca “Seleziona app di posizione fittizia”.\n3. Scegli Able e torna qui.</string>
+    <string name="fakegps_setup_steps_devoff">Le Opzioni sviluppatore sono disattivate.\n1. In Informazioni sul telefono, tocca 7 volte “Numero build”.\n2. Apri Opzioni sviluppatore, tocca “Seleziona app di posizione fittizia” e scegli Able.\n3. Torna qui.</string>
+    <string name="fakegps_setup_shizuku_hint">Con Shizuku attivo, Able può farlo con un tocco.</string>
+    <string name="fakegps_open_dev_options">Apri Opzioni sviluppatore</string>
+    <string name="fakegps_open_about_phone">Apri Informazioni sul telefono</string>
+    <string name="fakegps_set_with_shizuku">Imposta con Shizuku</string>
+    <string name="fakegps_location_off_title">Posizione disattivata</string>
+    <string name="fakegps_location_off_text">Con la Posizione disattivata le app non ricevono alcuna posizione, né reale né falsa.</string>
+    <string name="fakegps_open_location_settings">Impostazioni posizione</string>
+    <string name="fakegps_permission_title">Serve il permesso di posizione</string>
+    <string name="fakegps_permission_text">Android lo richiede per il servizio che fornisce la posizione falsa. Able lo chiede quando avvii.</string>
+
+    <string name="fakegps_section_mode">Modalità</string>
+    <string name="fakegps_mode_point">Punto</string>
+    <string name="fakegps_mode_joystick">Joystick</string>
+    <string name="fakegps_mode_route">Percorso</string>
+    <string name="fakegps_mode_point_hint">Tocca o tieni premuto sulla mappa, cerca coordinate o scegli un punto salvato. Le modifiche valgono subito anche durante l\'uso.</string>
+    <string name="fakegps_mode_joystick_hint">Avvia la posizione falsa, poi trascina il joystick sulla mappa per camminare, pedalare o guidare.</string>
+    <string name="fakegps_mode_route_hint">Tocca la mappa per aggiungere tappe (tenendo premuto sposti il segnaposto). La posizione falsa percorre il tragitto alla velocità scelta.</string>
+    <string name="fakegps_speed_walk">A piedi %1$d km/h</string>
+    <string name="fakegps_speed_bike">Bici %1$d km/h</string>
+    <string name="fakegps_speed_car">Auto %1$d km/h</string>
+    <string name="fakegps_repeat_once">Una volta</string>
+    <string name="fakegps_repeat_loop">Giro</string>
+    <string name="fakegps_repeat_back_forth">Andata e ritorno</string>
+    <string name="fakegps_route_summary">%1$d tappe · %2$s</string>
+    <string name="fakegps_route_progress">Avanzamento percorso %1$d%%</string>
+    <string name="fakegps_route_finished">Percorso completato: resta sull\'ultima tappa</string>
+    <string name="fakegps_route_undo">Annulla</string>
+    <string name="fakegps_route_clear">Cancella</string>
+    <string name="fakegps_route_restart">Ricomincia</string>
+    <string name="fakegps_waypoint_n">Tappa %1$d</string>
+    <string name="fakegps_meters_value">%1$d m</string>
+    <string name="fakegps_km_value">%1$s km</string>
+
+    <string name="fakegps_section_realism">Realismo</string>
+    <string name="fakegps_jitter">Oscillazione naturale</string>
+    <string name="fakegps_jitter_desc">Piccoli spostamenti casuali e precisione variabile, come un segnale reale</string>
+    <string name="fakegps_altitude">Altitudine</string>
+    <string name="fakegps_accuracy">Precisione indicata</string>
+
+    <string name="fakegps_section_saved">Punti salvati</string>
+    <string name="fakegps_save_point">Salva</string>
+    <string name="fakegps_saved_empty">Nessun punto salvato. Salva qui il segnaposto attuale oppure salva punti reali con lo strumento GPS.</string>
+    <string name="fakegps_saved_more">Altri %1$d nello strumento GPS</string>
+    <string name="fakegps_apply">Usa</string>
+    <string name="fakegps_add_to_route">Aggiungi</string>
+    <string name="fakegps_section_history">Posizioni false recenti</string>
+    <string name="fakegps_history_clear">Cancella</string>
+
+    <string name="fakegps_save_title">Salva punto</string>
+    <string name="fakegps_save_label">Nome</string>
+    <string name="fakegps_save_label_required">Inserisci un nome</string>
+    <string name="fakegps_save_custom_tag">Tag personalizzato</string>
+    <string name="fakegps_save_add_tag">Aggiungi tag</string>
+    <string name="fakegps_save_confirm">Salva</string>
+    <string name="fakegps_save_default_label">Punto falso %1$s</string>
+    <string name="fakegps_saved_note">Creato con Fake GPS (non è una posizione misurata)</string>
+
+    <string name="fakegps_search_title">Vai a coordinate</string>
+    <string name="fakegps_search_label">Coordinate</string>
+    <string name="fakegps_search_hint">Decimali, GMS (45°27\'51.2\"N 9°11\'29.0\"E), geo: o link di mappe</string>
+    <string name="fakegps_search_found">Trovato %1$s</string>
+    <string name="fakegps_search_invalid">Coordinate non riconosciute</string>
+    <string name="fakegps_search_go">Vai</string>
+
+    <string name="fakegps_joystick_cd">Joystick. Trascina per spostare la posizione falsa oppure usa le azioni per fare un passo a nord, est, sud o ovest.</string>
+    <string name="fakegps_joystick_north">Passo a nord</string>
+    <string name="fakegps_joystick_east">Passo a est</string>
+    <string name="fakegps_joystick_south">Passo a sud</string>
+    <string name="fakegps_joystick_west">Passo a ovest</string>
+
+    <string name="fakegps_msg_need_target">Prima posiziona la posizione falsa sulla mappa</string>
+    <string name="fakegps_msg_need_route">Aggiungi almeno 2 tappe al percorso</string>
+    <string name="fakegps_msg_not_mock_app">Prima seleziona Able come app di posizione fittizia</string>
+    <string name="fakegps_msg_stopped">Posizione falsa fermata. Le app ricevono la posizione reale al prossimo aggiornamento.</string>
+    <string name="fakegps_msg_mock_app_set">Able è ora l\'app di posizione fittizia (verificato)</string>
+    <string name="fakegps_msg_mock_app_rejected">Android ha rifiutato la modifica</string>
+    <string name="fakegps_msg_mock_app_not_confirmed">Comando eseguito ma Android non conferma ancora la modifica</string>
+    <string name="fakegps_msg_shizuku_unavailable">Shizuku non è pronto</string>
+    <string name="fakegps_msg_point_saved">Punto salvato</string>
+    <string name="fakegps_msg_save_failed">Impossibile salvare il punto</string>
+    <string name="fakegps_msg_route_full">Un percorso può avere al massimo 25 tappe</string>
+    <string name="fakegps_msg_location_failed">Impossibile ottenere la posizione reale</string>
+    <string name="fakegps_msg_location_while_running">Con la posizione falsa attiva, Android riporta la posizione falsa. Fermala prima.</string>
+    <string name="fakegps_msg_permission_denied">Permesso di posizione non concesso</string>
+    <string name="fakegps_msg_location_off">La Posizione è disattivata</string>
+
+    <string name="fakegps_safety_short">Usa la posizione falsa solo per test e privacy, mai per ingannare altre persone.</string>
+    <string name="fakegps_help_mock_title">Cos\'è la posizione fittizia?</string>
+    <string name="fakegps_help_mock_text">Android consente a un\'app, scelta nelle Opzioni sviluppatore come “app di posizione fittizia”, di sostituire la posizione che ricevono le altre app. Able registra provider di test (GPS, rete e fused dove consentito) e, se Google Play services lo accettano, fornisce anche la loro posizione fused.\n\nNulla viene cambiato in modo permanente: fermando, i provider di test vengono rimossi e le app ricevono di nuovo la posizione reale al prossimo aggiornamento. Per revocare l\'accesso scegli “Nessuna” in Seleziona app di posizione fittizia.</string>
+    <string name="fakegps_help_detect_title">Le app possono accorgersene</string>
+    <string name="fakegps_help_detect_text">Android contrassegna ogni posizione simulata come fittizia e le app possono verificare quale sia l\'app di posizione fittizia. App bancarie, di trasporto, consegne, incontri, giochi e lavoro spesso la rilevano e possono smettere di funzionare, segnalare o sospendere l\'account. Alcune app usano una posizione reale in cache fino al prossimo aggiornamento.</string>
+    <string name="fakegps_help_safety_title">Usala in modo responsabile</string>
+    <string name="fakegps_help_safety_text">Fake GPS serve per testare app, fare demo e proteggere la privacy. Non usarla per ingannare persone o servizi, barare nei giochi, falsificare presenze al lavoro o aggirare restrizioni: può violare termini di servizio o la legge. Le chiamate di emergenza possono comunque usare la posizione reale.</string>
+
+    <string name="fakegps_notif_title">Posizione falsa attiva</string>
+    <string name="fakegps_notif_text">Le app vedono %1$s</string>
+    <string name="fakegps_notif_starting">Avvio…</string>
+    <string name="fakegps_notif_stop">Ferma</string>
+    <string name="fakegps_channel">Fake GPS</string>
+    <string name="fakegps_channel_desc">Mostrata mentre Able simula la tua posizione</string>
+
+    <string name="fakegps_log_started">Posizione falsa avviata a %1$s (provider: %2$s)</string>
+    <string name="fakegps_log_stopped">Posizione falsa fermata, %1$d provider di test rimossi</string>
+    <string name="fakegps_log_failed">Posizione falsa non riuscita: %1$s</string>
+    <string name="fakegps_log_mock_app">App di posizione fittizia tramite Shizuku: %1$s</string>
+</resources>

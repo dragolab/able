@@ -1,5 +1,8 @@
 package com.dragolabs.able.feature.apps
 
+import com.dragolabs.able.core.designsystem.component.AbleHaptic
+import com.dragolabs.able.core.designsystem.component.AbleFilledTonalButton
+import com.dragolabs.able.core.designsystem.component.AbleTextButton
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,10 +28,8 @@ import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.StopCircle
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -447,15 +448,15 @@ private fun ArchiveCard(
         ) {
             if (running) InlineLoading()
             if (detail.backupBytes != null && !running) {
-                TextButton(onClick = onDeleteBackup) { Text(stringResource(R.string.apps_backup_delete)) }
+                AbleTextButton(onClick = onDeleteBackup, haptic = AbleHaptic.Reject) { Text(stringResource(R.string.apps_backup_delete)) }
             }
             if (storeRoute != null) {
-                FilledTonalButton(onClick = { onOpenStore(storeRoute.installer) }) {
+                AbleFilledTonalButton(onClick = { onOpenStore(storeRoute.installer) }) {
                     androidx.compose.material3.Icon(Icons.Rounded.Shop, contentDescription = null)
                     Text(stringResource(R.string.apps_action_reinstall_store), Modifier.padding(start = AbleSpacing.sm))
                 }
             } else {
-                FilledTonalButton(onClick = onRestore, enabled = canRestore) {
+                AbleFilledTonalButton(onClick = onRestore, enabled = canRestore, haptic = AbleHaptic.Confirm) {
                     androidx.compose.material3.Icon(Icons.Rounded.Restore, contentDescription = null)
                     Text(stringResource(R.string.apps_action_restore), Modifier.padding(start = AbleSpacing.sm))
                 }
@@ -752,7 +753,7 @@ private fun ShizukuActionRow(
             shape = shape,
             trailing = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = onRequestShizukuPermission) { Text(stringResource(R.string.apps_shizuku_grant)) }
+                    AbleTextButton(onClick = onRequestShizukuPermission) { Text(stringResource(R.string.apps_shizuku_grant)) }
                     HelpButton(title = stringResource(R.string.apps_help_shizuku_title), text = stringResource(R.string.apps_help_shizuku_text))
                 }
             },
@@ -930,7 +931,7 @@ private fun LevelPickerDialog(
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.apps_cancel)) } },
+        dismissButton = { AbleTextButton(onClick = onDismiss) { Text(stringResource(R.string.apps_cancel)) } },
     )
 }
 

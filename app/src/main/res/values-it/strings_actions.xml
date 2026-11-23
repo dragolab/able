@@ -10,13 +10,13 @@
     <string name="action_torch_title">Torcia</string>
     <string name="action_torch_desc">Accende o spegne la torcia.</string>
     <string name="action_nfc_title">NFC</string>
-    <string name="action_nfc_desc">Attiva o disattiva NFC direttamente se \"Scrittura impostazioni sicure\" è concessa tramite ADB o Shizuku è connesso; altrimenti apre le impostazioni NFC.</string>
+    <string name="action_nfc_desc">Attiva o disattiva NFC direttamente se \"Scrittura impostazioni sicure\" è concessa (tramite ADB, o da Able stessa tramite Shizuku); altrimenti apre le impostazioni NFC.</string>
     <string name="action_auto_brightness_title">Luminosità automatica</string>
     <string name="action_auto_brightness_desc">Passa dalla luminosità automatica a quella manuale e viceversa.</string>
     <string name="action_usb_debugging_title">Debug USB</string>
     <string name="action_usb_debugging_desc">Attiva o disattiva il debug USB; altrimenti apre le Opzioni sviluppatore.</string>
     <string name="action_wireless_debugging_title">Debug wireless</string>
-    <string name="action_wireless_debugging_desc">Mostra se il debug wireless è attivo e apre la schermata Debug wireless.</string>
+    <string name="action_wireless_debugging_desc">Attiva o disattiva il debug wireless direttamente con \"Scrittura impostazioni sicure\" o Shizuku (serve una rete Wi-Fi connessa); altrimenti apre la schermata Debug wireless.</string>
     <string name="action_private_dns_title">DNS privato</string>
     <string name="action_private_dns_desc">Alterna il DNS privato tra Disattivato e Automatico; altrimenti apre lo strumento DNS.</string>
     <string name="action_screen_lock_title">Blocca schermo</string>
@@ -48,6 +48,9 @@
 
     <!-- Stati delle azioni, riletti da Android -->
     <string name="action_state_on">Attivo</string>
+    <string name="action_state_turning_on">Attivazione…</string>
+    <string name="action_state_turning_off">Disattivazione…</string>
+    <string name="action_self_grant_done">Able ha usato Shizuku per concedersi \"Scrittura impostazioni sicure\". Per revocarlo: %1$s</string>
     <string name="action_state_off">Disattivato</string>
     <string name="action_state_automatic">Automatica</string>
     <string name="action_state_manual">Manuale</string>
@@ -71,7 +74,7 @@
 
     <!-- Accesso richiesto dalle azioni privilegiate (ADR-023) -->
     <string name="action_privilege_secure">Richiede ADB o Shizuku</string>
-    <string name="action_privilege_secure_help">Questa azione modifica un’impostazione di sistema protetta. Con Shizuku attivo, o dopo aver concesso WRITE_SECURE_SETTINGS tramite ADB, viene eseguita direttamente dal riquadro o dal widget. Senza questo accesso apre la schermata corrispondente delle impostazioni Android. NFC si può cambiare solo tramite Shizuku. Able rilegge l’impostazione e ti avvisa se Android non l’ha applicata.</string>
+    <string name="action_privilege_secure_help">Questa azione modifica un’impostazione di sistema protetta. Dopo aver concesso \"Scrittura impostazioni sicure\" tramite ADB, o con Shizuku connesso (Able si concede quel permesso una volta e te lo comunica), viene eseguita direttamente dal riquadro o dal widget. Senza questo accesso apre la schermata corrispondente delle impostazioni Android. Able rilegge l’impostazione e ti avvisa se Android non l’ha applicata.</string>
     <string name="action_privilege_write_settings">Richiede “Modifica impostazioni di sistema”</string>
     <string name="action_privilege_write_settings_help">Android ti chiede di consentire ad Able di modificare le impostazioni di sistema. Finché non lo consenti, il riquadro o il widget apre quella schermata di autorizzazione. Puoi revocare l’autorizzazione in qualsiasi momento dalle impostazioni Android.</string>
     <string name="action_privilege_accessibility">Richiede il servizio di blocco schermo di Able</string>

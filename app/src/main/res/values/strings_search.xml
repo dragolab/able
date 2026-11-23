@@ -102,4 +102,5 @@
     <string name="search_kw_tiles_widgets">widgets, home screen, battery widget, widget, schermata home, widget batteria</string>
     <string name="search_kw_tiles_custom_widget">custom widget, layout, actions, widget personalizzato, azioni</string>
     <string name="search_kw_tool_memory">ram, memoria, memory, processi, processes, app in esecuzione, running apps, kill</string>
+    <string name="search_kw_tool_fakegps">fake gps, mock location, posizione falsa, simula posizione, finta posizione, location spoof, mappa</string>
 </resources>

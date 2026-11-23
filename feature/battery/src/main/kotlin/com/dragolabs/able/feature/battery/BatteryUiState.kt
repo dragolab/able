@@ -14,6 +14,7 @@ import com.dragolabs.able.feature.battery.data.AppUsageSummary
 import com.dragolabs.able.feature.battery.data.SessionNote
 import com.dragolabs.able.feature.battery.data.SessionTag
 import com.dragolabs.able.feature.battery.domain.IdleBaseline
+import com.dragolabs.able.feature.battery.domain.ScreenTimeToday
 import com.dragolabs.able.feature.battery.domain.SessionRates
 import com.dragolabs.able.feature.battery.monitor.LiveStats
 import com.dragolabs.able.feature.battery.monitor.SessionAccumulator
@@ -151,6 +152,10 @@ data class MonitorUiState(
     val baseline: IdleBaseline = IdleBaseline.Empty,
     val sessions: List<SessionItem> = emptyList(),
     val totalSessions: Int = 0,
+    /** Screen time recorded by the monitor since local midnight; null when nothing was recorded. */
+    val screenToday: ScreenTimeToday? = null,
+    /** Most recent saved charging session (independent of [filter]), for the charging-speed tile. */
+    val latestCharging: SessionItem? = null,
     val filter: SessionFilter = SessionFilter.ALL,
     val editingSession: SessionItem? = null,
     val confirmDeleteHistory: Boolean = false,

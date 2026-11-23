@@ -10,12 +10,14 @@ import com.dragolabs.able.core.data.AccessSnapshot
 import com.dragolabs.able.core.data.CapabilityStatusRepository
 import com.dragolabs.able.core.data.HomeLayoutRepository
 import com.dragolabs.able.core.database.UserPreferencesRepository
+import com.dragolabs.able.core.model.HapticsIntensity
 import com.dragolabs.able.core.model.ThemeMode
 import com.dragolabs.able.feature.settings.backup.BackupError
 import com.dragolabs.able.feature.settings.backup.BackupRepository
 import com.dragolabs.able.feature.settings.backup.BackupSection
 import com.dragolabs.able.feature.settings.backup.ConflictPolicy
 import com.dragolabs.able.feature.settings.backup.ExportResult
+import com.dragolabs.able.feature.settings.backup.HistorySummary
 import com.dragolabs.able.feature.settings.backup.ImportMode
 import com.dragolabs.able.feature.settings.backup.ImportPreview
 import com.dragolabs.able.feature.settings.backup.ImportReadResult
@@ -31,11 +33,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Export draft: the section checklist starts empty every time (CFG-001). */
+/**
+ * Export draft: the section checklist starts empty every time (CFG-001); the optional battery
+ * history is never preselected either (CFG-003).
+ */
 data class ExportDraft(
     val selected: Set<BackupSection> = emptySet(),
     /** True after "Choose destination"; the route then launches the Android Save dialog. */
     val awaitingDestination: Boolean = false,
+    /** Count and size of the optional battery history; null while loading. */
+    val history: HistorySummary? = null,
 )
 
 sealed interface ImportStage {
@@ -78,6 +85,8 @@ data class SettingsUiState(
     val useDynamicColor: Boolean = true,
     /** Able haptic feedback (UX-003), on by default. */
     val hapticsEnabled: Boolean = true,
+    /** Haptic strength (UX-003); OFF exactly when [hapticsEnabled] is false. */
+    val hapticsIntensity: HapticsIntensity = HapticsIntensity.NORMAL,
     val appVersion: String = "",
     val rollbackAvailable: Boolean = false,
     val exportDraft: ExportDraft? = null,
@@ -119,6 +128,7 @@ class SettingsViewModel(
             telemetryOptIn = prefs.telemetryOptIn,
             useDynamicColor = prefs.useDynamicColor,
             hapticsEnabled = prefs.hapticsEnabled,
+            hapticsIntensity = prefs.hapticsIntensity,
             appVersion = appVersion,
             rollbackAvailable = rollback,
             exportDraft = l.exportDraft,
@@ -175,6 +185,10 @@ class SettingsViewModel(
         viewModelScope.launch { preferences.setHapticsEnabled(enabled) }
     }
 
+    fun setHapticsIntensity(intensity: HapticsIntensity) {
+        viewModelScope.launch { preferences.setHapticsIntensity(intensity) }
+    }
+
     /** UX-001: marks the tour as not completed so it can be replayed; the route then navigates. */
     fun replayTour(then: () -> Unit) {
         viewModelScope.launch {
@@ -202,7 +216,14 @@ class SettingsViewModel(
 
     // --- Export ----------------------------------------------------------------------------
 
-    fun startExport() = local.update { it.copy(exportDraft = ExportDraft()) }
+    fun startExport() {
+        local.update { it.copy(exportDraft = ExportDraft()) }
+        viewModelScope.launch {
+            val summary = runCatching { backup.historySummary() }.getOrNull()
+                ?: HistorySummary(sessions = 0, notes = 0, approxBytes = 0, oldestEpochMs = null, newestEpochMs = null)
+            local.update { s -> s.copy(exportDraft = s.exportDraft?.copy(history = summary)) }
+        }
+    }
 
     fun toggleExportSection(section: BackupSection) = local.update { s ->
         val draft = s.exportDraft ?: return@update s
@@ -310,7 +331,14 @@ class SettingsViewModel(
                 homeLayout = container.homeLayout,
                 shizuku = container.shizuku,
                 language = language,
-                backup = BackupRepository(context, container.preferences, container.database, container.actionLog, language),
+                backup = BackupRepository(
+                    context,
+                    container.preferences,
+                    container.database,
+                    container.batteryProfiles,
+                    container.actionLog,
+                    language,
+                ),
                 appVersion = version,
                 appContext = context,
             )

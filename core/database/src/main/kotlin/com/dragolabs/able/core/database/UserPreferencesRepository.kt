@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.dragolabs.able.core.model.HapticsIntensity
 import com.dragolabs.able.core.model.ThemeMode
 import com.dragolabs.able.core.model.ProfileType
 import com.dragolabs.able.core.model.AppInterventionLevel
@@ -73,6 +74,8 @@ data class UserPreferences(
     val emergencyTriggerEnabled: Boolean = false,
     /** Haptic feedback for actions (UX-003); also respects the system haptics setting. */
     val hapticsEnabled: Boolean = true,
+    /** Haptic strength (UX-003). [HapticsIntensity.OFF] exactly when [hapticsEnabled] is false. */
+    val hapticsIntensity: HapticsIntensity = HapticsIntensity.NORMAL,
     /** Use Android wallpaper (dynamic) colors; false uses the Able brand palette (BRAND-001). */
     val useDynamicColor: Boolean = true,
     /** Guided tour after onboarding completed or skipped (UX-001). */
@@ -110,6 +113,8 @@ class UserPreferencesRepository(private val context: Context) {
         val SAVINGS_TRIGGER_ENABLED = booleanPreferencesKey("savings_trigger_enabled")
         val EMERGENCY_TRIGGER_ENABLED = booleanPreferencesKey("emergency_trigger_enabled")
         val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
+        /** Last non-off haptic strength; "off" is stored in [HAPTICS_ENABLED] for compatibility. */
+        val HAPTICS_INTENSITY = stringPreferencesKey("haptics_intensity")
         val USE_DYNAMIC_COLOR = booleanPreferencesKey("use_dynamic_color")
         val TOUR_COMPLETED = booleanPreferencesKey("tour_completed")
         val TELEMETRY_PROMPT_ANSWERED = booleanPreferencesKey("telemetry_prompt_answered")
@@ -161,6 +166,14 @@ class UserPreferencesRepository(private val context: Context) {
             savingsTriggerEnabled = preferences[PreferencesKeys.SAVINGS_TRIGGER_ENABLED] ?: false,
             emergencyTriggerEnabled = preferences[PreferencesKeys.EMERGENCY_TRIGGER_ENABLED] ?: false,
             hapticsEnabled = preferences[PreferencesKeys.HAPTICS_ENABLED] ?: true,
+            hapticsIntensity = if (preferences[PreferencesKeys.HAPTICS_ENABLED] == false) {
+                HapticsIntensity.OFF
+            } else {
+                preferences[PreferencesKeys.HAPTICS_INTENSITY]
+                    ?.let { runCatching { HapticsIntensity.valueOf(it) }.getOrNull() }
+                    ?.takeIf { it != HapticsIntensity.OFF }
+                    ?: HapticsIntensity.NORMAL
+            },
             useDynamicColor = preferences[PreferencesKeys.USE_DYNAMIC_COLOR] ?: true,
             tourCompleted = preferences[PreferencesKeys.TOUR_COMPLETED] ?: false,
             telemetryPromptAnswered = preferences[PreferencesKeys.TELEMETRY_PROMPT_ANSWERED] ?: false,
@@ -365,6 +378,17 @@ class UserPreferencesRepository(private val context: Context) {
 
     suspend fun setHapticsEnabled(enabled: Boolean) {
         context.dataStore.edit { it[PreferencesKeys.HAPTICS_ENABLED] = enabled }
+    }
+
+    /**
+     * Sets the haptic strength. OFF only clears [PreferencesKeys.HAPTICS_ENABLED], so turning
+     * haptics back on (here or with [setHapticsEnabled]) restores the last chosen strength.
+     */
+    suspend fun setHapticsIntensity(intensity: HapticsIntensity) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.HAPTICS_ENABLED] = intensity != HapticsIntensity.OFF
+            if (intensity != HapticsIntensity.OFF) preferences[PreferencesKeys.HAPTICS_INTENSITY] = intensity.name
+        }
     }
 
     suspend fun setUseDynamicColor(enabled: Boolean) {

@@ -2,7 +2,6 @@ package com.dragolabs.able.feature.tools.storage
 
 import android.app.PendingIntent
 import android.net.Uri
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,10 +9,9 @@ import com.dragolabs.able.core.capability.ShizukuAdapter
 import com.dragolabs.able.core.capability.ShizukuConnectionState
 import com.dragolabs.able.core.data.ActionLogRepository
 import com.dragolabs.able.core.model.ActionExecutionStatus
-import com.dragolabs.able.core.model.StorageCategory
-import com.dragolabs.able.core.model.StorageReviewItem
 import com.dragolabs.able.feature.tools.R
 import com.dragolabs.able.feature.tools.common.UiMessage
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,18 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Size filter chips (STO-001): 50 MB / 100 MB (default) / 500 MB / 1 GB. */
-enum class SizeFilter(val bytes: Long, @StringRes val labelRes: Int) {
-    MB_50(50L * MB, R.string.tools_storage_size_50mb),
-    MB_100(100L * MB, R.string.tools_storage_size_100mb),
-    MB_500(500L * MB, R.string.tools_storage_size_500mb),
-    GB_1(1024L * MB, R.string.tools_storage_size_1gb),
-}
-
-/** Age filter chips (STO-001): 7 / 30 (default) / 90 days. */
-enum class AgeFilter(val days: Int) { D7(7), D30(30), D90(90) }
-
-private const val MB = 1024L * 1024L
 private const val TOP_APPS = 10
 
 /** Result of the last cache cleanup, shown in the Clean up section and announced with haptics. */
@@ -55,18 +41,22 @@ data class StorageUiState(
     val confirmAppClear: Boolean = false,
     val trimming: Boolean = false,
     val clearingApps: Boolean = false,
+    /** Apps processed so far while clearing selected caches (selection bar progress). */
+    val appClearProgress: Int = 0,
     val cleanupReport: CleanupReport? = null,
     // Review files (STO-001)
     val source: StorageSource = StorageSource.MediaLibrary,
     val hasMediaPermission: Boolean = false,
     val partialMediaAccess: Boolean = false,
-    val category: StorageCategory = StorageCategory.LARGE_FILES,
-    val sizeFilter: SizeFilter = SizeFilter.MB_100,
-    val ageFilter: AgeFilter = AgeFilter.D30,
+    val filters: FileFilters = FileFilters(),
     val scanning: Boolean = false,
     val scanned: Boolean = false,
     val scanFailed: Boolean = false,
-    val items: List<StorageReviewItem> = emptyList(),
+    /** Raw scan result (size, age and location applied). */
+    val items: List<ReviewFile> = emptyList(),
+    val truncated: Boolean = false,
+    /** [items] after the type and name filters and the sort; what the list shows. */
+    val visibleItems: List<ReviewFile> = emptyList(),
     val selected: Set<String> = emptySet(),
     val confirmFolderDelete: Boolean = false,
     /** Android's MediaStore delete confirmation, launched by the route. */
@@ -78,7 +68,7 @@ data class StorageUiState(
     val message: UiMessage? = null,
 ) {
     val canScan: Boolean get() = source is StorageSource.Folder || hasMediaPermission
-    val selectedItems: List<StorageReviewItem> get() = items.filter { it.uriString in selected }
+    val selectedItems: List<ReviewFile> get() = items.filter { it.uriString in selected }
     val selectedBytes: Long get() = selectedItems.sumOf { it.sizeBytes }
     val shizukuReady: Boolean get() = shizukuState == ShizukuConnectionState.READY
     val cleanupBusy: Boolean get() = trimming || clearingApps
@@ -178,8 +168,15 @@ class StorageViewModel(
         shizuku.requestPermission()
     }
 
-    fun toggleApp(packageName: String) = _uiState.update {
-        it.copy(selectedApps = if (packageName in it.selectedApps) it.selectedApps - packageName else it.selectedApps + packageName)
+    fun toggleApp(packageName: String) {
+        if (_uiState.value.cleanupBusy) return
+        _uiState.update {
+            it.copy(selectedApps = if (packageName in it.selectedApps) it.selectedApps - packageName else it.selectedApps + packageName)
+        }
+    }
+
+    fun clearAppSelection() {
+        if (!_uiState.value.clearingApps) _uiState.update { it.copy(selectedApps = emptySet()) }
     }
 
     fun askTrimCaches() {
@@ -215,9 +212,11 @@ class StorageViewModel(
         val packages = _uiState.value.selectedApps.toList()
         _uiState.update { it.copy(confirmAppClear = false) }
         if (!cleaner.isReady() || packages.isEmpty() || _uiState.value.cleanupBusy) return
-        _uiState.update { it.copy(clearingApps = true) }
+        _uiState.update { it.copy(clearingApps = true, appClearProgress = 0) }
         viewModelScope.launch {
-            val result = runCatching { cleaner.clearAppCaches(packages) }.getOrNull()
+            val result = runCatching {
+                cleaner.clearAppCaches(packages) { done -> _uiState.update { it.copy(appClearProgress = done) } }
+            }.getOrNull()
             val report = when {
                 result == null || result.cleared.isEmpty() -> CleanupReport(UiMessage(R.string.storage_apps_failed), success = false)
                 result.failed.isEmpty() -> CleanupReport(
@@ -230,7 +229,14 @@ class StorageViewModel(
                 )
             }
             _uiState.update {
-                it.copy(clearingApps = false, cleanupReport = report, selectedApps = it.selectedApps - result?.cleared.orEmpty().toSet())
+                it.copy(
+                    clearingApps = false,
+                    appClearProgress = 0,
+                    cleanupReport = report,
+                    // Same result feedback as the RAM tool: a snackbar plus the banner in Clean up.
+                    message = report.message,
+                    selectedApps = it.selectedApps - result?.cleared.orEmpty().toSet(),
+                )
             }
             val detail = describe(report.message)
             logScope.launch {
@@ -248,31 +254,63 @@ class StorageViewModel(
     fun onMediaPermissionResult() = refreshAccess()
 
     fun useMediaLibrary() {
-        _uiState.update { it.copy(source = StorageSource.MediaLibrary, items = emptyList(), selected = emptySet(), scanned = false) }
+        _uiState.update {
+            it.copy(source = StorageSource.MediaLibrary, items = emptyList(), visibleItems = emptyList(), selected = emptySet(), scanned = false)
+        }
         if (_uiState.value.canScan) scan()
     }
 
     fun onFolderPicked(treeUri: Uri?) {
         if (treeUri == null) return
         val folder = StorageSource.Folder(treeUri.toString(), scanner.folderName(treeUri))
-        _uiState.update { it.copy(source = folder, items = emptyList(), selected = emptySet(), scanned = false) }
+        _uiState.update {
+            it.copy(
+                source = folder,
+                items = emptyList(),
+                visibleItems = emptyList(),
+                selected = emptySet(),
+                scanned = false,
+                // A picked folder is already a location.
+                filters = it.filters.copy(location = FileLocation.ALL),
+            )
+        }
         scan()
     }
 
-    fun setCategory(category: StorageCategory) {
-        if (category == _uiState.value.category) return
-        _uiState.update { it.copy(category = category) }
-        scan()
+    fun toggleKind(kind: FileKind) = updateFilters { it.copy(kinds = if (kind in it.kinds) it.kinds - kind else it.kinds + kind) }
+
+    fun clearKinds() = updateFilters { it.copy(kinds = emptySet()) }
+
+    fun setSize(size: SizeThreshold) = updateFilters { it.copy(size = size) }
+
+    fun setCustomSize(megabytes: Long) =
+        updateFilters { it.copy(size = SizeThreshold.CUSTOM, customSizeMb = megabytes.coerceIn(0, FileFilters.MAX_CUSTOM_MB)) }
+
+    fun setAge(age: AgeThreshold) = updateFilters { it.copy(age = age) }
+
+    fun setLocation(location: FileLocation) = updateFilters { it.copy(location = location) }
+
+    fun setSort(sort: FileSort) = updateFilters { it.copy(sort = sort) }
+
+    fun setQuery(query: String) = updateFilters { it.copy(query = query.take(80)) }
+
+    /**
+     * Applies new filters. Size, age and location need a new query; type, name and sort only
+     * re-filter the last result. Selected files that are no longer shown are deselected, so the
+     * delete action only ever covers files the user can see.
+     */
+    private fun updateFilters(transform: (FileFilters) -> FileFilters) {
+        val before = _uiState.value.filters
+        val after = transform(before)
+        if (after == before) return
+        _uiState.update { it.copy(filters = after).withVisibleItems() }
+        if (!after.sameScan(before)) scan()
     }
 
-    fun setSizeFilter(filter: SizeFilter) {
-        _uiState.update { it.copy(sizeFilter = filter) }
-        scan()
-    }
-
-    fun setAgeFilter(filter: AgeFilter) {
-        _uiState.update { it.copy(ageFilter = filter) }
-        scan()
+    private fun StorageUiState.withVisibleItems(): StorageUiState {
+        val visible = applyFileFilters(items, filters)
+        val shown = visible.mapTo(HashSet()) { it.uriString }
+        return copy(visibleItems = visible, selected = selected intersect shown)
     }
 
     fun scan() {
@@ -281,17 +319,24 @@ class StorageViewModel(
         scanJob?.cancel()
         _uiState.update { it.copy(scanning = true, scanFailed = false) }
         scanJob = viewModelScope.launch {
-            val result = runCatching { scanner.scan(state.source, state.category, state.sizeFilter.bytes, state.ageFilter.days) }
+            val filters = state.filters
+            val result = try {
+                Result.success(scanner.scan(state.source, filters.minSizeBytes, filters.age.days, filters.location))
+            } catch (e: CancellationException) {
+                // A newer scan replaced this one; it reports the outcome.
+                throw e
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
             _uiState.update { current ->
-                val items = result.getOrDefault(emptyList())
-                val stillPresent = items.map { it.uriString }.toSet()
+                val scan = result.getOrNull()
                 current.copy(
                     scanning = false,
                     scanned = true,
                     scanFailed = result.isFailure,
-                    items = items,
-                    selected = current.selected intersect stillPresent,
-                )
+                    items = scan?.items.orEmpty(),
+                    truncated = scan?.truncated == true,
+                ).withVisibleItems()
             }
         }
     }
@@ -300,7 +345,7 @@ class StorageViewModel(
         it.copy(selected = if (uri in it.selected) it.selected - uri else it.selected + uri)
     }
 
-    fun selectAll() = _uiState.update { it.copy(selected = it.items.map { item -> item.uriString }.toSet()) }
+    fun selectAll() = _uiState.update { it.copy(selected = it.visibleItems.map { item -> item.uriString }.toSet()) }
 
     fun clearSelection() = _uiState.update { it.copy(selected = emptySet()) }
 
@@ -344,7 +389,7 @@ class StorageViewModel(
         }
     }
 
-    private fun verifyDeletion(requested: List<StorageReviewItem>) {
+    private fun verifyDeletion(requested: List<ReviewFile>) {
         _uiState.update { it.copy(deleting = true) }
         viewModelScope.launch {
             val remaining = scanner.stillExisting(requested.map { it.uriString })

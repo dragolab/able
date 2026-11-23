@@ -47,7 +47,8 @@ class SystemCacheCleaner(
         )
     }
 
-    suspend fun clearAppCaches(packages: List<String>): AppCacheResult {
+    /** Clears each package's cache in turn; [onProgress] receives the number processed so far. */
+    suspend fun clearAppCaches(packages: List<String>, onProgress: (Int) -> Unit = {}): AppCacheResult {
         val valid = packages.distinct().filter(::isValidPackageName)
         val rejected = packages.distinct() - valid.toSet()
         val cacheBefore = stats.cacheBytes(valid)
@@ -55,9 +56,11 @@ class SystemCacheCleaner(
         val user = Process.myUid() / PER_USER_RANGE
         val cleared = mutableListOf<String>()
         val failed = rejected.toMutableList()
-        for (pkg in valid) {
+        onProgress(rejected.size)
+        valid.forEachIndexed { index, pkg ->
             val result = shizuku.executeCommand("pm clear --cache-only --user $user $pkg", timeoutMs = APP_TIMEOUT_MS)
             if (result is AbleResult.Success && result.data.contains("Success", ignoreCase = true)) cleared += pkg else failed += pkg
+            onProgress(rejected.size + index + 1)
         }
         val freeAfter = stats.freeBytes()
         val (freed, measure) = when {

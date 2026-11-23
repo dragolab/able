@@ -2,6 +2,7 @@ package com.dragolabs.able.feature.battery.ui
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
@@ -61,12 +62,8 @@ internal fun DiagnosticsTab(
     contentPadding: PaddingValues,
     onEvent: (BatteryEvent) -> Unit,
     onOpenMonitor: () -> Unit,
-    scrollToTopRequests: Int = 0,
+    gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
 ) {
-    val gridState = rememberLazyStaggeredGridState()
-    LaunchedEffect(scrollToTopRequests) {
-        if (scrollToTopRequests > 0) gridState.animateScrollToItem(0)
-    }
     val diagnostics = state.diagnostics
     BatteryCardGrid(contentPadding, state = gridState) {
         fullLine("checks") { QuickChecksCard(state, onEvent, onOpenMonitor) }

@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- System toggles additions: NFC advanced mode (SYS-001). Prefix tools_toggles_. -->
+<!-- System toggles additions: NFC advanced mode (SYS-001), live state and self-grant (SYS-001, SYS-003). Prefix tools_toggles_. -->
 <resources>
     <string name="tools_toggles_nfc_direct_advanced">Changed directly (advanced mode)</string>
-    <string name="tools_toggles_nfc_direct_shizuku">Changed directly through Shizuku</string>
+    <string name="tools_toggles_nfc_direct_shizuku">Changed directly: on first use Able grants itself advanced mode through Shizuku</string>
     <string name="tools_toggles_nfc_copy_adb">Copy ADB command for advanced mode</string>
     <string name="tools_toggles_nfc_help_title">NFC advanced mode</string>
-    <string name="tools_toggles_nfc_help_text">Android has no public way for apps to switch NFC, so by default Able, its NFC tile and widget open Android\'s NFC settings.\n\nAdvanced mode switches NFC directly. Grant \"Write secure settings\" once from a computer with ADB:\n\n%1$s\n\nThe same permission lets Able switch USB/wireless debugging and Private DNS. Shizuku, when connected, also switches NFC directly. To undo, run the same command with \"revoke\" instead of \"grant\", or uninstall Able.\n\nAdvanced mode follows the open-source \"NFC Quick Settings\" app by Paul Colby.</string>
+    <string name="tools_toggles_nfc_help_text">Android has no public way for apps to switch NFC, so by default Able, its NFC tile and widget open Android\'s NFC settings.\n\nAdvanced mode switches NFC directly. Grant \"Write secure settings\" once from a computer with ADB:\n\n%1$s\n\nThe same permission lets Able switch USB/wireless debugging and Private DNS. With Shizuku connected, Able grants itself this permission the first time you use one of these switches, and tells you. To undo, run the same command with \"revoke\" instead of \"grant\", or uninstall Able.\n\nAdvanced mode follows the open-source \"NFC Quick Settings\" app by Paul Colby.</string>
+    <string name="tools_toggles_turning_on">Turning on…</string>
+    <string name="tools_toggles_turning_off">Turning off…</string>
+    <string name="tools_toggles_access_shizuku_grant">Shizuku is connected: on first use Able grants itself \"Write secure settings\", then changes these settings directly and checks the result.</string>
+    <string name="tools_toggles_access_self_granted">Able used Shizuku to grant itself \"Write secure settings\": these settings change directly, also from tiles and widgets.</string>
+    <string name="tools_toggles_self_grant_help_title">Write secure settings</string>
+    <string name="tools_toggles_self_grant_help_text">Able used Shizuku to grant itself \"Write secure settings\" (the same permission the ADB command grants). It lets Able switch NFC, USB/wireless debugging and Private DNS directly, and stays granted even when Shizuku stops. The grant is recorded in the action history.\n\nTo revoke it, run from a computer with ADB (or in the Shizuku shell without \"adb shell\"):\n\n%1$s</string>
 </resources>

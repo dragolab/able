@@ -16,6 +16,10 @@ interface BatteryDao {
     @Query("SELECT * FROM battery_sessions ORDER BY startTimeEpochMs DESC")
     fun getAllSessions(): Flow<List<BatterySessionEntity>>
 
+    /** Bulk insert (configuration import); returns the generated row ids in input order. */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSessions(sessions: List<BatterySessionEntity>): List<Long>
+
     @Query("SELECT * FROM battery_sessions WHERE isCharging = 1 ORDER BY startTimeEpochMs DESC LIMIT :limit")
     fun getChargingSessions(limit: Int = 30): Flow<List<BatterySessionEntity>>
 
@@ -46,4 +50,8 @@ interface BatteryDao {
 
     @Query("SELECT * FROM battery_notes ORDER BY createdAtEpochMs DESC")
     fun getAllNotes(): Flow<List<BatteryNoteEntity>>
+
+    /** Bulk insert (configuration import). */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNotes(notes: List<BatteryNoteEntity>)
 }

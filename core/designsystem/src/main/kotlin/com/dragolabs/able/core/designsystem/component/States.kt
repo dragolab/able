@@ -10,13 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Inbox
 import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material3.Button
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -98,10 +96,10 @@ fun MessageState(
             )
         }
         if (actionLabel != null && onAction != null) {
-            Button(onClick = onAction) { Text(actionLabel) }
+            AbleButton(onClick = onAction) { Text(actionLabel) }
         }
         if (secondaryActionLabel != null && onSecondaryAction != null) {
-            OutlinedButton(onClick = onSecondaryAction) { Text(secondaryActionLabel) }
+            AbleOutlinedButton(onClick = onSecondaryAction) { Text(secondaryActionLabel) }
         }
     }
 }

@@ -12,7 +12,6 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
@@ -23,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,14 +31,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.dragolabs.able.core.designsystem.R
 import com.dragolabs.able.core.designsystem.theme.AbleSpacing
 
 /**
- * App-wide search action (global options search). Provided by the app shell; when set, every
- * top-level scaffold shows a search button before Settings.
+ * App-wide search action (global options search). Provided by the app shell only where the
+ * layout has no other search entry point (navigation rail, TV); when set, every top-level
+ * scaffold shows a search button before Settings. With the floating navigation bar the search
+ * button lives in the bar, so the shell provides null.
  */
 val LocalAbleSearchAction = staticCompositionLocalOf<(() -> Unit)?> { null }
+
+/**
+ * Space taken at the bottom of the window by the app shell's floating navigation bar
+ * (bar height, its margins and the system navigation-bar inset), or 0.dp when no bar overlays
+ * the content. Content scrolls underneath the translucent bar, so scrolling screens must add
+ * this to their bottom padding to keep the last item reachable. [AbleTopLevelScaffold] and
+ * [AbleDetailScaffold] already include it in the padding they pass to their content (and
+ * [screenContentPadding] therefore too), and lift FABs and snackbars above the bar.
+ */
+val LocalAbleBottomBarPadding = compositionLocalOf { 0.dp }
 
 /**
  * Scaffold for a primary destination (Home, Battery, Apps, Tools). Uses the expressive large
@@ -59,7 +72,7 @@ fun AbleTopLevelScaffold(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = WindowInsets(bottom = LocalAbleBottomBarPadding.current),
         topBar = {
             LargeFlexibleTopAppBar(
                 title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -67,12 +80,12 @@ fun AbleTopLevelScaffold(
                 actions = {
                     actions()
                     LocalAbleSearchAction.current?.let { openSearch ->
-                        IconButton(onClick = openSearch) {
+                        AbleIconButton(onClick = openSearch) {
                             Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.ds_search))
                         }
                     }
                     if (onOpenSettings != null) {
-                        IconButton(onClick = onOpenSettings) {
+                        AbleIconButton(onClick = onOpenSettings) {
                             Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.ds_open_settings))
                         }
                     }
@@ -118,14 +131,14 @@ fun AbleDetailScaffold(
         modifier = modifier
             .ableSharedBounds(sharedKey, isContainer = true)
             .nestedScroll(scrollBehavior.nestedScrollConnection),
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = WindowInsets(bottom = LocalAbleBottomBarPadding.current),
         topBar = {
             MediumFlexibleTopAppBar(
                 title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 subtitle = subtitle?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
                 navigationIcon = {
                     if (onBack != null) {
-                        IconButton(onClick = onBack) {
+                        AbleIconButton(onClick = onBack, haptic = AbleHaptic.Navigate) {
                             Icon(
                                 Icons.AutoMirrored.Rounded.ArrowBack,
                                 contentDescription = stringResource(R.string.ds_navigate_back),

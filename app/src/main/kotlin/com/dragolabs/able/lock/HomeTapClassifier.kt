@@ -65,6 +65,18 @@ class HomeTapClassifier(
         return lastInteractionMs < pairFirstMs - INTERACTION_MARGIN_MS
     }
 
+    /**
+     * True when a touch at [timeMs] would complete a pair with the pending first touch, with no
+     * launcher interaction reported since shortly before it. Does not change the state; used
+     * when the second tap of the pair was seen with coordinates elsewhere (Precise mode).
+     */
+    @Synchronized
+    fun pairsWith(timeMs: Long, timeoutMs: Int): Boolean {
+        val first = firstDownMs
+        if (first == 0L) return false
+        return timeMs - first in MIN_GAP_MS until timeoutMs.toLong() && lastInteractionMs < first - INTERACTION_MARGIN_MS
+    }
+
     @Synchronized
     fun reset() {
         firstDownMs = 0L

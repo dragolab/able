@@ -93,7 +93,7 @@
     <string name="home_geo_message">Salva la posizione attuale o riapri un punto salvato. La posizione è usata solo mentre lo strumento è aperto.</string>
 
     <string name="home_customize_title">Personalizza Home</string>
-    <string name="home_customize_message">Mostra, nascondi e riordina le schede. Gli avvisi di sicurezza compaiono sempre in alto.</string>
+    <string name="home_customize_message">Mostra, nascondi e riordina le schede. Gli avvisi sugli accessi compaiono sempre in alto, le azioni non riuscite in fondo.</string>
     <string name="home_customize_state_shown">Visibile</string>
     <string name="home_customize_state_hidden">Nascosta</string>
     <string name="home_customize_move_up">Sposta %1$s in alto</string>
@@ -112,4 +112,13 @@
     <string name="home_shortcut_blocked">Android ha bloccato la scorciatoia. L\'app o il file non consentono più l\'accesso.</string>
     <string name="home_battery_no_active_profile">Nessun profilo batteria attivo</string>
     <string name="home_battery_active_profiles">Attivi: %1$s</string>
+
+    <!-- Avviso azioni non riuscite (in fondo alla Home) e foglio azioni recenti -->
+    <string name="home_alert_failures_hide">Nascondi</string>
+    <string name="home_recent_show_all">Mostra tutte (%1$d)</string>
+    <string name="home_recent_sheet_title">Azioni recenti</string>
+    <plurals name="home_recent_sheet_subtitle">
+        <item quantity="one">Ultima %d azione registrata da Able, dalla più recente</item>
+        <item quantity="other">Ultime %d azioni registrate da Able, dalla più recente</item>
+    </plurals>
 </resources>

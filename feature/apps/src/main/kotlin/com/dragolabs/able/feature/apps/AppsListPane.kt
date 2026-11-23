@@ -1,7 +1,9 @@
 package com.dragolabs.able.feature.apps
 
+import com.dragolabs.able.core.designsystem.component.hapticClickable
+import com.dragolabs.able.core.designsystem.component.AbleIconButton
+import com.dragolabs.able.core.designsystem.component.AbleTextButton
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,13 +34,11 @@ import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -208,7 +208,7 @@ internal fun AppsSearchField(
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
         trailingIcon = if (query.isNotEmpty()) {
             {
-                IconButton(onClick = { onQueryChange("") }) {
+                AbleIconButton(onClick = { onQueryChange("") }) {
                     Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.apps_search_clear))
                 }
             }
@@ -318,7 +318,7 @@ private fun ResultCountRow(shown: Int, total: Int, filtered: Boolean, onClear: (
                 .semantics { contentDescription = description },
         )
         if (filtered) {
-            TextButton(onClick = onClear) { Text(stringResource(R.string.apps_filters_clear)) }
+            AbleTextButton(onClick = onClear) { Text(stringResource(R.string.apps_filters_clear)) }
         }
     }
 }
@@ -373,12 +373,12 @@ private fun MoreFiltersSheet(filters: AppFilters, actions: AppsListActions, onDi
                 horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm, Alignment.End),
             ) {
                 if (filters.sheetFilterCount > 0) {
-                    TextButton(onClick = {
+                    AbleTextButton(onClick = {
                         filters.removals.forEach(actions.onToggleRemoval)
                         filters.lists.forEach(actions.onToggleList)
                     }) { Text(stringResource(R.string.apps_filters_clear)) }
                 }
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.apps_filters_done)) }
+                AbleTextButton(onClick = onDismiss) { Text(stringResource(R.string.apps_filters_done)) }
             }
         }
     }
@@ -398,7 +398,7 @@ private fun AppRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .clickable(onClickLabel = stringResource(R.string.apps_row_open_details)) { onClick(item.packageName) }
+            .hapticClickable(onClickLabel = stringResource(R.string.apps_row_open_details)) { onClick(item.packageName) }
             .focusRing(shape),
         colors = ListItemDefaults.colors(
             containerColor = if (selected) scheme.secondaryContainer else scheme.surfaceContainerLow,

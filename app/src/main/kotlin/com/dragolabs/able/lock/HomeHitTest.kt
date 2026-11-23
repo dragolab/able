@@ -120,6 +120,19 @@ object HomeHitTest {
         return false
     }
 
+    /**
+     * Bottom edge (screen pixels) of the Precise overlay. [screenBottom] is the edge above the
+     * navigation bar / gesture area; with [aboveDock] the overlay also stops at [dockTop], the top
+     * of the launcher's `hotseat` (dock icons plus the Pixel Launcher search bar; -1 when unknown),
+     * so touches starting on the dock always reach the launcher natively. A double tap on empty
+     * space is hardly ever made there: the dock row is almost all icons.
+     */
+    fun interceptBottom(screenBottom: Int, dockTop: Int, aboveDock: Boolean): Int =
+        if (aboveDock && dockTop in (screenBottom / MIN_DOCK_TOP_FRACTION) until screenBottom) dockTop else screenBottom
+
+    /** A "dock" starting in the upper part of the screen is not a dock: ignore it. */
+    private const val MIN_DOCK_TOP_FRACTION = 2
+
     /** Deepest clickable node at the point (the one to send `ACTION_CLICK` to), or null. */
     fun <N : HitNode> clickableAt(root: N?, x: Int, y: Int): N? {
         root ?: return null

@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material.icons.rounded.Delete
@@ -31,11 +30,8 @@ import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.PermMedia
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -47,13 +43,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -62,7 +57,6 @@ import com.dragolabs.able.core.data.ableViewModelFactory
 import com.dragolabs.able.core.designsystem.component.AbleToggleButton
 import com.dragolabs.able.core.designsystem.component.AbleTextButton
 import com.dragolabs.able.core.designsystem.component.AbleIconButton
-import com.dragolabs.able.core.designsystem.component.AbleFilterChip
 import com.dragolabs.able.core.designsystem.component.AbleDetailScaffold
 import com.dragolabs.able.core.designsystem.component.ConfirmationDialog
 import com.dragolabs.able.core.designsystem.component.EmptyState
@@ -76,13 +70,11 @@ import com.dragolabs.able.core.designsystem.component.focusRing
 import com.dragolabs.able.core.designsystem.component.rememberAbleHaptics
 import com.dragolabs.able.core.designsystem.component.screenContentPadding
 import com.dragolabs.able.core.designsystem.theme.AbleSpacing
-import com.dragolabs.able.core.model.StorageCategory
-import com.dragolabs.able.core.model.StorageReviewItem
 import com.dragolabs.able.feature.tools.R
 import com.dragolabs.able.feature.tools.common.MessageEffect
+import com.dragolabs.able.feature.tools.common.SelectionActionBar
+import com.dragolabs.able.feature.tools.common.ToolsSearchField
 import com.dragolabs.able.feature.tools.common.startFirstAvailable
-import java.text.DateFormat
-import java.util.Date
 import com.dragolabs.able.core.designsystem.R as DsR
 
 @Composable
@@ -137,6 +129,7 @@ fun StorageRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             onConfirmTrim = viewModel::trimAllCaches,
             onAllowShizuku = viewModel::requestShizukuPermission,
             onToggleApp = viewModel::toggleApp,
+            onClearAppSelection = viewModel::clearAppSelection,
             onClearSelectedApps = viewModel::askClearSelectedApps,
             onConfirmClearApps = viewModel::clearSelectedAppCaches,
             onDismissCleanupDialog = viewModel::dismissCleanupDialogs,
@@ -156,9 +149,14 @@ fun StorageRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             onCleanCache = viewModel::cleanAbleCache,
             onUseMediaLibrary = viewModel::useMediaLibrary,
             onPickFolder = { folderLauncher.launch(null) },
-            onCategoryChange = viewModel::setCategory,
-            onSizeFilterChange = viewModel::setSizeFilter,
-            onAgeFilterChange = viewModel::setAgeFilter,
+            onToggleKind = viewModel::toggleKind,
+            onClearKinds = viewModel::clearKinds,
+            onSizeChange = viewModel::setSize,
+            onCustomSize = viewModel::setCustomSize,
+            onAgeChange = viewModel::setAge,
+            onLocationChange = viewModel::setLocation,
+            onSortChange = viewModel::setSort,
+            onQueryChange = viewModel::setQuery,
             onRefresh = viewModel::scan,
             onToggleItem = viewModel::toggleSelection,
             onSelectAll = viewModel::selectAll,
@@ -183,6 +181,7 @@ class StorageActions(
     val onConfirmTrim: () -> Unit,
     val onAllowShizuku: () -> Unit,
     val onToggleApp: (String) -> Unit,
+    val onClearAppSelection: () -> Unit,
     val onClearSelectedApps: () -> Unit,
     val onConfirmClearApps: () -> Unit,
     val onDismissCleanupDialog: () -> Unit,
@@ -191,9 +190,14 @@ class StorageActions(
     val onCleanCache: () -> Unit,
     val onUseMediaLibrary: () -> Unit,
     val onPickFolder: () -> Unit,
-    val onCategoryChange: (StorageCategory) -> Unit,
-    val onSizeFilterChange: (SizeFilter) -> Unit,
-    val onAgeFilterChange: (AgeFilter) -> Unit,
+    val onToggleKind: (FileKind) -> Unit,
+    val onClearKinds: () -> Unit,
+    val onSizeChange: (SizeThreshold) -> Unit,
+    val onCustomSize: (Long) -> Unit,
+    val onAgeChange: (AgeThreshold) -> Unit,
+    val onLocationChange: (FileLocation) -> Unit,
+    val onSortChange: (FileSort) -> Unit,
+    val onQueryChange: (String) -> Unit,
     val onRefresh: () -> Unit,
     val onToggleItem: (String) -> Unit,
     val onSelectAll: () -> Unit,
@@ -205,6 +209,47 @@ class StorageActions(
 )
 
 private val TwoColumnMinWidth = 840.dp
+private val SelectionBarSpace = 160.dp
+
+/**
+ * Bulk-action bars (same pattern as the RAM tool): clear the cache of selected apps, and delete
+ * selected files after review. Each shows its count, a clear button, progress and runs only after
+ * a confirmation (Able's dialog for caches and folder files, Android's for media files).
+ */
+@Composable
+private fun StorageSelectionBars(state: StorageUiState, actions: StorageActions) {
+    val context = LocalContext.current
+    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+        val appCount = state.selectedApps.size
+        SelectionActionBar(
+            visible = appCount > 0 && state.shizukuReady,
+            title = pluralStringResource(R.plurals.storage_selected_apps, appCount, appCount),
+            supportingText = stringResource(R.string.storage_selected_apps_cache, Formatter.formatShortFileSize(context, state.selectedAppsCacheBytes)),
+            actionLabel = stringResource(R.string.storage_clear_cache_action),
+            actionIcon = Icons.Rounded.CleaningServices,
+            onAction = actions.onClearSelectedApps,
+            onClear = actions.onClearAppSelection,
+            clearLabel = stringResource(R.string.storage_clear_selection),
+            busy = state.clearingApps,
+            progressText = stringResource(R.string.storage_clear_progress, state.appClearProgress, appCount),
+            actionEnabled = !state.cleanupBusy,
+        )
+        val fileCount = state.selected.size
+        SelectionActionBar(
+            visible = fileCount > 0,
+            title = pluralStringResource(R.plurals.storage_selected_files, fileCount, fileCount),
+            supportingText = stringResource(R.string.storage_selected_total, Formatter.formatShortFileSize(context, state.selectedBytes)),
+            actionLabel = stringResource(R.string.storage_delete_action),
+            actionIcon = Icons.Rounded.Delete,
+            onAction = actions.onDelete,
+            onClear = actions.onClearSelection,
+            clearLabel = stringResource(R.string.storage_clear_selection),
+            busy = state.deleting,
+            progressText = stringResource(R.string.storage_deleting),
+            destructive = true,
+        )
+    }
+}
 
 /**
  * Storage tool: Overview (STO-003) → Clean up (STO-002) → Review files (STO-001).
@@ -240,20 +285,14 @@ fun StorageScreen(
                 Icon(Icons.Rounded.Refresh, contentDescription = stringResource(R.string.tools_storage_refresh))
             }
         },
-        floatingActionButton = {
-            if (state.selected.isNotEmpty()) {
-                ExtendedFloatingActionButton(
-                    onClick = { haptics.click(); actions.onDelete() },
-                    icon = { Icon(Icons.Rounded.Delete, contentDescription = null) },
-                    text = {
-                        Text(stringResource(R.string.tools_storage_delete_selected, state.selected.size, Formatter.formatShortFileSize(context, state.selectedBytes)))
-                    },
-                    expanded = !state.deleting,
-                    modifier = Modifier.focusRing(),
-                )
-            }
-        },
-    ) { padding ->
+        floatingActionButton = { StorageSelectionBars(state, actions) },
+    ) { scaffoldPadding ->
+        // Extra bottom space keeps the last rows clear of the selection bars.
+        val barsVisible = state.selected.isNotEmpty() || state.selectedApps.isNotEmpty()
+        val padding = PaddingValues(
+            top = scaffoldPadding.calculateTopPadding(),
+            bottom = scaffoldPadding.calculateBottomPadding() + if (barsVisible) SelectionBarSpace else 0.dp,
+        )
         BoxWithConstraints(Modifier.fillMaxSize()) {
             if (maxWidth >= TwoColumnMinWidth) {
                 Row(
@@ -373,7 +412,6 @@ private fun LazyListScope.cleanupItems(state: StorageUiState, actions: StorageAc
             LargestAppsCard(
                 state = state,
                 onToggleApp = actions.onToggleApp,
-                onClearSelected = actions.onClearSelectedApps,
                 onOpenAppInfo = actions.onOpenAppInfo,
             )
         }
@@ -412,10 +450,17 @@ private fun LazyListScope.reviewItems(state: StorageUiState, actions: StorageAct
             )
         }
     }
-    item(key = "filters") { FilterSection(state, actions.onCategoryChange, actions.onSizeFilterChange, actions.onAgeFilterChange) }
-    item(key = "results-header") { ResultsHeader(state, actions.onSelectAll, actions.onClearSelection) }
+    item(key = "search") {
+        ToolsSearchField(
+            query = state.filters.query,
+            onQueryChange = actions.onQueryChange,
+            placeholder = stringResource(R.string.storage_search_files),
+        )
+    }
+    item(key = "filters") { ReviewFilters(state, actions, Modifier.padding(top = AbleSpacing.xs)) }
+    item(key = "results-header") { ReviewResultsHeader(state, actions.onSelectAll) }
     when {
-        state.scanning || state.deleting -> item(key = "loading") {
+        state.scanning && state.items.isEmpty() -> item(key = "loading") {
             Box(Modifier.fillMaxWidth().padding(AbleSpacing.xl), contentAlignment = Alignment.Center) { LoadingIndicator() }
         }
         state.scanFailed -> item(key = "failed") {
@@ -426,15 +471,31 @@ private fun LazyListScope.reviewItems(state: StorageUiState, actions: StorageAct
                 onAction = actions.onRefresh,
             )
         }
-        state.scanned && state.items.isEmpty() -> item(key = "empty") {
+        state.scanned && state.visibleItems.isEmpty() -> item(key = "empty") {
+            val mediaLibrary = state.source == StorageSource.MediaLibrary
             EmptyState(
                 title = stringResource(R.string.tools_storage_empty_title),
-                message = stringResource(R.string.tools_storage_empty_message),
+                message = stringResource(if (mediaLibrary) R.string.storage_empty_media_hint else R.string.tools_storage_empty_message),
                 icon = Icons.AutoMirrored.Rounded.InsertDriveFile,
+                actionLabel = if (mediaLibrary) stringResource(R.string.tools_storage_pick_folder) else null,
+                onAction = if (mediaLibrary) actions.onPickFolder else null,
             )
         }
-        else -> items(state.items, key = { it.uriString }) { item ->
-            ReviewItemRow(item, selected = item.uriString in state.selected, onToggle = { actions.onToggleItem(item.uriString) })
+        else -> {
+            if (state.scanning) {
+                // Keep the current rows while a new scan runs, so the list does not jump.
+                item(key = "rescanning") { LinearWavyProgressIndicator(Modifier.fillMaxWidth()) }
+            }
+            items(state.visibleItems, key = { it.uriString }, contentType = { "file" }) { item ->
+                ReviewFileRow(
+                    item = item,
+                    query = state.filters.query,
+                    selected = item.uriString in state.selected,
+                    enabled = !state.deleting,
+                    onToggle = { actions.onToggleItem(item.uriString) },
+                    modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null),
+                )
+            }
         }
     }
 }
@@ -464,6 +525,11 @@ private fun SourceSelector(state: StorageUiState, onUseMediaLibrary: () -> Unit,
                 Text(stringResource(R.string.tools_storage_source_folder), modifier = Modifier.padding(start = AbleSpacing.xs), maxLines = 1)
             }
         }
+        Text(
+            stringResource(R.string.storage_folder_limits),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         val folder = state.source as? StorageSource.Folder
         if (folder != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -476,97 +542,4 @@ private fun SourceSelector(state: StorageUiState, onUseMediaLibrary: () -> Unit,
             }
         }
     }
-}
-
-@Composable
-private fun FilterSection(
-    state: StorageUiState,
-    onCategoryChange: (StorageCategory) -> Unit,
-    onSizeFilterChange: (SizeFilter) -> Unit,
-    onAgeFilterChange: (AgeFilter) -> Unit,
-) {
-    val haptics = rememberAbleHaptics()
-    val categories = listOf(StorageCategory.LARGE_FILES, StorageCategory.OLD_DOWNLOADS)
-    Column(Modifier.padding(top = AbleSpacing.sm), verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
-            categories.forEachIndexed { index, category ->
-                AbleToggleButton(
-                    checked = state.category == category,
-                    onCheckedChange = { onCategoryChange(category) },
-                    shapes = if (index == 0) ButtonGroupDefaults.connectedLeadingButtonShapes() else ButtonGroupDefaults.connectedTrailingButtonShapes(),
-                    modifier = Modifier.weight(1f).focusRing().semantics { role = Role.RadioButton },
-                ) {
-                    Text(
-                        stringResource(
-                            when (category) {
-                                StorageCategory.LARGE_FILES -> R.string.tools_storage_large_files
-                                else -> if (state.source is StorageSource.Folder) R.string.tools_storage_old_files else R.string.tools_storage_old_downloads
-                            },
-                        ),
-                        maxLines = 1,
-                    )
-                }
-            }
-        }
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
-            if (state.category == StorageCategory.LARGE_FILES) {
-                SizeFilter.entries.forEach { filter ->
-                    AbleFilterChip(
-                        selected = filter == state.sizeFilter,
-                        onClick = { onSizeFilterChange(filter) },
-                        label = { Text(stringResource(R.string.tools_storage_size_chip, stringResource(filter.labelRes))) },
-                    )
-                }
-            } else {
-                AgeFilter.entries.forEach { filter ->
-                    AbleFilterChip(
-                        selected = filter == state.ageFilter,
-                        onClick = { onAgeFilterChange(filter) },
-                        label = { Text(stringResource(R.string.tools_storage_age_chip, filter.days)) },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ResultsHeader(state: StorageUiState, onSelectAll: () -> Unit, onClearSelection: () -> Unit) {
-    if (!state.scanned || state.items.isEmpty()) return
-    val context = LocalContext.current
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            stringResource(R.string.tools_storage_results, state.items.size, Formatter.formatShortFileSize(context, state.items.sumOf { it.sizeBytes })),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.weight(1f),
-        )
-        if (state.selected.size < state.items.size) {
-            AbleTextButton(onClick = onSelectAll) { Text(stringResource(R.string.tools_storage_select_all)) }
-        }
-        if (state.selected.isNotEmpty()) {
-            AbleTextButton(onClick = onClearSelection) { Text(stringResource(R.string.tools_storage_clear_selection)) }
-        }
-    }
-}
-
-@Composable
-private fun ReviewItemRow(item: StorageReviewItem, selected: Boolean, onToggle: () -> Unit) {
-    val context = LocalContext.current
-    val haptics = rememberAbleHaptics()
-    val dateFormat = remember { DateFormat.getDateInstance(DateFormat.MEDIUM) }
-    ListItem(
-        modifier = Modifier
-            .clip(MaterialTheme.shapes.medium)
-            .focusRing(MaterialTheme.shapes.medium)
-            .toggleable(value = selected, role = Role.Checkbox, onValueChange = { haptics.toggle(it); onToggle() }),
-        colors = ListItemDefaults.colors(
-            containerColor = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
-        leadingContent = { Checkbox(checked = selected, onCheckedChange = null) },
-        headlineContent = { Text(item.displayName, maxLines = 2, overflow = TextOverflow.Ellipsis) },
-        supportingContent = {
-            val date = if (item.lastModifiedEpochMs > 0) dateFormat.format(Date(item.lastModifiedEpochMs)) else stringResource(R.string.tools_storage_date_unknown)
-            Text(stringResource(R.string.tools_storage_item_meta, Formatter.formatShortFileSize(context, item.sizeBytes), date))
-        },
-    )
 }

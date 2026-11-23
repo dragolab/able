@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
                 tourCompleted = it.tourCompleted,
                 dynamicColor = it.useDynamicColor,
                 haptics = it.hapticsEnabled,
+                hapticsIntensity = it.hapticsIntensity,
             )
         }
 
@@ -69,6 +70,7 @@ class MainActivity : ComponentActivity() {
                 themeMode = loaded?.themeMode ?: ThemeMode.SYSTEM,
                 dynamicColor = loaded?.dynamicColor ?: true,
                 hapticsEnabled = loaded?.haptics ?: true,
+                hapticsIntensity = loaded?.hapticsIntensity ?: com.dragolabs.able.core.model.HapticsIntensity.NORMAL,
             ) {
                 if (loaded == null) {
                     // Preferences load in a few milliseconds; avoid flashing onboarding or Home.
@@ -118,4 +120,5 @@ private data class ShellPreferences(
     val tourCompleted: Boolean,
     val dynamicColor: Boolean,
     val haptics: Boolean,
+    val hapticsIntensity: com.dragolabs.able.core.model.HapticsIntensity,
 )

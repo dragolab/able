@@ -85,6 +85,26 @@ class HomeGestureClassifier(
     /** True while at least one finger is down. */
     val inGesture: Boolean get() = pointers.isNotEmpty()
 
+    /**
+     * True once the current gesture can no longer be a tap (a finger moved past the touch slop,
+     * or a second finger went down): it will be handed back as a replay when it ends, so the
+     * overlay may already stop intercepting new touches.
+     */
+    val willReplay: Boolean get() = inGesture && (gestureMoved || multiTouch)
+
+    /** Down time of the first tap waiting for a second one, or null. */
+    val pendingTapDownMs: Long? get() = pendingTap?.downMs
+
+    /**
+     * Drops the tap waiting for a second one without handing it back (it completed a double
+     * tap with a touch the overlay did not see). Returns false when there was none.
+     */
+    fun consumePendingTap(): Boolean {
+        if (pendingTap == null || inGesture) return false
+        pendingTap = null
+        return true
+    }
+
     /** Uptime at which [onTimeout] should be called, or null when nothing is waiting. */
     val deadlineMs: Long? get() = if (pendingTap != null && !inGesture) pendingDeadlineMs else null
 

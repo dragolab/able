@@ -49,12 +49,30 @@ enum class HomeDoubleTapMode(val key: String) {
     }
 }
 
+/** Where the Precise home overlay intercepts touches (LOCK-001). */
+enum class HomeDoubleTapArea(val key: String) {
+    /**
+     * Default. The home pages above the dock: the dock (hotseat) and the search bar below it are
+     * left to the launcher, so taps and swipes that start there are never delayed.
+     */
+    ABOVE_DOCK("above_dock"),
+
+    /** The whole home screen except the system bars and gesture edges. */
+    WHOLE_SCREEN("whole"),
+    ;
+
+    companion object {
+        fun fromKey(key: String?): HomeDoubleTapArea = entries.firstOrNull { it.key == key } ?: ABOVE_DOCK
+    }
+}
+
 @Immutable
 data class LockGestureConfig(
     val lockScreenEnabled: Boolean = false,
     val statusBarEnabled: Boolean = false,
     val homeEnabled: Boolean = false,
     val homeMode: HomeDoubleTapMode = HomeDoubleTapMode.PRECISE,
+    val homeArea: HomeDoubleTapArea = HomeDoubleTapArea.ABOVE_DOCK,
     val timeoutMs: Int = LockGestureSettings.DEFAULT_TIMEOUT_MS,
     val hapticOnLock: Boolean = true,
     val lockScreenRecognition: LockScreenRecognition = LockScreenRecognition.UNKNOWN,
@@ -74,6 +92,8 @@ data class LockGestureConfig(
  * - [KEY_HOME_MODE] `home_mode` String, `precise` (default) or `light` ([HomeDoubleTapMode]):
  *   Precise = touch overlay over the home pages that hands other touches back
  *   (`HomePreciseController`); Light = timing-only watcher (`HomeDoubleTapController`).
+ * - [KEY_HOME_AREA] `home_area` String, `above_dock` (default) or `whole` ([HomeDoubleTapArea]):
+ *   where the Precise overlay intercepts touches.
  * - [KEY_TIMEOUT_MS] `double_tap_timeout_ms` Int, default 300, range 200..600: max gap between taps.
  * - [KEY_HAPTIC] `haptic_on_lock` Boolean, default true: short vibration before locking.
  * - [KEY_RECOGNITION] `lock_screen_recognition` String ([LockScreenRecognition] name), written by
@@ -92,6 +112,7 @@ class LockGestureSettings(context: Context) {
         statusBarEnabled = prefs.getBoolean(KEY_STATUS_BAR, false),
         homeEnabled = prefs.getBoolean(KEY_HOME, false),
         homeMode = HomeDoubleTapMode.fromKey(prefs.getString(KEY_HOME_MODE, null)),
+        homeArea = HomeDoubleTapArea.fromKey(prefs.getString(KEY_HOME_AREA, null)),
         timeoutMs = prefs.getInt(KEY_TIMEOUT_MS, DEFAULT_TIMEOUT_MS).coerceIn(MIN_TIMEOUT_MS, MAX_TIMEOUT_MS),
         hapticOnLock = prefs.getBoolean(KEY_HAPTIC, true),
         lockScreenRecognition = prefs.getString(KEY_RECOGNITION, null)
@@ -109,6 +130,8 @@ class LockGestureSettings(context: Context) {
     fun setHomeEnabled(enabled: Boolean) = prefs.edit().putBoolean(KEY_HOME, enabled).apply()
 
     fun setHomeMode(mode: HomeDoubleTapMode) = prefs.edit().putString(KEY_HOME_MODE, mode.key).apply()
+
+    fun setHomeArea(area: HomeDoubleTapArea) = prefs.edit().putString(KEY_HOME_AREA, area.key).apply()
 
     /** Written by the Accessibility service; only stored when it changes. */
     fun reportHomeStatus(value: HomeDoubleTapStatus) {
@@ -151,6 +174,7 @@ class LockGestureSettings(context: Context) {
         const val KEY_HOME = "home_double_tap_enabled"
         const val KEY_HOME_STATUS = "home_double_tap_status"
         const val KEY_HOME_MODE = "home_mode"
+        const val KEY_HOME_AREA = "home_area"
         const val KEY_TIMEOUT_MS = "double_tap_timeout_ms"
         const val KEY_HAPTIC = "haptic_on_lock"
         const val KEY_RECOGNITION = "lock_screen_recognition"

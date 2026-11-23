@@ -102,7 +102,7 @@
 
     <!-- Customize sheet (HOME-002) -->
     <string name="home_customize_title">Customize Home</string>
-    <string name="home_customize_message">Show, hide and reorder cards. Safety alerts always appear at the top.</string>
+    <string name="home_customize_message">Show, hide and reorder cards. Access alerts always appear at the top, failed actions at the bottom.</string>
     <string name="home_customize_state_shown">Shown</string>
     <string name="home_customize_state_hidden">Hidden</string>
     <string name="home_customize_move_up">Move %1$s up</string>
@@ -121,4 +121,13 @@
     <string name="home_shortcut_blocked">Android blocked this shortcut. The app or file no longer allows access.</string>
     <string name="home_battery_no_active_profile">No battery profile active</string>
     <string name="home_battery_active_profiles">Active: %1$s</string>
+
+    <!-- Failed-actions notice (bottom of Home) and recent actions sheet -->
+    <string name="home_alert_failures_hide">Hide</string>
+    <string name="home_recent_show_all">Show all (%1$d)</string>
+    <string name="home_recent_sheet_title">Recent actions</string>
+    <plurals name="home_recent_sheet_subtitle">
+        <item quantity="one">Last %d action recorded by Able, newest first</item>
+        <item quantity="other">Last %d actions recorded by Able, newest first</item>
+    </plurals>
 </resources>

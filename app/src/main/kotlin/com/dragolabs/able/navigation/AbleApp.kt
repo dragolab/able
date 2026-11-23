@@ -51,10 +51,16 @@ import androidx.compose.material.icons.automirrored.rounded.MenuOpen
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShortNavigationBar
-import androidx.compose.material3.ShortNavigationBarItem
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.ui.Alignment
+import com.dragolabs.able.core.designsystem.component.AbleIconButton
+import com.dragolabs.able.core.designsystem.component.LocalAbleBottomBarPadding
+import com.dragolabs.able.core.designsystem.component.rememberAbleHaptics
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRail
 import androidx.compose.material3.WideNavigationRailItem
@@ -147,7 +153,10 @@ fun AbleApp(
         currentDestination?.hasRoute<TourRoute>() != true
 
     val reselectEvents = remember { MutableSharedFlow<String>(extraBufferCapacity = 1) }
+    val haptics = rememberAbleHaptics()
     val navigateTopLevel: (TopLevelDestination) -> Unit = { destination ->
+        // UX-003: the lightest tick for every destination tap (bar, rail, TV drawer).
+        haptics.navigate()
         if (currentSection == destination) {
             // Re-tapping the current section returns to its start: first pop nested screens
             // (a tool detail, Settings opened from the TV drawer); when already on the root, tell
@@ -160,46 +169,63 @@ fun AbleApp(
         }
     }
 
-    val host: @Composable (Modifier) -> Unit = { modifier ->
+    // SEARCH-001: the floating bar has its own Search button; rail and TV layouts show it in
+    // every top-level app bar instead.
+    val host: @Composable (Modifier, Boolean) -> Unit = { modifier, searchInTopBar ->
         CompositionLocalProvider(LocalAbleReselectEvents provides reselectEvents) {
         AbleNavHost(
             navController = navController,
             startDestination = startDestination,
+            searchInTopBar = searchInTopBar,
             modifier = modifier,
         )
         }
     }
 
     when (layout) {
-        ShellLayout.BottomBar -> Scaffold(
-            contentWindowInsets = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom),
-            bottomBar = {
-                if (showChrome && onTopLevel) {
-                    ShortNavigationBar {
-                        TopLevelDestination.entries.forEach { destination ->
-                            val selected = isSelected(destination)
-                            ShortNavigationBarItem(
-                                selected = selected,
-                                onClick = { navigateTopLevel(destination) },
-                                icon = {
-                                    Icon(
-                                        if (selected) destination.selectedIcon else destination.unselectedIcon,
-                                        contentDescription = null,
-                                    )
+        ShellLayout.BottomBar -> {
+            // Floating bar (SHELL-001): content runs edge to edge underneath the translucent,
+            // blurred bar; screens get the space it covers through LocalAbleBottomBarPadding.
+            val hazeState = rememberHazeState()
+            // The floating bar shows only on section roots: tool screens (and other details) get the
+            // full height, so the bar never covers their own controls (e.g. Fake GPS Start).
+            val showBar = showChrome && backStackEntry?.sectionIndex() != null
+            val navigationInset = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
+            val navigationPadding = navigationInset.asPaddingValues().calculateBottomPadding()
+            val barPadding = if (showBar) navigationPadding + FloatingNavigationBarDefaults.Reserved else 0.dp
+            Box(Modifier.fillMaxSize()) {
+                CompositionLocalProvider(LocalAbleBottomBarPadding provides barPadding) {
+                    host(
+                        Modifier
+                            .fillMaxSize()
+                            .then(
+                                if (showBar) {
+                                    Modifier.consumeWindowInsets(navigationInset)
+                                } else {
+                                    Modifier.windowInsetsPadding(navigationInset)
                                 },
-                                label = { Text(stringResource(destination.labelRes)) },
                             )
-                        }
-                    }
+                            .hazeSource(hazeState),
+                        false,
+                    )
                 }
-            },
-        ) { innerPadding ->
-            host(
-                Modifier
-                    .fillMaxSize()
-                    .padding(bottom = innerPadding.calculateBottomPadding())
-                    .consumeWindowInsets(innerPadding),
-            )
+                AnimatedVisibility(
+                    visible = showBar,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    enter = slideInVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) { it } +
+                        fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                    exit = slideOutVertically(MaterialTheme.motionScheme.fastSpatialSpec()) { it } +
+                        fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                ) {
+                    FloatingNavigationBar(
+                        hazeState = hazeState,
+                        isSelected = isSelected,
+                        onNavigate = navigateTopLevel,
+                        onSearch = { navController.navigate(SearchRoute) { launchSingleTop = true } },
+                        modifier = Modifier.windowInsetsPadding(navigationInset),
+                    )
+                }
+            }
         }
 
         ShellLayout.Rail -> {
@@ -212,7 +238,7 @@ fun AbleApp(
                     WideNavigationRail(
                         state = railState,
                         header = {
-                            IconButton(
+                            AbleIconButton(
                                 modifier = Modifier.padding(start = 24.dp),
                                 onClick = {
                                     scope.launch {
@@ -255,6 +281,7 @@ fun AbleApp(
                         .weight(1f)
                         .fillMaxHeight()
                         .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom + WindowInsetsSides.End)),
+                    true,
                 )
             }
         }
@@ -266,7 +293,7 @@ fun AbleApp(
             onNavigateTopLevel = navigateTopLevel,
             onOpenSettings = { navController.navigate(SettingsRoute) { launchSingleTop = true } },
         ) {
-            host(Modifier.fillMaxSize())
+            host(Modifier.fillMaxSize(), true)
         }
     }
 }
@@ -276,6 +303,7 @@ fun AbleApp(
 private fun AbleNavHost(
     navController: NavHostController,
     startDestination: Any,
+    searchInTopBar: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val openSettings: () -> Unit = { navController.navigate(SettingsRoute) { launchSingleTop = true } }
@@ -300,8 +328,13 @@ private fun AbleNavHost(
     SharedTransitionLayout(modifier = modifier.clipToBounds()) {
         CompositionLocalProvider(
             LocalAbleSharedTransitionScope provides this,
-            // SEARCH-001: every top-level scaffold shows the app-wide search button.
-            LocalAbleSearchAction provides { navController.navigate(SearchRoute) { launchSingleTop = true } },
+            // SEARCH-001: top-level scaffolds show the app-wide search button unless the
+            // floating navigation bar already offers it.
+            LocalAbleSearchAction provides if (searchInTopBar) {
+                { navController.navigate(SearchRoute) { launchSingleTop = true } }
+            } else {
+                null
+            },
         ) {
             NavHost(
                 navController = navController,

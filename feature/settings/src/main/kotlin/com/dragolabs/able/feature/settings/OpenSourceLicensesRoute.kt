@@ -78,6 +78,18 @@ private enum class BundledComponent(
         Icons.Rounded.BugReport,
         listOf(LicenseDocument(R.string.settings_licenses_doc_apache, APACHE_LICENSE_ASSET)),
     ),
+    HAZE(
+        R.string.settings_licenses_haze_name,
+        R.string.settings_licenses_haze_detail,
+        Icons.Rounded.Code,
+        listOf(LicenseDocument(R.string.settings_licenses_doc_apache, APACHE_LICENSE_ASSET)),
+    ),
+    OSMDROID(
+        R.string.settings_licenses_osm_name,
+        R.string.settings_licenses_osm_detail,
+        Icons.Rounded.Code,
+        listOf(LicenseDocument(R.string.settings_licenses_doc_apache, APACHE_LICENSE_ASSET)),
+    ),
     ANDROID_LIBRARIES(
         R.string.settings_licenses_libraries_name,
         R.string.settings_licenses_libraries_detail,

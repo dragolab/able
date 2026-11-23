@@ -1,6 +1,7 @@
 package com.dragolabs.able.feature.tools.memory
 
 import android.text.format.Formatter
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ListAlt
 import androidx.compose.material.icons.rounded.Info
@@ -22,13 +23,9 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.StopCircle
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -42,11 +39,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,7 +56,6 @@ import com.dragolabs.able.core.designsystem.component.AbleCardStyle
 import com.dragolabs.able.core.designsystem.component.AbleDetailScaffold
 import com.dragolabs.able.core.designsystem.component.AbleFilterChip
 import com.dragolabs.able.core.designsystem.component.AbleIconButton
-import com.dragolabs.able.core.designsystem.component.AbleTextButton
 import com.dragolabs.able.core.designsystem.component.ClearRestoredFocusOnTouch
 import com.dragolabs.able.core.designsystem.component.ConfirmationDialog
 import com.dragolabs.able.core.designsystem.component.EmptyState
@@ -71,11 +65,14 @@ import com.dragolabs.able.core.designsystem.component.SectionHeader
 import com.dragolabs.able.core.designsystem.component.StatusBanner
 import com.dragolabs.able.core.designsystem.component.StatusLevel
 import com.dragolabs.able.core.designsystem.component.StatusPill
-import com.dragolabs.able.core.designsystem.component.focusRing
 import com.dragolabs.able.core.designsystem.component.rememberAbleHaptics
 import com.dragolabs.able.core.designsystem.theme.AbleSpacing
 import com.dragolabs.able.feature.tools.R
+import com.dragolabs.able.feature.tools.common.AppIcon
 import com.dragolabs.able.feature.tools.common.MessageEffect
+import com.dragolabs.able.feature.tools.common.SelectableRow
+import com.dragolabs.able.feature.tools.common.SelectionActionBar
+import com.dragolabs.able.feature.tools.common.SelectionSlot
 import com.dragolabs.able.feature.tools.common.ToolsSearchField
 import com.dragolabs.able.feature.tools.common.highlightMatches
 import com.dragolabs.able.feature.tools.common.startFirstAvailable
@@ -155,11 +152,11 @@ fun MemoryScreen(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val haptics = rememberAbleHaptics()
     MessageEffect(state.message, snackbarHostState, onMessageConsumed)
     ClearRestoredFocusOnTouch()
 
     val selectedCount = state.selectedApps.size
+    val visibleApps = remember(state.apps, state.filter, state.query) { state.visibleApps }
     AbleDetailScaffold(
         title = stringResource(R.string.memory_title),
         onBack = onBack,
@@ -171,25 +168,32 @@ fun MemoryScreen(
             }
         },
         floatingActionButton = {
-            if (selectedCount > 0) {
-                ExtendedFloatingActionButton(
-                    onClick = { haptics.click(); onStopSelected() },
-                    icon = { Icon(Icons.Rounded.StopCircle, contentDescription = null) },
-                    text = { Text(pluralStringResource(R.plurals.memory_stop_selected, selectedCount, selectedCount)) },
-                    modifier = Modifier.focusRing(),
-                )
-            }
+            val context = LocalContext.current
+            val selectedRss = state.selectedApps.sumOf { it.rssBytes }
+            SelectionActionBar(
+                visible = selectedCount > 0 || (state.progress != null && state.progress.total > 1),
+                title = pluralStringResource(R.plurals.memory_selected_count, selectedCount, selectedCount),
+                supportingText = stringResource(R.string.memory_selected_rss, Formatter.formatShortFileSize(context, selectedRss)),
+                actionLabel = stringResource(R.string.memory_action_force_stop),
+                actionIcon = Icons.Rounded.StopCircle,
+                onAction = onStopSelected,
+                onClear = onClearSelection,
+                clearLabel = stringResource(R.string.memory_clear_selection),
+                busy = state.progress != null,
+                progressText = state.progress?.let { stringResource(R.string.memory_stop_progress, it.done, it.total) },
+                destructive = true,
+            )
         },
     ) { padding ->
         ReadableWidth {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                // Extra bottom space keeps the last row clear of the "Stop selected" button.
+                // Extra bottom space keeps the last row clear of the selection bar.
                 contentPadding = PaddingValues(
                     start = AbleSpacing.screenGutter,
                     end = AbleSpacing.screenGutter,
                     top = padding.calculateTopPadding() + AbleSpacing.sm,
-                    bottom = padding.calculateBottomPadding() + 96.dp,
+                    bottom = padding.calculateBottomPadding() + 112.dp,
                 ),
                 verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm),
             ) {
@@ -231,20 +235,22 @@ fun MemoryScreen(
                     )
                 }
                 item(key = "filters") {
-                    Row(horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
+                    // Fixed content: selection never adds controls here, so rows below never shift.
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         MemoryAppFilter.entries.forEach { filter ->
                             AbleFilterChip(
                                 selected = state.filter == filter,
                                 onClick = { onFilter(filter) },
-                                label = { Text(stringResource(filter.labelRes())) },
+                                label = { Text(stringResource(filter.labelRes()), maxLines = 1) },
                             )
-                        }
-                        if (selectedCount > 0) {
-                            AbleTextButton(onClick = onClearSelection) { Text(stringResource(R.string.memory_clear_selection)) }
                         }
                     }
                 }
-                val apps = state.visibleApps
+                val apps = visibleApps
                 when {
                     state.apps == null && state.loadingApps -> item(key = "loading") {
                         Row(
@@ -276,8 +282,9 @@ fun MemoryScreen(
                                 modifier = Modifier.padding(horizontal = AbleSpacing.xs),
                             )
                         }
-                        items(apps, key = { it.key }) { app ->
+                        items(apps, key = { it.key }, contentType = { "app" }) { app ->
                             RunningAppRow(
+                                modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null),
                                 app = app,
                                 query = state.query,
                                 selected = app.key in state.selected,
@@ -398,11 +405,11 @@ private fun RunningAppRow(
     onForceStop: () -> Unit,
     onKillBackground: () -> Unit,
     onAppInfo: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val haptics = rememberAbleHaptics()
     var menuOpen by rememberSaveable(app.key) { mutableStateOf(false) }
-    val shape = MaterialTheme.shapes.large
     val size = Formatter.formatShortFileSize(context, app.rssBytes)
     val details = buildList {
         add(stringResource(R.string.memory_app_size, size))
@@ -410,44 +417,27 @@ private fun RunningAppRow(
         add(stringResource(app.importance.labelRes()))
         if (app.userId != 0) add(stringResource(R.string.memory_app_user, app.userId))
     }.joinToString(" · ")
-    val rowModifier = Modifier
-        .fillMaxWidth()
-        .clip(shape)
-        .let {
-            if (app.stoppable && !busy) {
-                it.toggleable(value = selected, role = Role.Checkbox, onValueChange = { on -> haptics.toggle(on); onToggle() })
-            } else {
-                it
-            }
-        }
-        .focusRing(shape)
-    ListItem(
-        modifier = rowModifier,
-        colors = ListItemDefaults.colors(
-            containerColor = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
-        leadingContent = {
-            when {
-                busy -> LoadingIndicator(modifier = Modifier.size(40.dp))
-                app.stoppable -> Checkbox(checked = selected, onCheckedChange = null)
-                else -> Icon(Icons.Rounded.Lock, contentDescription = stringResource(R.string.memory_protected))
+    SelectableRow(
+        selected = selected,
+        onToggle = onToggle,
+        slot = when {
+            busy -> SelectionSlot.BUSY
+            app.stoppable -> SelectionSlot.CHECKBOX
+            else -> SelectionSlot.LOCKED
+        },
+        lockedIcon = Icons.Rounded.Lock,
+        lockedDescription = stringResource(R.string.memory_protected),
+        modifier = modifier,
+        leading = { AppIcon(app.packageName) },
+        headline = { Text(highlightMatches(app.label, query), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        supporting = {
+            Text(highlightMatches(app.packageName, query), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(details, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            app.protectReason?.let { reason ->
+                Text(stringResource(reason.labelRes()), style = MaterialTheme.typography.bodySmall)
             }
         },
-        headlineContent = { Text(highlightMatches(app.label, query), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(highlightMatches(app.packageName, query), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(details, maxLines = 2)
-                app.protectReason?.let { reason ->
-                    Text(
-                        stringResource(reason.labelRes()),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        },
-        trailingContent = {
+        trailing = {
             Box {
                 AbleIconButton(onClick = { menuOpen = true }, enabled = !busy) {
                     Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.memory_actions_for, app.label))

@@ -77,16 +77,18 @@ As a user, I want a "?" button on advanced or risky options, so that I understan
 
 ### US-UX-03 — Feel confirmations and control haptics
 
-As a user, I want subtle haptic feedback when I confirm, toggle, or run an action, with a way to turn it off, so that actions feel immediate but not intrusive.
+As a user, I want haptic feedback on every tap that feels different for different kinds of actions, with an intensity I choose, so that actions feel immediate and I can tell a success from a destructive or failed action without looking.
 
-- Given haptics are on (default), when I confirm, toggle, or run an action, then Able gives one short haptic pulse.
+- Given haptics are at Normal (default), when I tap any interactive element, then Able gives one short pattern of the matching kind: tick (rows, chips, tabs), click (buttons, navigation items), toggle (distinct on and off), confirm, reject/destructive, or long press (revised 2026-11-23).
+- Given I confirm a destructive operation or an action fails, when Able responds, then I feel the reject pattern, never the confirm pattern.
+- Given I choose Light, Normal, or Strong in Settings, when I tap, then the intensity changes accordingly; given my device lacks vibration primitives, then Settings tells me intensity may not change and the fallback pattern still plays.
 - Given I drag a slider, when it crosses a step, then I feel one light tick per step (not continuous buzzing), and when I release it, one confirm pulse.
 - Given I tap a button, chip, switch, or list row, when the interaction registers, then Able gives the pattern defined in the haptics map once.
 - Given an action is rejected or fails, when Able reports it, then the haptic pattern differs from the success pattern.
-- Given I turn Haptic feedback off in Settings, when I act, then no haptics are produced.
-- Given system touch feedback is disabled or the device has no vibrator, when I act, then no haptics occur and no error is shown.
+- Given I set Haptic feedback to Off in Settings, when I act, then no haptics are produced.
+- Given system touch feedback is disabled or the device has no vibrator, when I act, then no haptics occur and no error is shown; without a vibrator the intensity control is hidden or marked unavailable.
 
-**Links:** UC-36; UX-003 (revised 2026-11-22).
+**Links:** UC-36; UX-003 (revised 2026-11-22, 2026-11-23); ADR-043.
 
 ### US-UX-04 — Navigate with predictive back and smooth motion
 
@@ -126,9 +128,11 @@ As a user, I want a distinctive Able icon, logo, and tile icons, so that I can f
 - Given I add Able tiles, when they appear in Quick Settings, then each uses an icon from the Able icon set.
 - Given light, dark, or dynamic color, when I view the logo or tile icons, then they remain legible.
 - Given a launcher without themed icons, when I view Able, then the standard adaptive icon is shown without broken artwork.
-- Status note (2026-11-22): a rebrand is in progress with options in `docs/brand/branding-options.html`; these criteria apply to whichever option the owner selects and are not evaluated before that decision.
+- Given the "Pulse" concept (decided 2026-11-23), when I see the launcher icon, then it shows a lowercase "a" of a ring and a stem with a mint level segment (ink `#101418`, mint `#1FC98E`), and the themed icon shows ring and stem only.
+- Given I see the wordmark, when it renders, then it uses Google Sans Flex at weight 650 with ROND 0.
+- Unsupported/error states: a launcher that crops or tints icons still shows a recognizable ring and stem; small tile sizes keep the mark legible.
 
-**Links:** UC-37; BRAND-001.
+**Links:** UC-37; BRAND-001; ADR-027 (revised 2026-11-23).
 
 ### US-HOME-01 — See battery status, useful actions, and customize modular cards
 
@@ -137,10 +141,13 @@ As a user, I want a modular card-based Home where battery level, active profile,
 - Given the default Home layout, when Home opens, then battery/profile and primary quick action cards appear first without switching destination.
 - Given I customize Home, when I reorder, hide, or reveal cards, then my preferences persist across app restarts and backup export/import.
 - Given I want to restore the recommended setup, when I select Reset to default, then the standard card order and visibility are restored immediately.
-- Given an automation, permission, or Shizuku connection has failed, when Home opens, then a prominent safety card or banner remains visible even if other cards were reordered.
+- Given a critical condition (for example Shizuku permission missing or automation paused by an error), when Home opens, then a safety banner is shown at the top even if other cards were reordered, and I cannot hide it while the condition persists.
+- Given some actions failed, when Home opens, then a failed-actions notice appears at the bottom of Home with the count and Details; when I hide it, it stays hidden until a new failure is recorded (revised 2026-11-23).
+- Given the Recent actions card, when I look at it, then it has no "Open Battery" button; if "Show all" is offered, it opens the full history in a sheet.
 - Given a tool is unavailable on the current device, when I view Home, then Able does not present it as working.
+- Unsupported/error states: hiding the notice never deletes log entries; an empty history shows an empty state in the sheet.
 
-**Links:** UC-01, UC-03, UC-20; HOME-001, HOME-002, HOME-003.
+**Links:** UC-01, UC-03, UC-20; HOME-001, HOME-002, HOME-003 (revised 2026-11-23); ADR-048.
 
 ### US-UI-01 — Use Able with the current input method
 
@@ -164,11 +171,36 @@ As a user deep inside a section, I want to tap that section's navigation item ag
 
 **Links:** UC-48, UC-03; SHELL-001; NFR-UI-001, NFR-TV-001; ADR-040.
 
+### US-UI-03 — Navigate with a floating bar that never hides content
+
+As a phone user, I want a compact floating navigation bar with a separate Search button, so that the app feels light while every item stays reachable.
+
+- Given a compact window, when any primary destination is shown, then a floating pill bar with Home, Batteria, App, Strumenti and a separate circular Search button on its right are visible above the system navigation area.
+- Given content behind the bar, when I look at it, then it is lightly blurred and the bar's labels and icons stay readable (WCAG AA); given blur is unavailable, then the bar is an opaque tonal surface.
+- Given I scroll to the end of any list, when the last item arrives, then it and any primary action sit fully above the bar.
+- Given I tap the Search button, when it opens, then the options search starts (SEARCH-001).
+- Given the keyboard opens, when I type, then the bar never covers the field.
+- Given a tablet or TV, when Able shows navigation, then the rail or drawer is used, not the floating bar.
+- Unsupported/error states: TalkBack names each item and the Search button; re-selecting an item still returns to the section start (US-UI-02).
+
+**Links:** UC-03; SHELL-001 (revised 2026-11-23), SEARCH-001; NFR-UI-001, NFR-ACC-002; ADR-042.
+
+### US-TOOLS-01 — Scan a tidy Tools hub
+
+As a user, I want every tool tile in Strumenti to have the same size, so that the hub looks orderly and I find tools quickly.
+
+- Given the Tools hub, when it loads, then every tile has the same width and height whatever its label, badge, or availability.
+- Given a long label or large font, when tiles render, then labels wrap to at most two lines or ellipsize and all tiles grow together.
+- Given a tool is unavailable, when I look at its tile, then it keeps the same size and shows the reason.
+- Unsupported/error states: TalkBack reads the full tool name; D-pad moves predictably across the grid on TV.
+
+**Links:** UC-52; TOOLS-001; UX-004; NFR-ACC-002, NFR-TV-001; ADR-048.
+
 ### US-SEARCH-01 — Find any option by searching
 
 As a user, I want to search all of Able's options from any main screen, so that I reach a setting without knowing where it lives.
 
-- Given I am on Home, Batteria, App, or Strumenti, when I look at the top bar, then a search action is there.
+- Given I am on Home, Batteria, App, or Strumenti, when I look for search, then the circular Search button next to the floating navigation bar is there on a phone, and a search action in the top bar on a tablet or TV (revised 2026-11-23).
 - Given I type a query in Italian or English, when results load, then matching tools, battery options, apps features, settings, tiles & widgets, and Home customization entries appear, whichever language the keyword is in.
 - Given I select a result, when the destination opens, then the option is highlighted where possible.
 - Given a result is unavailable on my device, when it is listed, then it shows the reason instead of opening a dead screen.
@@ -229,6 +261,19 @@ As a user, I want several profiles to be active at once and know which one decid
 - Unsupported/error states: an app action rejected by Android is shown failed with its source profile; no profile active → Normale shown as effective.
 
 **Links:** UC-05; BAT-002, BAT-003, BAT-008; ADR-005.
+
+### US-BAT-09 — Swipe through Battery and find answers in a sensible order
+
+As a user, I want to swipe between Status, Monitor, Health, and Diagnosis and see each screen ordered by the questions I have, so that I get the answer I need first.
+
+- Given Batteria is open, when I swipe left or right, then the adjacent sub-section appears and the tab row follows; tapping a tab also works.
+- Given I open Monitor, when it loads, then I see live status first, then statistics, then sessions, then settings.
+- Given I open Health, when it loads, then I see the health summary first, then capacity, lifecycle, charging, and advanced data.
+- Given I swipe on a chart or chip row, when I drag, then that content scrolls instead of changing sub-section; swipes from the back-gesture edge still go back.
+- Given "Remove animations" is on, when I change sub-section, then the change is instant.
+- Unsupported/error states: unavailable values show "unavailable on this device" with their source; on TV tabs are D-pad focusable and no swipe is needed; re-selecting Batteria returns to Stato.
+
+**Links:** UC-50; BAT-UI-001; MON-001–MON-009, BAT-HLT-001–BAT-HLT-002; NFR-ACC-002, NFR-TV-001; ADR-048.
 
 ### US-MON-01 — Understand screen-on and idle battery use
 
@@ -351,9 +396,11 @@ As a Pixel user for whom the light mode misses taps, I want a precise mode that 
 - Given Precise is active and the launcher home is in front, when I double tap empty space, then the screen turns off; when I tap an icon, it opens; when I long press, the launcher menu appears; when I swipe, the page changes.
 - Given I use back, home, or Recents gestures, when Precise is active, then they work unchanged because system gesture areas are not covered.
 - Given I open an app, Recents, the shade, or the keyboard, when the launcher loses the foreground, then the overlay is gone and nothing is intercepted.
-- Unsupported/error states: self-test failure → Able recommends Light mode or the widget and does not enable Precise silently; multi-touch gestures are disclosed as unreliable; Accessibility disabled → inactive.
+- Given Precise is active, when I swipe between home pages several times in a row, then after the first swipe further swipes go straight to the launcher at native speed, and the first swipe changes the page with its own velocity (revised 2026-11-23).
+- Given I read the Precise setup, when it lists trade-offs, then it says that double taps right after a swipe and on the dock or search bar are not detected.
+- Unsupported/error states: self-test failure → Able recommends Light mode or the widget and does not enable Precise silently; the self-test shows first-swipe delay and page-change success rate; multi-touch gestures are disclosed as unreliable; Accessibility disabled → inactive.
 
-**Links:** UC-47; LOCK-003; NFR-COMPAT-001; ADR-039.
+**Links:** UC-47; LOCK-003 (revised 2026-11-23); NFR-COMPAT-001; ADR-039 (revised).
 
 ### US-TORCH-01 — Control the torch safely
 
@@ -411,6 +458,21 @@ As a user, I want to save my current GPS coordinates with custom labels and tags
 
 **Links:** UC-26; GPS-001, GPS-002; NFR-PRIV-002, NFR-SEC-002.
 
+### US-GPS-02 — Simulate my location for testing
+
+As a user testing location-based apps, I want to set a fake position on a map, move it with a joystick, or follow a route, so that I can test behavior without travelling.
+
+- Given Able is not the mock-location app, when I open Fake GPS, then Able explains why and offers Developer options or, with Shizuku, a one-tap selection whose result is checked.
+- Given the map is open, when I tap a point or search a place or coordinates, then the fake position moves there; I can save it as a point.
+- Given I start a mock position, when it is active, then an ongoing notification shows it with Stop, and stopping returns my device to its real location.
+- Given I use the joystick or a route, when I choose a speed, then the position moves at that speed; routes can pause, resume, loop, and stop.
+- Given I set jitter, altitude, or accuracy, when the position is fed, then those values are applied.
+- Given the map, when I look at it, then the OpenStreetMap attribution is always visible and Able tells me that the tile server sees the map area I view.
+- Given I read setup or "?" help, when the limits are listed, then Able says that apps can detect mock locations and may refuse to work, and that I must not use it to deceive people or services.
+- Unsupported/error states: no network → no tiles, coordinate entry still works; Developer options off or selection revoked while running → the service stops and Able reports it; invalid coordinates rejected; no profile, tile, widget, or key gesture can start a mock position.
+
+**Links:** UC-49; GPS-003; NFR-PRIV-001, NFR-SEC-002, NFR-COMPAT-001; ADR-045.
+
 ### US-SENS-01 — Measure angles, distances, and directions with sensors
 
 As a user, I want a spirit level, screen ruler, and compass, so that I can perform everyday measurements using my phone's hardware.
@@ -429,13 +491,15 @@ As a user, I want Quick Settings tiles and in-app switches for NFC, auto-brightn
 - Given `WRITE_SECURE_SETTINGS` or Shizuku is granted, when I tap the NFC, debugging, or Private DNS tile, then Able toggles the system state directly and updates the tile icon.
 - Given privileged permissions are ungranted, when I tap a system tile, then Able opens the matching native Android settings screen instead of failing silently.
 - Given I use the Auto-brightness tile, when I tap it with `WRITE_SETTINGS` granted, then Able toggles between automatic and manual brightness modes immediately.
-- Given I granted `WRITE_SECURE_SETTINGS` via ADB, when I tap the NFC tile, then NFC toggles directly; given I did not but Shizuku is connected, then it toggles through Shizuku; given neither, then the NFC settings page opens (revised 2026-11-22).
+- Given I granted `WRITE_SECURE_SETTINGS` via ADB, when I tap the NFC tile, then NFC toggles directly; given I did not but Shizuku is connected, then Able offers to grant the permission to itself, and after I confirm and the grant is verified, NFC toggles directly; given neither, then the NFC settings page opens (revised 2026-11-23; `svc nfc` through Shizuku is never used because it fails on Android 16).
+- Given Able holds the grant, when I open the access checklist, then I see it as granted with what it allows and a Revoke action; after revoking, Able uses the next available route.
+- Given USB or Wireless debugging changes in Android Settings or via ADB, when I look at Able's switch or tile, then it shows the new state within about a second without reopening the screen (revised 2026-11-23).
 - Given NFC changes from any source, when I look at the tile, then it shows the real state, including turning on/off.
 - Given I open NFC setup, when I want advanced mode, then Able shows the ADB grant command with a copy action and how to revoke it.
 - Given I choose wireless debugging "details", when the Wireless debugging page can be opened, then it opens directly; otherwise Developer options, otherwise Android Settings, with an explanation.
-- Unsupported/error states: no NFC hardware → tile unavailable; developer options disabled → Able explains how to enable them.
+- Unsupported/error states: no NFC hardware → tile unavailable; developer options disabled → Able explains how to enable them; self-grant failed or cancelled → reason shown and settings fallback.
 
-**Links:** UC-28; SYS-001–SYS-004 (SYS-001, SYS-003 revised 2026-11-22); NFR-COMPAT-001, NFR-SEC-002.
+**Links:** UC-28, UC-51; SYS-001–SYS-004 (SYS-001, SYS-003 revised 2026-11-22 and 2026-11-23); NFR-COMPAT-001, NFR-SEC-002; ADR-044.
 
 ### US-CMD-01 — Run shell commands safely through Shizuku
 
@@ -530,6 +594,7 @@ As a user, I want to see RAM use and running apps and stop selected ones myself,
 - Given I choose Force-stop or Kill, when the confirmation appears, then it states that notifications, alarms, and sync may stop and the app may restart and use more battery; after confirming, Able verifies and reports the result.
 - Given I edit the block list, when I add apps, then protected apps, the launcher, the keyboard, Able, and core system processes cannot be added; Stop block list asks for confirmation and reports per app.
 - Given any screen of this tool, when I read it, then there is no "boost", "clean RAM", or battery-saving claim.
+- Given the app list, when I select apps, then each row shows the app icon and a vertically centered checkbox, and the bulk bar and result sheet look and work like Storage's per-app cache cleanup (revised 2026-11-23).
 - Unsupported/error states: Shizuku missing → summary only with the reason; an app restarts right away → reported as restarted; nothing runs automatically from a profile, schedule, tile, or widget.
 
 **Links:** UC-45; MEM-001, BAT-007; NFR-PWR-002; ADR-037.
@@ -567,13 +632,17 @@ As a user, I want package descriptions, removal levels, and dependencies from th
 
 As a user, I want to filter and inspect large files (>100 MB default) and old downloads (>30 days default) and choose what to delete, so that cleanup does not remove data unexpectedly.
 
-- Given I scan for large files, when the list loads, then Able filters files >100 MB by default and allows switching filter chips (50MB, 100MB, 500MB, 1GB).
-- Given I scan for old downloads, when the list loads, then Able filters downloads older than 30 days by default with quick filters for 7, 30, and 90 days.
+- Given I scan for large files, when the list loads, then Able filters files >100 MB by default and allows switching filter chips (50MB, 100MB, 500MB, 1GB) or entering a custom size.
+- Given I scan for old downloads, when the list loads, then Able filters downloads older than 30 days by default with quick filters for 7, 30, 90, and 365 days.
+- Given the large-file finder (revised 2026-11-23), when I combine type, size, age, location (all, Downloads, DCIM, or a folder I pick), and a name search, then only matching files are listed, every accessible matching file is found, and I can sort by size, date, or name.
+- Given images or videos in the results, when they are listed, then they show thumbnails.
+- Given no file matches, when the result is empty, then Able tells me which filters are active and lets me clear them.
 - Given the file picker or delete confirmation is cancelled, when Able returns, then no unselected file is deleted.
 - Given a file disappears before deletion, when Able refreshes, then it reports partial completion and continues safely.
 - Given a file is inside another app's private data, when I scan storage, then Able does not claim it can clean that data.
+- Unsupported/error states: invalid custom size rejected with a message; cancelled scan labelled partial; revoked folder access asks me to pick the folder again.
 
-**Links:** UC-11; STO-001, STO-002.
+**Links:** UC-11; STO-001 (revised 2026-11-23), STO-002; ADR-019.
 
 ### US-STO-02 — See what fills my storage
 
@@ -594,8 +663,9 @@ As a user, I want to clear the caches of all apps in one action and see how much
 - Given Shizuku is not available, when I choose Clean all app caches, then Able explains why and opens Android's storage settings.
 - Given the command fails or is rejected, when Able returns, then it reports failure and no freed amount.
 - Given I clean Able's own cache, when it completes, then Able reports the freed space directly.
+- Given Shizuku is connected, when I open the per-app cache list, select apps (each row with icon and centered checkbox), and choose Clear cache, then a confirmation lists the apps and total cache size, and the result shows the measured freed space per app with failed rows first, like the RAM tool's bulk action (revised 2026-11-23).
 
-**Links:** UC-31; STO-002; NFR-REL-001.
+**Links:** UC-31; STO-002 (revised 2026-11-23); NFR-REL-001.
 
 ### US-ACT-01 — Open an activity or turn it into a shortcut
 
@@ -622,17 +692,30 @@ As a user, I want to customize shortcuts and sort them into collections, so that
 
 As a user, I want to choose which sections go into each backup file, so that I control what I transfer.
 
-- Given I begin an export, when the section chooser appears, then I can independently select profiles/app rules, Home/appearance, shortcut definitions/collections, and custom icons.
-- Given I export, when privacy exclusions appear, then usage history, permission grants, Shizuku state, app data, and hotspot password are excluded by default.
+- Given I begin an export, when the section chooser appears, then I can independently select battery profiles, app rules, Home/appearance, shortcut definitions/collections, custom icons, and GPS points (revised 2026-11-23).
+- Given I export, when privacy exclusions appear, then usage history, permission grants, Shizuku state, app data, and hotspot password are excluded, and battery history is excluded unless I select it.
 - Given the file is saved, when I inspect its result, then Able reports location/name and does not upload it to a cloud account.
 
-**Links:** UC-14; CFG-001–CFG-003.
+**Links:** UC-14; CFG-001–CFG-003 (revised 2026-11-23).
+
+### US-CFG-03 — Move my battery history to a new phone when I choose
+
+As a user changing phones, I want to optionally include my battery history and measurements in a backup, so that my statistics and baseline continue on the new device.
+
+- Given I begin an export, when the section chooser appears, then the battery history section is unselected; when I select it, then Able shows a privacy notice before continuing.
+- Given I start another export later, when the chooser appears, then battery history is unselected again.
+- Given I import a file with battery history, when the preview appears, then it shows how many sessions are new, how many duplicates will be skipped, and warns if sessions are older than my retention period and will be deleted.
+- Given I import the same file twice, when the second import completes, then no session is duplicated.
+- Given an old backup (schema 1), when I import it, then Able accepts it and shows how profiles were mapped.
+- Unsupported/error states: invalid sessions (bad times, ranges, overlaps) are rejected and listed; a schema newer than 2 is refused with an "update Able" message and no changes.
+
+**Links:** UC-14, UC-15; CFG-001–CFG-004 (revised 2026-11-23), MON-009; NFR-PRIV-002, NFR-SEC-001; ADR-046.
 
 ### US-CFG-02 — Preview and safely import a configuration
 
 As a user, I want to validate and preview a backup before applying it, so that I can transfer settings without unexpected overwrites.
 
-- Given a file is malformed or unsupported, when I select it, then Able makes no configuration changes.
+- Given a file is malformed or unsupported, when I select it, then Able makes no configuration changes; files with schema 1 or 2 are accepted (revised 2026-11-23).
 - Given a valid file, when the import preview appears, then neither Merge nor Replace is preselected.
 - Given conflicting settings, when I select Merge, then Able asks which conflicting values to keep.
 - Given I select Replace, when I confirm, then Able first saves a rollback snapshot and tells me what will be overwritten.

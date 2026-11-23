@@ -44,7 +44,9 @@ import com.dragolabs.able.lock.SystemUiLockState
  * - button shortcuts (BTN-001): volume key gestures from `onKeyEvent` ([ButtonShortcutController]).
  *
  * Event types and flags beyond the XML baseline (key filtering, launcher click/scroll events) are
- * requested at runtime only while a feature needs them ([updateServiceInfo]). Window content is
+ * requested at runtime only while a feature needs them ([updateServiceInfo]); the launcher's
+ * click/scroll events are used by both home-screen double tap modes (in Precise mode to keep
+ * swipes native while the user is browsing pages). Window content is
  * read only to classify SystemUI scenes and launcher package names; nothing typed is read, and
  * nothing is stored or sent apart from the feature status flags in the settings files.
  */
@@ -125,7 +127,7 @@ class AbleAccessibilityService : AccessibilityService() {
         var flags = base.first
         var types = base.second
         if (buttons?.wantsKeyEvents == true) flags = flags or AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
-        if (home?.wantsInteractionEvents == true) {
+        if (home?.wantsInteractionEvents == true || homePrecise?.wantsInteractionEvents == true) {
             types = types or AccessibilityEvent.TYPE_VIEW_CLICKED or
                 AccessibilityEvent.TYPE_VIEW_LONG_CLICKED or AccessibilityEvent.TYPE_VIEW_SCROLLED
         }
@@ -146,6 +148,7 @@ class AbleAccessibilityService : AccessibilityService() {
                     homePrecise?.onWindowsMaybeChanged()
                 } else if (pkg != null && pkg == packages.launcherPackage) {
                     homePrecise?.onWindowsMaybeChanged()
+                    homePrecise?.onLauncherEvent(event)
                 }
             }
             AccessibilityEvent.TYPE_WINDOWS_CHANGED -> {
@@ -157,6 +160,7 @@ class AbleAccessibilityService : AccessibilityService() {
                 overlay?.refresh()
                 overlay?.scheduleRefresh()
                 home?.onAccessibilityEvent(event)
+                homePrecise?.onLauncherEvent(event)
                 packages.foregroundPackage(event)?.let { pkg ->
                     home?.onForeground(pkg)
                     homePrecise?.onForeground(pkg)
@@ -164,7 +168,10 @@ class AbleAccessibilityService : AccessibilityService() {
                 }
                 homePrecise?.onWindowListChanged()
             }
-            else -> home?.onAccessibilityEvent(event)
+            else -> {
+                home?.onAccessibilityEvent(event)
+                homePrecise?.onLauncherEvent(event)
+            }
         }
     }
 

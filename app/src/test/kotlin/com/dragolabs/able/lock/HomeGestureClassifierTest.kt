@@ -1,6 +1,7 @@
 package com.dragolabs.able.lock
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -166,5 +167,38 @@ class HomeGestureClassifierTest {
         c.onDown(0, 500f, 900f, 1_150, timeout)
         assertEquals(listOf(TouchGesture.Kind.TAP), replayKinds(c.onCancel()))
         assertEquals(emptyList<HomeDecision>(), c.tap(500f, 900f, 2_000))
+    }
+
+    @Test
+    fun consumePendingTap_dropsTheFirstTapWithoutReplay() {
+        val c = classifier()
+        assertNull(c.pendingTapDownMs)
+        c.tap(500f, 900f, 1_000)
+        assertEquals(1_000L, c.pendingTapDownMs)
+        assertTrue(c.consumePendingTap())
+        assertNull(c.pendingTapDownMs)
+        assertNull(c.deadlineMs)
+        assertEquals(emptyList<HomeDecision>(), c.onTimeout(2_000))
+        assertFalse(c.consumePendingTap())
+    }
+
+    @Test
+    fun willReplay_turnsOnWhenTheTouchMovesPastTheSlop() {
+        val c = classifier()
+        c.onDown(0, 500f, 900f, 1_000, timeout)
+        c.onMove(0, 510f, 900f, 1_010)
+        assertFalse(c.willReplay)
+        c.onMove(0, 540f, 900f, 1_020)
+        assertTrue(c.willReplay)
+        c.onUp(0, 600f, 900f, 1_060, timeout, empty)
+        assertFalse(c.willReplay)
+    }
+
+    @Test
+    fun willReplay_turnsOnForASecondFinger() {
+        val c = classifier()
+        c.onDown(0, 500f, 900f, 1_000, timeout)
+        c.onDown(1, 700f, 900f, 1_010, timeout)
+        assertTrue(c.willReplay)
     }
 }

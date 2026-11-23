@@ -19,6 +19,7 @@ This backlog organizes the accepted v1 product requirements into cohesive epics 
 | TSK-0102 | Implement Material 3 theme engine with Dynamic Color support, fallback semantic palette, and System/Light/Dark mode overrides. | SET-001, NFR-UI-001 | UC-02, US-SET-01 | T-LOCALE-01 |
 | TSK-0103 | Configure string resources for 100% complete Italian and English localization, including plurals, units, and TalkBack semantics. | SET-001, NFR-I18N-001, NFR-ACC-001 | UC-02, US-SET-01 | T-LOCALE-01, T-ACCESS-01 |
 | TSK-0104 | Build the adaptive shell navigation (Bottom navigation on compact phone; Navigation rail on wide tablet; 10-foot D-pad layout for TV). | SHELL-001, NFR-TV-001, NFR-UI-001 | UC-03, US-UI-01 | T-UI-01, T-TV-01 |
+| TSK-0105 | Floating navigation bar on compact windows: pill bar with Haze blur and opaque fallback, separate circular Search button (SEARCH-001 entry), content padding from bar height and insets on every screen, IME handling; rail and TV drawer unchanged; Haze in license inventory. | SHELL-001, SEARCH-001, NFR-ACC-002, ADR-042 | UC-03, US-UI-03 | T-UI-03, T-UI-02 |
 
 ---
 
@@ -45,6 +46,7 @@ This backlog organizes the accepted v1 product requirements into cohesive epics 
 | TSK-0302 | Build core cards: Battery & Profile, Quick Actions, Capability Status, Storage Summary, Favorite Shortcuts, Recent Actions/Warnings. | HOME-001, HOME-002 | UC-20, US-HOME-01 | T-HOME-01 |
 | TSK-0303 | Implement Home card customization mode (reorder, toggle visibility, and Reset to Default). | HOME-002 | UC-20, US-HOME-01 | T-HOME-01 |
 | TSK-0304 | Build persistent high-priority safety alert banner for disconnected Shizuku, revoked permissions, or failed profile automations. | HOME-003, NFR-REL-001 | UC-20, US-HOME-01 | T-HOME-01, T-STATE-01 |
+| TSK-0305 | Home revision: keep critical safety banners at the top; move the failed-actions notice to the bottom with Details and Hide-until-new-failure; remove "Open Battery" from the Recent actions card; optional "Show all" history sheet. | HOME-003, ADR-048 | UC-20, US-HOME-01 | T-HOME-02 |
 
 ---
 
@@ -62,6 +64,7 @@ This backlog organizes the accepted v1 product requirements into cohesive epics 
 | TSK-0406 | Custom profiles: create/rename/duplicate/delete custom profiles, edit and Reset to default for built-ins (no delete), trigger editor (battery below with activate/reset and only-unplugged, schedule with days, screen off N minutes, charging, manual) with validation, all triggers off by default; data migration from the v0.17 profile model. | BAT-001, BAT-003, ADR-005 | UC-43, US-BAT-07 | T-PROFILE-04 |
 | TSK-0407 | Concurrent activation engine: active-profile set from triggers (OR per profile), per-app most-restrictive resolution with protected exclusion, attribution map, delta apply and attributed revert; unit tests. | BAT-002, BAT-008, ADR-005, ADR-041 | UC-05, US-BAT-08 | T-PROFILE-05, T-STATE-01 |
 | TSK-0408 | Redesign Battery Status (active profiles with triggers, effective app actions with source profile, next trigger), Profiles list/editor, and Diagnosis screens per the adaptive UI spec. | BAT-001–BAT-003, NFR-UI-001 | UC-04, UC-05, US-BAT-08 | T-PROFILE-05, T-UI-01 |
+| TSK-0409 | Battery sub-sections: tab row plus horizontal pager (Stato, Monitor, Salute, Diagnosi) with nested-scroll and back-edge handling; rewrite Monitor (live status → statistics → sessions → settings) and Health (summary → capacity → lifecycle → charging → advanced) layouts; TV tabs. | BAT-UI-001, MON-001–MON-009, BAT-HLT-001–BAT-HLT-002, ADR-048 | UC-50, US-BAT-09 | T-BAT-UI-01, T-TV-01 |
 
 ---
 
@@ -99,6 +102,7 @@ Implementation note (19 Nov 2026): TSK-0501 and TSK-0502 have partial source imp
 | TSK-0606 | Implement empty home-space detection (launcher foreground check, node hit-test for icons/widgets/dock/search) where TSK-0605 confirms a route. | LOCK-003, ADR-034 | UC-39, US-LOCK-02 | T-LOCK-02 |
 | TSK-0607 | Build the transparent resizable double-tap home widget fallback. | LOCK-003 | UC-39, US-LOCK-02 | T-LOCK-03 |
 | TSK-0609 | Precise home double-tap mode: launcher-only accessibility overlay excluding system gesture insets, tap/double-tap/swipe/long-press classifier, replay via `dispatchGesture`/node actions, overlay removal on focus loss, Light/Precise selector, self-test with measured replay delay, disclosures. | LOCK-003, ADR-039, ADR-041 | UC-47, US-LOCK-03 | T-LOCK-04 |
+| TSK-0610 | Precise mode swipe mitigation: pass-through browsing window after swipes, velocity-preserving first-swipe replay, reduced intercept area (dock/hotseat, search bar, gesture insets), self-test metrics (first-swipe delay, page-change rate), updated disclosures. | LOCK-003, ADR-039, ADR-049 | UC-47, US-LOCK-03 | T-LOCK-05 |
 
 ---
 
@@ -118,6 +122,7 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-0707 | Implement APK backup before user-app uninstall (base + splits, size shown, checksum verify, failure confirmation), restore via Shizuku install session with readback, reinstall-from-store route, and backup storage review/delete in the archive. | APP-004, ADR-033 | UC-32, US-APP-02 | T-APP-05, T-SHIZUKU-01 |
 | TSK-0708 | Background permissions tool: Shizuku AppOps `RUN_ANY_IN_BACKGROUND`/`RUN_IN_BACKGROUND` per app and bulk, optional standby bucket, readback, protected/system safeguards, UAD-level confirmation for system packages, action log with batch restore, Shizuku-unavailable route. | APP-007, ADR-036 | UC-44, US-APP-04 | T-APP-06, T-APP-07 |
 | TSK-0709 | RAM and processes tool in Strumenti next to Storage: RAM summary, Shizuku process list with memory, force-stop/kill with confirmation and readback, block list with exclusions, honest IT/EN copy and search entries; no automatic run. | MEM-001, BAT-007, ADR-037 | UC-45, US-MEM-01 | T-MEM-01, T-MEM-02 |
+| TSK-0710 | RAM and Storage app rows: app icons, vertically centered selection checkboxes, shared multi-select contextual bar, confirmation, and per-app result sheet. | MEM-001, STO-002, STO-003 | UC-45, UC-31, US-MEM-01, US-STO-03 | T-STORAGE-06 |
 | TSK-0704 | Implement Activity Launcher screen listing normally launchable activities grouped by package, with Open and Create Shortcut actions. | ACT-001, ACT-002 | UC-12, US-ACT-01 | T-ACT-01 |
 
 ---
@@ -145,6 +150,8 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-0903 | Implement item review and Android SAF-mediated deletion confirmation, plus Able direct cache cleanup. | STO-002, NFR-SEC-001 | UC-11, US-STO-01 | T-STORAGE-01, T-STORAGE-02 |
 | TSK-0904 | Build storage visualization: used/free chart with text equivalent, category breakdown (`StorageStatsManager`/MediaStore), largest folders/files. | STO-003, NFR-ACC-002 | UC-30, US-STO-02 | T-STORAGE-03 |
 | TSK-0905 | Implement system-wide cache cleanup via Shizuku (`pm trim-caches`) with before/after free-space measurement, and storage-settings fallback without Shizuku. | STO-002, NFR-REL-001 | UC-31, US-STO-03 | T-STORAGE-04, T-SHIZUKU-01 |
+| TSK-0906 | Fix the large-file finder defect (seeded regression folder) and add filters: type, size presets + custom, age 7/30/90/365, location (all, Downloads, DCIM, SAF folder), sort, name search, thumbnails, empty-result filter summary, cancellable scan. | STO-001, ADR-019, NFR-PERF-001 | UC-11, US-STO-01 | T-STORAGE-05 |
+| TSK-0907 | Per-app cache list with Shizuku bulk clear (`pm clear --cache-only`) consistent with the RAM bulk action, measured per-app freed space, failed rows first. | STO-002, ADR-019 | UC-31, US-STO-03 | T-STORAGE-06, T-SHIZUKU-01 |
 
 ---
 
@@ -159,6 +166,8 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-1003 | Implement merge and replace modes with conflict resolver and automatic rollback snapshot before replace apply. | CFG-005, CFG-007, NFR-REL-002 | UC-15, US-CFG-02 | T-IMPORT-03 |
 | TSK-1004 | Integrate ACRA in user-reviewed mode (ADR-015): opt-in in onboarding and Settings → Privacy, crash dialog with report preview, Send via email composer to `info.dragolabs@gmail.com`, Discard, deletion on opt-out; no server, no analytics. | PRIV-001, NFR-PRIV-001, NFR-PRIV-003 | UC-18, US-PRIV-01 | T-TELE-01 |
 | TSK-1005 | Build Settings → About screen with configured GitHub repository, Drago Labs website (`https://dragolabs.it`), support email intents, and third-party attributions (UAD-ng, ACRA). | ABOUT-001, NFR-I18N-001 | UC-19, US-ABOUT-01 | T-ABOUT-01 |
+| TSK-1006 | Archive schema 2: separate battery-profile section, GPS/Fake GPS points, optional battery-history section (off by default, never preselected, privacy notice); writer and manifest update. | CFG-001–CFG-003, NFR-PRIV-002, ADR-046 | UC-14, US-CFG-01, US-CFG-03 | T-EXPORT-01, T-EXPORT-02 |
+| TSK-1007 | Importer: schema-1 compatibility with profile mapping preview, schema-2 parsing, battery-history validation, deduplication, retention warning, baseline recompute from valid sessions; refuse newer schemas. | CFG-002, CFG-004, NFR-SEC-001, ADR-046 | UC-15, US-CFG-02, US-CFG-03 | T-IMPORT-01, T-IMPORT-04 |
 
 ---
 
@@ -198,6 +207,9 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-1303 | Implement Spirit Level (inclinometer) with pitch/roll angles, 2D circular bubble visualization, zero-degree calibration offset, and haptic snap at 0°. | SENS-001, SENS-003, ADR-022 | UC-27, US-SENS-01 | T-SENS-01 |
 | TSK-1304 | Implement Screen Ruler with dual millimeter/inch scales, sub-millimeter caliper markers, and real-DPI calibration slider. | SENS-002, ADR-022 | UC-27, US-SENS-01 | T-SENS-01 |
 | TSK-1305 | Implement Digital Compass with azimuth heading, cardinal points, magnetic declination correction, and calibration prompt. | SENS-003, ADR-022 | UC-27, US-SENS-01 | T-SENS-01 |
+| TSK-1306 | Fake GPS map: osmdroid map with OSM tile policy compliance (Able User-Agent, attribution, cache headers, no prefetch), crosshair/marker, coordinate entry, saved points, offline state, privacy disclosure; place search only after an owner decision on the provider (ADR-049). | GPS-003, NFR-PRIV-001, ADR-045 | UC-49, US-GPS-02 | T-GPS-02, T-GPS-03 |
+| TSK-1307 | Fake GPS engine: mock-location app check and Shizuku AppOps one-tap selection with readback, test providers, joystick, route simulation with speed/pause/loop, jitter/altitude/accuracy, foreground service with Stop notification, clean removal on stop or revocation. | GPS-003, ADR-045 | UC-49, US-GPS-02 | T-GPS-02, T-SHIZUKU-01 |
+| TSK-1308 | Fake GPS copy and safeguards: honest-limits text (detectable mocks, no deception), "?" help, IT/EN search entries, no automation entry points; Play policy review before any Play release (R-035). | GPS-003, UX-002, SEARCH-001 | UC-49, US-GPS-02 | T-GPS-02, Release review (R-035) |
 
 ---
 
@@ -212,6 +224,8 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-1403 | Implement USB Debugging and Wireless Debugging Quick Settings tiles and in-app switches via `Settings.Global.ADB_ENABLED` / Shizuku with `DEVELOPMENT_SETTINGS` fallback. | SYS-003, ADR-023 | UC-28, US-SYS-01 | T-SYS-01 |
 | TSK-1405 | Wireless debugging "details": open the Wireless debugging page directly with runtime route detection and fallbacks (Developer options, Settings). | SYS-003, ADR-023 | UC-28, US-SYS-01 | T-SYS-03 |
 | TSK-1404 | Implement Private DNS manager and Quick Settings cycle tile (`off`, `opportunistic`, `hostname`) with preset hostnames (Quad9, Cloudflare, AdGuard, custom). | SYS-004, ADR-023 | UC-28, US-SYS-01 | T-SYS-01 |
+| TSK-1406 | `WRITE_SECURE_SETTINGS` self-grant through Shizuku: confirmation, `pm grant`, readback, checklist state, Revoke; switch NFC to in-process `NfcAdapter` and remove the `svc nfc` route; reuse for debugging and Private DNS. | SYS-001, SYS-003, SYS-004, ADR-044 | UC-51, UC-28, US-SYS-01 | T-SYS-04, T-SYS-02 |
+| TSK-1407 | Settings content observers for `adb_enabled` and `adb_wifi_enabled` driving switches and tiles live. | SYS-003 | UC-28, US-SYS-01 | T-SYS-05 |
 
 ---
 
@@ -239,11 +253,13 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-1603 | Add haptic feedback per the haptics map (confirmations, toggles, actions, slider step ticks and release, buttons, chips, switches, list rows) with a Settings switch (default on) respecting system haptics (revised 2026-11-22). | UX-003 | UC-36, US-UX-03 | T-HAPTIC-01 |
 | TSK-1604 | Enable predictive back, tab-order horizontal slide with light spring overshoot, and card/menu container transform with predictive-back shrink; honor "Remove animations" (revised 2026-11-22). | UX-004 | UC-36, US-UX-04 | T-MOTION-01, T-MOTION-02 |
 | TSK-1605 | Rework the access checklist into compact rows with expandable explanations. | SET-002, NFR-ACC-002 | UC-01, US-SET-02 | T-PERM-02 |
-| TSK-1606 | Produce Able logo, adaptive/monochrome launcher icon, and tile icon set; integrate in app, launcher, and tiles. Blocked 2026-11-22: rebrand in progress, options in `docs/brand/branding-options.html`, owner decision pending. | BRAND-001, CUST-001, ADR-027 | UC-37, US-BRAND-01 | T-BRAND-01 |
+| TSK-1606 | Produce the "Pulse" logo (ring + stem level indicator, ink `#101418`, mint `#1FC98E`), adaptive/monochrome launcher icon, wordmark (Google Sans Flex wght 650, ROND 0; confirm font license, R-040), and tile icon set; integrate in app, launcher, and tiles. Unblocked 2026-11-23 (concept decided). | BRAND-001, CUST-001, ADR-027 | UC-37, US-BRAND-01 | T-BRAND-01 |
 | TSK-1607 | Readability audit: 48dp targets, WCAG AA contrast per theme, TalkBack labels, collapsing headers without overlap. | NFR-ACC-002 | US-ACC-01 | T-ACCESS-02 |
 | TSK-1608 | Build the app-wide options search: bundled IT/EN index of tools, battery options, apps features, settings, tiles & widgets, Home customization; top-bar entry on every primary destination; result highlight; local recent searches excluded from export. | SEARCH-001, ADR-032 | UC-42, US-SEARCH-01 | T-SEARCH-01, T-TV-01 |
 | TSK-1610 | Fix the container-transform defect on small tool cards (stable shared keys, origin kept composed, shape clip, fade fallback) and record before/after captures. | UX-004 | UC-36, US-UX-04 | T-MOTION-03 |
 | TSK-1611 | Navigation re-select: re-selecting the current section's item pops to root, closes panes, scrolls to top, selects first tab (bar, rail, TV drawer), with dirty-form guard. | SHELL-001, ADR-040 | UC-48, US-UI-02 | T-UI-02, T-TV-01 |
+| TSK-1612 | Haptic language: per-kind patterns (tick, click, toggle, confirm, reject/destructive, long press) from vibration primitives with `HapticFeedbackConstants` fallback, applied to every tap; Settings intensity Off/Light/Normal/Strong with preview and fallback note. Supersedes the on/off switch of TSK-1603. | UX-003, ADR-043 | UC-36, US-UX-03 | T-HAPTIC-01, T-HAPTIC-02 |
+| TSK-1613 | Tools hub with equal-size tiles (two-line labels, in-tile badges, uniform growth at large font scale). | TOOLS-001, UX-004, ADR-048 | UC-52, US-TOOLS-01 | T-TOOLS-01, T-MOTION-03 |
 | TSK-1609 | Fix card headers that squeeze titles (pill/help under the title when needed) and replace raw system values (epoch dates, enum codes, byte counts) with human-formatted values plus secondary raw value. | NFR-ACC-002 | US-ACC-01 | T-ACCESS-03 |
 
 ---
@@ -273,3 +289,4 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-1801 | Publish to `https://github.com/dragolab/able` with GPLv3 `LICENSE` and a `NOTICE.md` reserving the Able and Drago Labs names and logos; confirm `.gitignore` covers `Able_Documentation_Pack.zip`, `.kotlin/`, `private-references/`, signing material, and binaries; run the pre-push hygiene check and a full-history secret scan. | ADR-011, NFR-MAINT-001 | R-033 | T-REPO-01 |
 | TSK-1802 | Set the About GitHub link to `https://github.com/dragolab/able`. | ABOUT-001 | UC-19, US-ABOUT-01 | T-ABOUT-01 |
 | TSK-1803 | Release APK 0.6 (`versionName 0.6.0-beta`, `versionCode 6`); keep versionCode monotonic for later betas; attach binaries to GitHub only by separate owner decision. | ADR-035 | — | Release review |
+| TSK-1804 | Keep the public history authored by DragoLab only with no tool-attribution trailers (ADR-047); add the author/trailer check to the pre-push hygiene routine; confirm no public link to private brand material. | ADR-047, NFR-MAINT-001 | R-033 | T-REPO-01 |

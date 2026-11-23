@@ -24,7 +24,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,7 +71,7 @@ fun HelpButton(
             icon = { Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = null) },
             title = { Text(title) },
             text = { Text(text) },
-            confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.ds_got_it)) } },
+            confirmButton = { AbleTextButton(onClick = { open = false }) { Text(stringResource(R.string.ds_got_it)) } },
         )
     }
 }

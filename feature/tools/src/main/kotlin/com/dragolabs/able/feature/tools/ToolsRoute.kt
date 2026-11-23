@@ -3,6 +3,11 @@ package com.dragolabs.able.feature.tools
 import android.content.pm.PackageManager
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -22,11 +27,15 @@ import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.WhereToVote
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.SmartButton
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -35,7 +44,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
@@ -48,7 +64,9 @@ import com.dragolabs.able.core.capability.ShizukuConnectionState
 import com.dragolabs.able.core.data.ableViewModelFactory
 import com.dragolabs.able.core.designsystem.component.AbleSharedKeys
 import com.dragolabs.able.core.designsystem.component.AbleTopLevelScaffold
-import com.dragolabs.able.core.designsystem.component.ActionTile
+import com.dragolabs.able.core.designsystem.component.ExpressiveIcon
+import com.dragolabs.able.core.designsystem.component.focusRing
+import com.dragolabs.able.core.designsystem.component.rememberAbleHaptics
 import com.dragolabs.able.core.designsystem.component.SectionHeader
 import com.dragolabs.able.core.designsystem.component.AbleSharedBounds
 import com.dragolabs.able.core.designsystem.component.scrollToTopOnReselect
@@ -105,6 +123,7 @@ internal fun buildToolEntries(
         ToolEntry(ToolId.MEMORY, ToolSection.FILES_AND_APPS, hintRes = R.string.tools_hint_memory),
         ToolEntry(ToolId.SHORTCUT_MAKER, ToolSection.FILES_AND_APPS, hintRes = R.string.tools_hint_shortcuts),
         ToolEntry(ToolId.ACTIVITY_LAUNCHER, ToolSection.FILES_AND_APPS, hintRes = R.string.tools_hint_activities),
+        ToolEntry(ToolId.FAKE_GPS, ToolSection.ADVANCED, hintRes = R.string.tools_hint_fakegps),
         ToolEntry(ToolId.GPS, ToolSection.MEASURE, if (hasLocation) null else R.string.tools_reason_no_location, R.string.tools_hint_gps),
         ToolEntry(ToolId.LEVEL, ToolSection.MEASURE, if (device.hasAccelerometer) null else R.string.tools_reason_no_accelerometer, R.string.tools_hint_level),
         ToolEntry(ToolId.RULER, ToolSection.MEASURE, if (device.hasTouchscreen) null else R.string.tools_reason_no_touchscreen, R.string.tools_hint_ruler),
@@ -174,53 +193,161 @@ fun ToolsScreen(
         snackbarHostState = snackbarHostState,
         modifier = modifier,
     ) { padding ->
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 164.dp),
-            state = gridState,
-            // Re-selecting Tools on the hub scrolls back to the top (SHELL-001 re-select).
-            modifier = Modifier
-                .fillMaxSize()
-                .scrollToTopOnReselect("tools") { gridState.animateScrollToItem(0) },
-            contentPadding = screenContentPadding(padding),
-            horizontalArrangement = Arrangement.spacedBy(AbleSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(AbleSpacing.md),
-        ) {
-            ToolSection.entries.forEach { section ->
-                val entries = state.entries.filter { it.section == section }
-                if (entries.isEmpty()) return@forEach
-                item(key = "header-${section.name}", span = { GridItemSpan(maxLineSpan) }) {
-                    SectionHeader(stringResource(section.titleRes))
-                }
-                items(entries, key = { it.id.key }) { entry ->
-                    val presentation = entry.id.presentation()
-                    val reason = entry.unavailableReason?.let { stringResource(it) }
-                    // App-open transform into the tool screen (same key as ToolDetailRoute).
-                    AbleSharedBounds(
-                        key = if (entry.available) AbleSharedKeys.tool(AbleSharedKeys.ORIGIN_TOOLS, entry.id.key) else null,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, // ActionTile color
-                    ) {
-                        ActionTile(
-                            icon = presentation.icon,
-                            label = stringResource(presentation.labelRes),
-                            shape = presentation.shape,
-                            enabled = entry.available,
-                            supportingText = reason ?: entry.hintRes?.let { stringResource(it) },
-                            onClick = {
-                                if (entry.available) {
-                                    onOpenTool(entry.id)
-                                } else if (reason != null) {
-                                    // Unavailable tools stay visible but explain why instead of opening.
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar(
-                                            context.getString(R.string.tools_unavailable_snackbar, context.getString(presentation.labelRes), reason),
-                                        )
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            // Fixed column count and one tile height for the whole hub: every tile is the size of
+            // the tallest label + hint at the current width and font scale (titles and hints are
+            // capped at two lines each), so tiles never differ between rows or sections.
+            val available = maxWidth - AbleSpacing.screenGutter * 2
+            val columns = ((available + TileSpacing) / (TileMinWidth + TileSpacing)).toInt().coerceAtLeast(1)
+            val tileWidth = (available - TileSpacing * (columns - 1)) / columns
+            val tileHeight = rememberToolTileHeight(state.entries, tileWidth)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columns),
+                state = gridState,
+                // Re-selecting Tools on the hub scrolls back to the top (SHELL-001 re-select).
+                modifier = Modifier
+                    .fillMaxSize()
+                    .scrollToTopOnReselect("tools") { gridState.animateScrollToItem(0) },
+                contentPadding = screenContentPadding(padding),
+                horizontalArrangement = Arrangement.spacedBy(TileSpacing),
+                verticalArrangement = Arrangement.spacedBy(TileSpacing),
+            ) {
+                ToolSection.entries.forEach { section ->
+                    val entries = state.entries.filter { it.section == section }
+                    if (entries.isEmpty()) return@forEach
+                    item(key = "header-${section.name}", span = { GridItemSpan(maxLineSpan) }) {
+                        SectionHeader(stringResource(section.titleRes))
+                    }
+                    items(entries, key = { it.id.key }) { entry ->
+                        val presentation = entry.id.presentation()
+                        val reason = entry.unavailableReason?.let { stringResource(it) }
+                        // App-open transform into the tool screen (same key as ToolDetailRoute).
+                        AbleSharedBounds(
+                            key = if (entry.available) AbleSharedKeys.tool(AbleSharedKeys.ORIGIN_TOOLS, entry.id.key) else null,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, // ToolHubTile color
+                        ) {
+                            ToolHubTile(
+                                icon = presentation.icon,
+                                label = stringResource(presentation.labelRes),
+                                shape = presentation.shape,
+                                enabled = entry.available,
+                                supportingText = reason ?: entry.hintRes?.let { stringResource(it) },
+                                modifier = Modifier.fillMaxWidth().height(tileHeight),
+                                onClick = {
+                                    if (entry.available) {
+                                        onOpenTool(entry.id)
+                                    } else if (reason != null) {
+                                        // Unavailable tools stay visible but explain why instead of opening.
+                                        scope.launch {
+                                            snackbarHostState.currentSnackbarData?.dismiss()
+                                            snackbarHostState.showSnackbar(
+                                                context.getString(R.string.tools_unavailable_snackbar, context.getString(presentation.labelRes), reason),
+                                            )
+                                        }
                                     }
-                                }
-                            },
-                        )
+                                },
+                            )
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+private val TileMinWidth = 164.dp
+private val TileSpacing = AbleSpacing.md
+private val TilePadding = AbleSpacing.lg
+private val TileIconSize = 44.dp
+private const val TILE_TEXT_LINES = 2
+
+/** Text styles of [ToolHubTile]; [rememberToolTileHeight] measures with the same styles. */
+@Composable
+private fun tileTitleStyle(): TextStyle = MaterialTheme.typography.titleSmall
+
+@Composable
+private fun tileHintStyle(): TextStyle = MaterialTheme.typography.bodySmall
+
+/**
+ * Height of the tallest hub tile at [tileWidth]: padding + icon + the tallest title and hint
+ * (each at most [TILE_TEXT_LINES] lines). Re-measured when the width, font scale, locale or
+ * entries change.
+ */
+@Composable
+private fun rememberToolTileHeight(entries: List<ToolEntry>, tileWidth: Dp): Dp {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val measurer = rememberTextMeasurer(cacheSize = 0)
+    val titleStyle = tileTitleStyle()
+    val hintStyle = tileHintStyle()
+    return remember(entries, tileWidth, density, configuration, titleStyle, hintStyle) {
+        with(density) {
+            val textWidth = (tileWidth - TilePadding * 2).roundToPx().coerceAtLeast(1)
+            val constraints = Constraints(maxWidth = textWidth)
+            fun height(text: String, style: TextStyle): Int =
+                measurer.measure(text, style, maxLines = TILE_TEXT_LINES, constraints = constraints).size.height
+            val titles = entries.map { context.getString(it.id.presentation().labelRes) }
+            val hints = entries.mapNotNull { entry -> (entry.unavailableReason ?: entry.hintRes)?.let(context::getString) }
+            val titleHeight = titles.maxOfOrNull { height(it, titleStyle) } ?: 0
+            val hintHeight = hints.maxOfOrNull { height(it, hintStyle) } ?: 0
+            var total = TilePadding * 2 + TileIconSize + TileSpacing + titleHeight.toDp()
+            if (hintHeight > 0) total += AbleSpacing.xs + hintHeight.toDp()
+            total
+        }
+    }
+}
+
+/**
+ * Hub tile: expressive icon, title and hint, always top-aligned in a tile of the fixed
+ * [rememberToolTileHeight]. Same colors and haptics as the design-system `ActionTile`.
+ */
+@Composable
+private fun ToolHubTile(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    shape: RoundedPolygon,
+    enabled: Boolean,
+    supportingText: String?,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val container = if (enabled) scheme.surfaceContainerHigh else scheme.surfaceContainer
+    val content = if (enabled) scheme.onSurface else scheme.onSurface.copy(alpha = 0.6f)
+    val cardShape = MaterialTheme.shapes.large
+    val haptics = rememberAbleHaptics()
+    Card(
+        onClick = { if (enabled) haptics.click() else haptics.reject(); onClick() },
+        modifier = modifier.focusRing(cardShape),
+        shape = cardShape,
+        colors = CardDefaults.cardColors(containerColor = container, contentColor = content),
+    ) {
+        Column(Modifier.fillMaxSize().padding(TilePadding)) {
+            ExpressiveIcon(
+                icon = icon,
+                shape = shape,
+                containerColor = if (enabled) scheme.secondaryContainer else scheme.surfaceContainerHighest,
+                contentColor = if (enabled) scheme.onSecondaryContainer else content,
+                size = TileIconSize,
+                iconSize = 22.dp,
+            )
+            Text(
+                label,
+                style = tileTitleStyle(),
+                maxLines = TILE_TEXT_LINES,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = TileSpacing),
+            )
+            if (supportingText != null) {
+                Text(
+                    supportingText,
+                    style = tileHintStyle(),
+                    color = if (enabled) scheme.onSurfaceVariant else content,
+                    maxLines = TILE_TEXT_LINES,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = AbleSpacing.xs),
+                )
             }
         }
     }
@@ -234,6 +361,7 @@ internal fun ToolId.presentation(): ToolPresentation = when (this) {
     ToolId.TORCH -> ToolPresentation(Icons.Rounded.FlashlightOn, R.string.tools_torch_title, MaterialShapes.Sunny)
     ToolId.HOTSPOT -> ToolPresentation(Icons.Rounded.WifiTethering, R.string.tools_hotspot_title, MaterialShapes.Cookie9Sided)
     ToolId.SCREEN_LOCK -> ToolPresentation(Icons.Rounded.Lock, R.string.tools_lock_title, MaterialShapes.Clover4Leaf)
+    ToolId.FAKE_GPS -> ToolPresentation(Icons.Rounded.WhereToVote, R.string.tools_fakegps_title, MaterialShapes.Clover4Leaf)
     ToolId.MEMORY -> ToolPresentation(Icons.Rounded.Memory, R.string.tools_memory_title, MaterialShapes.Cookie6Sided)
     ToolId.SHELL -> ToolPresentation(Icons.Rounded.Terminal, R.string.tools_shell_title, MaterialShapes.Square)
     ToolId.APP_LOCK -> ToolPresentation(Icons.Rounded.Fingerprint, R.string.tools_applock_title, MaterialShapes.Clover8Leaf)

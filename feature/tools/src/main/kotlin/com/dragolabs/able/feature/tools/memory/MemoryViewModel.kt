@@ -25,6 +25,10 @@ import kotlinx.coroutines.launch
 
 enum class MemoryAppFilter { USER, SYSTEM, ALL }
 
+/** Progress of a confirmed stop of one or more apps. */
+@Immutable
+data class StopProgress(val done: Int, val total: Int)
+
 /** A stop the user asked for, waiting for confirmation. */
 @Immutable
 data class PendingStop(val apps: List<RunningApp>, val kind: StopKind)
@@ -42,6 +46,8 @@ data class MemoryUiState(
     val selected: Set<String> = emptySet(),
     val busy: Set<String> = emptySet(),
     val pending: PendingStop? = null,
+    /** Progress of a confirmed stop, shown in the selection bar; null when nothing runs. */
+    val progress: StopProgress? = null,
     val message: UiMessage? = null,
 ) {
     val shizukuReady: Boolean get() = shizuku == ShizukuConnectionState.READY
@@ -128,11 +134,13 @@ class MemoryViewModel(
     fun setQuery(query: String) = local.update { it.copy(query = query.take(80)) }
 
     fun toggleSelected(app: RunningApp) {
-        if (!app.stoppable) return
+        if (!app.stoppable || local.value.progress != null) return
         local.update { s -> s.copy(selected = if (app.key in s.selected) s.selected - app.key else s.selected + app.key) }
     }
 
-    fun clearSelection() = local.update { it.copy(selected = emptySet()) }
+    fun clearSelection() {
+        if (local.value.progress == null) local.update { it.copy(selected = emptySet()) }
+    }
 
     fun requestStop(app: RunningApp, kind: StopKind) {
         if (!app.stoppable) return
@@ -149,12 +157,15 @@ class MemoryViewModel(
 
     fun confirmPending() {
         val pending = local.value.pending ?: return
-        local.update { it.copy(pending = null, busy = it.busy + pending.apps.map(RunningApp::key)) }
+        val total = pending.apps.size
+        local.update {
+            it.copy(pending = null, busy = it.busy + pending.apps.map(RunningApp::key), progress = StopProgress(0, total))
+        }
         viewModelScope.launch {
-            val outcomes = pending.apps.map { app ->
+            val outcomes = pending.apps.mapIndexed { index, app ->
                 val outcome = runCatching { source.stop(app, pending.kind) }.getOrDefault(StopOutcome.FAILED)
                 log(app, pending.kind, outcome)
-                local.update { it.copy(busy = it.busy - app.key) }
+                local.update { it.copy(busy = it.busy - app.key, progress = StopProgress(index + 1, total)) }
                 app to outcome
             }
             val message = if (outcomes.size == 1) {
@@ -168,7 +179,9 @@ class MemoryViewModel(
                     outcomes.count { it.second == StopOutcome.FAILED },
                 )
             }
-            local.update { it.copy(message = message, selected = it.selected - pending.apps.map(RunningApp::key).toSet()) }
+            local.update {
+                it.copy(message = message, progress = null, selected = it.selected - pending.apps.map(RunningApp::key).toSet())
+            }
             refreshSummary()
             loadApps()
         }

@@ -42,7 +42,7 @@ class BackupArchiveTest {
         assertEquals(setOf(BackupSection.DNS_PROFILES, BackupSection.GPS_POINTS), backup.payload.sections)
         assertEquals(dns, backup.payload.dns)
         assertEquals(gps, backup.payload.gps)
-        assertNull(backup.payload.battery)
+        assertNull(backup.payload.batteryProfiles)
         assertTrue(backup.manifest.excluded.contains(BackupExclusion.HOTSPOT_PASSWORDS.key))
         assertTrue(backup.unsupported.isEmpty())
     }

@@ -20,6 +20,7 @@ enum class ToolId(val key: String) {
     APP_LOCK("applock"),
     BUTTON_MAPPER("buttons"),
     GPS("gps"),
+    FAKE_GPS("fakegps"),
     LEVEL("level"),
     RULER("ruler"),
     COMPASS("compass");

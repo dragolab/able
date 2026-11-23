@@ -1,5 +1,6 @@
 package com.dragolabs.able.feature.apps
 
+import com.dragolabs.able.core.designsystem.component.AbleTextButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -389,6 +389,6 @@ internal fun PackageOperationDialog(
                 Text(stringResource(if (uninstall) R.string.apps_uninstall_confirm_action else R.string.apps_disable_confirm_action))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.apps_cancel)) } },
+        dismissButton = { AbleTextButton(onClick = onDismiss) { Text(stringResource(R.string.apps_cancel)) } },
     )
 }

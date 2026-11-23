@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Storage review of shared media (STO-001). Requested in context from the Storage tool. -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -9,6 +10,27 @@
 
     <!-- Wi-Fi address shown next to wireless debugging (SYS-003). Normal permission. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--
+        Fake GPS (FGPS): Able feeds Android test providers only after the user selects it as
+        "mock location app" in Developer options (or sets app-op android:mock_location with
+        Shizuku). The location foreground service is started only by an explicit user action and
+        requires the in-context location permission. INTERNET is used only to download
+        OpenStreetMap tiles for the Fake GPS map (osmdroid; cached in the app cache directory).
+    -->
+    <uses-permission
+        android:name="android.permission.ACCESS_MOCK_LOCATION"
+        tools:ignore="MockLocation,ProtectedPermissions" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <service
+            android:name=".fakegps.FakeGpsService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+    </application>
 
     <!--
         Shortcut Maker (SHORT-002): check before pinning that a browser / viewer app can open a

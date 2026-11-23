@@ -126,3 +126,24 @@ class HomeHitTestTest {
     @Test
     fun scene_unknownLauncher() = assertEquals(HomeScene.UNKNOWN, HomeHitTest.scene(false, emptyList()))
 }
+
+class HomeInterceptAreaTest {
+    @Test
+    fun aboveDockStopsAtTheHotseat() {
+        // Pixel Launcher, API 36 emulator: nav area starts at 2316, hotseat at 1889.
+        assertEquals(1_889, HomeHitTest.interceptBottom(screenBottom = 2_316, dockTop = 1_889, aboveDock = true))
+    }
+
+    @Test
+    fun wholeScreenIgnoresTheDock() {
+        assertEquals(2_316, HomeHitTest.interceptBottom(screenBottom = 2_316, dockTop = 1_889, aboveDock = false))
+    }
+
+    @Test
+    fun unknownOrImplausibleDockFallsBackToTheWholeScreen() {
+        assertEquals(2_316, HomeHitTest.interceptBottom(screenBottom = 2_316, dockTop = -1, aboveDock = true))
+        // A "hotseat" in the upper half (other layout) or below the edge is ignored.
+        assertEquals(2_316, HomeHitTest.interceptBottom(screenBottom = 2_316, dockTop = 600, aboveDock = true))
+        assertEquals(2_316, HomeHitTest.interceptBottom(screenBottom = 2_316, dockTop = 2_350, aboveDock = true))
+    }
+}

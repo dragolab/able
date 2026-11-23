@@ -1,5 +1,6 @@
 package com.dragolabs.able.feature.settings
 
+import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -41,24 +43,27 @@ import com.dragolabs.able.feature.settings.backup.BackupError
 import com.dragolabs.able.feature.settings.backup.BackupExclusion
 import com.dragolabs.able.feature.settings.backup.BackupSection
 import com.dragolabs.able.feature.settings.backup.ConflictPolicy
+import com.dragolabs.able.feature.settings.backup.HistorySummary
 import com.dragolabs.able.feature.settings.backup.ImportMode
 import com.dragolabs.able.feature.settings.backup.ImportReport
 import com.dragolabs.able.feature.settings.backup.SectionPreview
 
 fun BackupSection.labelRes(): Int = when (this) {
-    BackupSection.BATTERY -> R.string.settings_backup_section_battery
+    BackupSection.BATTERY_PROFILES -> R.string.settings_backup_section_battery
     BackupSection.HOME_APPEARANCE -> R.string.settings_backup_section_home
     BackupSection.GPS_POINTS -> R.string.settings_backup_section_gps
     BackupSection.DNS_PROFILES -> R.string.settings_backup_section_dns
     BackupSection.SHORTCUTS -> R.string.settings_backup_section_shortcuts
+    BackupSection.BATTERY_HISTORY -> R.string.settings_backup_section_history
 }
 
 private fun BackupSection.descriptionRes(): Int = when (this) {
-    BackupSection.BATTERY -> R.string.settings_backup_section_battery_desc
+    BackupSection.BATTERY_PROFILES -> R.string.settings_backup_section_battery_desc
     BackupSection.HOME_APPEARANCE -> R.string.settings_backup_section_home_desc
     BackupSection.GPS_POINTS -> R.string.settings_backup_section_gps_desc
     BackupSection.DNS_PROFILES -> R.string.settings_backup_section_dns_desc
     BackupSection.SHORTCUTS -> R.string.settings_backup_section_shortcuts_desc
+    BackupSection.BATTERY_HISTORY -> R.string.settings_backup_section_history_desc
 }
 
 private fun BackupExclusion.labelRes(): Int = when (this) {
@@ -91,7 +96,6 @@ fun ExportDialog(
     onChooseDestination: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val haptics = rememberAbleHaptics()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.settings_backup_export_dialog_title)) },
@@ -101,20 +105,30 @@ fun ExportDialog(
                 verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm),
             ) {
                 DialogText(stringResource(R.string.settings_backup_export_dialog_body))
-                BackupSection.entries.forEach { section ->
-                    val checked = section in draft.selected
-                    ListItem(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(MaterialTheme.shapes.large)
-                            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { haptics.toggle(it); onToggle(section) })
-                            .focusRing(MaterialTheme.shapes.large),
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                        headlineContent = { Text(stringResource(section.labelRes())) },
-                        supportingContent = { Text(stringResource(section.descriptionRes())) },
-                        leadingContent = { Checkbox(checked = checked, onCheckedChange = null) },
+                BackupSection.standard.forEach { section ->
+                    ExportSectionRow(
+                        section = section,
+                        checked = section in draft.selected,
+                        supporting = stringResource(section.descriptionRes()),
+                        onToggle = { onToggle(section) },
                     )
                 }
+                // CFG-003: personal measurements are a separate, opt-in choice, never preselected.
+                DialogLabel(stringResource(R.string.settings_backup_optional_title))
+                val history = draft.history
+                val historySelected = BackupSection.BATTERY_HISTORY in draft.selected
+                ExportSectionRow(
+                    section = BackupSection.BATTERY_HISTORY,
+                    checked = historySelected,
+                    enabled = history != null && history.sessions > 0,
+                    supporting = stringResource(BackupSection.BATTERY_HISTORY.descriptionRes()) + "\n" + historySummaryText(history),
+                    onToggle = { onToggle(BackupSection.BATTERY_HISTORY) },
+                )
+                StatusBanner(
+                    level = if (historySelected) StatusLevel.WARNING else StatusLevel.INFO,
+                    title = stringResource(R.string.settings_backup_history_privacy_title),
+                    message = stringResource(R.string.settings_backup_history_privacy_body),
+                )
                 DialogLabel(stringResource(R.string.settings_backup_excluded_title))
                 BackupExclusion.entries.forEach { DialogText("• " + stringResource(it.labelRes())) }
             }
@@ -125,6 +139,45 @@ fun ExportDialog(
             }
         },
         dismissButton = { AbleTextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_action_cancel)) } },
+    )
+}
+
+@Composable
+private fun ExportSectionRow(
+    section: BackupSection,
+    checked: Boolean,
+    supporting: String,
+    onToggle: () -> Unit,
+    enabled: Boolean = true,
+) {
+    val haptics = rememberAbleHaptics()
+    ListItem(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.large)
+            .toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Checkbox,
+                onValueChange = { haptics.toggle(it); onToggle() },
+            )
+            .focusRing(MaterialTheme.shapes.large),
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        headlineContent = { Text(stringResource(section.labelRes())) },
+        supportingContent = { Text(supporting) },
+        leadingContent = { Checkbox(checked = checked, onCheckedChange = null, enabled = enabled) },
+    )
+}
+
+@Composable
+private fun historySummaryText(history: HistorySummary?): String = when {
+    history == null -> stringResource(R.string.settings_backup_history_counting)
+    history.sessions == 0 -> stringResource(R.string.settings_backup_history_empty)
+    else -> stringResource(
+        R.string.settings_backup_history_summary,
+        pluralStringResource(R.plurals.settings_backup_history_sessions, history.sessions, history.sessions),
+        pluralStringResource(R.plurals.settings_backup_history_notes, history.notes, history.notes),
+        Formatter.formatShortFileSize(LocalContext.current, history.approxBytes),
     )
 }
 
@@ -249,7 +302,13 @@ private fun PreviewDialog(
                     StatusBanner(
                         level = StatusLevel.WARNING,
                         title = stringResource(R.string.settings_backup_replace_summary_title),
-                        message = preview.sections.map { stringResource(it.section.labelRes()) }.joinToString("\n") { "• $it" },
+                        message = preview.sections.map {
+                            if (it.section == BackupSection.BATTERY_HISTORY) {
+                                stringResource(R.string.settings_backup_replace_history)
+                            } else {
+                                stringResource(it.section.labelRes())
+                            }
+                        }.joinToString("\n") { "• $it" },
                     )
                 }
                 if (stage.mode == ImportMode.MERGE && preview.totalConflicts > 0) {
@@ -293,12 +352,26 @@ private fun SectionPreviewCard(p: SectionPreview) {
     OutlinedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(AbleSpacing.md), verticalArrangement = Arrangement.spacedBy(AbleSpacing.xs)) {
             Text(stringResource(p.section.labelRes()), style = MaterialTheme.typography.titleSmall)
-            DialogText(pluralStringResource(R.plurals.settings_backup_preview_items, p.items, p.items))
+            if (p.section == BackupSection.BATTERY_HISTORY) {
+                DialogText(pluralStringResource(R.plurals.settings_backup_history_sessions, p.items, p.items))
+                if (p.notes > 0) DialogText(pluralStringResource(R.plurals.settings_backup_history_notes, p.notes, p.notes))
+                if (p.duplicates > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_duplicates, p.duplicates, p.duplicates))
+            } else {
+                DialogText(pluralStringResource(R.plurals.settings_backup_preview_items, p.items, p.items))
+            }
+            if (p.legacy) DialogText(stringResource(R.string.settings_backup_preview_legacy_battery))
             if (p.conflicts > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_conflicts, p.conflicts, p.conflicts))
             if (p.invalid > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_invalid, p.invalid, p.invalid))
             if (p.unresolved > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_unresolved, p.unresolved, p.unresolved))
             if (p.needRepin > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_repin, p.needRepin, p.needRepin))
             if (p.iconsReset > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_icons, p.iconsReset, p.iconsReset))
+            if (p.expiring > 0) {
+                StatusBanner(
+                    level = StatusLevel.WARNING,
+                    title = pluralStringResource(R.plurals.settings_backup_preview_expiring_title, p.expiring, p.expiring),
+                    message = stringResource(R.string.settings_backup_preview_expiring_body, p.retentionDays),
+                )
+            }
         }
     }
 }
@@ -332,6 +405,8 @@ private fun ResultDialog(report: ImportReport, restore: Boolean, onRestore: () -
                             } else {
                                 DialogText(pluralStringResource(R.plurals.settings_backup_result_applied, s.applied, s.applied))
                                 if (s.skipped > 0) DialogText(pluralStringResource(R.plurals.settings_backup_result_skipped, s.skipped, s.skipped))
+                                if (s.duplicates > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_duplicates, s.duplicates, s.duplicates))
+                                if (s.expired > 0) DialogText(pluralStringResource(R.plurals.settings_backup_result_expired, s.expired, s.expired))
                                 if (s.unresolved > 0) DialogText(pluralStringResource(R.plurals.settings_backup_preview_unresolved, s.unresolved, s.unresolved))
                             }
                         }

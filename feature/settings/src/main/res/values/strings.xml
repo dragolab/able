@@ -81,7 +81,7 @@
     <string name="settings_backup_export_done">Saved “%1$s”</string>
     <string name="settings_backup_export_failed">The file could not be written. Nothing was saved.</string>
     <string name="settings_backup_section_battery">Battery profiles and app rules</string>
-    <string name="settings_backup_section_battery_desc">Profile thresholds, Notte schedule, protected apps and per-app levels</string>
+    <string name="settings_backup_section_battery_desc">Built-in and custom profiles with their triggers, icon, color, per-app levels and protected apps</string>
     <string name="settings_backup_section_home">Home layout and appearance</string>
     <string name="settings_backup_section_home_desc">Card order and visibility, theme and language</string>
     <string name="settings_backup_section_gps">Saved GPS points</string>
@@ -90,8 +90,8 @@
     <string name="settings_backup_section_dns_desc">Saved DNS profile names and hostnames</string>
     <string name="settings_backup_section_shortcuts">Shortcuts and collections</string>
     <string name="settings_backup_section_shortcuts_desc">Shortcut definitions and their collections</string>
-    <string name="settings_backup_excluded_title">Never included</string>
-    <string name="settings_backup_excluded_battery_history">Battery history and monitor measurements</string>
+    <string name="settings_backup_excluded_title">Excluded by default</string>
+    <string name="settings_backup_excluded_battery_history">Battery history and measurements (optional: included only if you select it above)</string>
     <string name="settings_backup_excluded_usage">Usage and accessibility observations</string>
     <string name="settings_backup_excluded_permissions">Android permission grants</string>
     <string name="settings_backup_excluded_shizuku">Shizuku state</string>
@@ -173,6 +173,38 @@
         <item quantity="one">%d item skipped</item>
         <item quantity="other">%d items skipped</item>
     </plurals>
+    <!-- Backup schema 2: battery history (opt-in) and battery profiles -->
+    <string name="settings_backup_section_history">Battery history and measurements</string>
+    <string name="settings_backup_section_history_desc">Charging and discharging session summaries with their metrics, notes and tags</string>
+    <string name="settings_backup_optional_title">Optional personal data</string>
+    <string name="settings_backup_history_counting">Counting sessions…</string>
+    <string name="settings_backup_history_empty">No sessions recorded yet</string>
+    <string name="settings_backup_history_summary">%1$s, %2$s · about %3$s before compression</string>
+    <string name="settings_backup_history_privacy_title">Battery history reveals usage patterns</string>
+    <string name="settings_backup_history_privacy_body">Session times, charging habits and screen-on periods show when and how you use the phone. The backup file is not encrypted: anyone who can open it can read this data. Include it only if you need it and keep the file somewhere private.</string>
+    <string name="settings_backup_replace_history">Battery history and measurements: all current sessions and notes are deleted first</string>
+    <string name="settings_backup_preview_legacy_battery">From an older backup format: thresholds, Notte schedule and per-app levels are converted to the built-in profiles.</string>
+    <string name="settings_backup_preview_expiring_body">Your battery history keeps sessions for %1$d days. Older sessions are not imported because retention would delete them. To keep them, change “Keep session summaries” in Battery → Monitor, then import again.</string>
+    <plurals name="settings_backup_history_sessions">
+        <item quantity="one">%d session</item>
+        <item quantity="other">%d sessions</item>
+    </plurals>
+    <plurals name="settings_backup_history_notes">
+        <item quantity="one">%d note</item>
+        <item quantity="other">%d notes</item>
+    </plurals>
+    <plurals name="settings_backup_preview_duplicates">
+        <item quantity="one">%d session is already on this device and is left unchanged</item>
+        <item quantity="other">%d sessions are already on this device and are left unchanged</item>
+    </plurals>
+    <plurals name="settings_backup_preview_expiring_title">
+        <item quantity="one">%d session is older than your retention setting</item>
+        <item quantity="other">%d sessions are older than your retention setting</item>
+    </plurals>
+    <plurals name="settings_backup_result_expired">
+        <item quantity="one">%d session not imported (older than retention)</item>
+        <item quantity="other">%d sessions not imported (older than retention)</item>
+    </plurals>
 
     <!-- Home layout -->
     <string name="settings_home_reset_title">Reset Home layout</string>
@@ -222,6 +254,10 @@
     <string name="settings_dynamic_color_supporting">Off uses the Able color palette</string>
     <string name="settings_haptics_title">Haptic feedback</string>
     <string name="settings_haptics_supporting">Light vibrations for taps, toggles and confirmations</string>
+    <string name="settings_haptics_intensity_off">Off</string>
+    <string name="settings_haptics_intensity_light">Light</string>
+    <string name="settings_haptics_intensity_normal">Normal</string>
+    <string name="settings_haptics_intensity_strong">Strong</string>
     <string name="settings_section_help">Help</string>
     <string name="settings_help_tour_title">Replay the tour</string>
     <string name="settings_help_tour_supporting">A short guide to the sections and main options</string>
@@ -309,4 +345,8 @@
     <string name="tour_settings_crash_body">Off by default. When on, you choose after each crash whether to email a report.</string>
     <string name="tour_settings_backup_title">Backup</string>
     <string name="tour_settings_backup_body">Export and import your configuration as a .ablebackup file.</string>
+    <string name="settings_licenses_haze_name">Haze</string>
+    <string name="settings_licenses_haze_detail">Background blur of the navigation bar · Apache License 2.0</string>
+    <string name="settings_licenses_osm_name">osmdroid and OpenStreetMap</string>
+    <string name="settings_licenses_osm_detail">Fake GPS map view · osmdroid Apache License 2.0 · map data © OpenStreetMap contributors (ODbL)</string>
 </resources>

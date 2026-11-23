@@ -37,6 +37,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -52,6 +59,8 @@ import com.dragolabs.able.core.designsystem.component.AbleCard
 import com.dragolabs.able.core.designsystem.component.AbleCardStyle
 import com.dragolabs.able.core.designsystem.component.AbleDetailScaffold
 import com.dragolabs.able.core.designsystem.component.AbleLogo
+import com.dragolabs.able.core.designsystem.component.AbleSingleChoiceToggleGroup
+import com.dragolabs.able.core.designsystem.component.rememberAbleHaptics
 import com.dragolabs.able.core.designsystem.component.ActionRow
 import com.dragolabs.able.core.designsystem.component.ExpandableRow
 import com.dragolabs.able.core.designsystem.component.HelpButton
@@ -67,6 +76,7 @@ import com.dragolabs.able.core.designsystem.component.labelRes
 import com.dragolabs.able.core.designsystem.component.screenContentPadding
 import com.dragolabs.able.core.designsystem.component.statusLevel
 import com.dragolabs.able.core.designsystem.theme.AbleSpacing
+import com.dragolabs.able.core.model.HapticsIntensity
 import com.dragolabs.able.core.model.ThemeMode
 
 /** Optional accesses listed in the SET-002 checklist. */
@@ -89,6 +99,7 @@ class SettingsActions(
     val onLanguageSelected: (String?) -> Unit,
     val onDynamicColorChanged: (Boolean) -> Unit,
     val onHapticsChanged: (Boolean) -> Unit,
+    val onHapticsIntensitySelected: (HapticsIntensity) -> Unit = { onHapticsChanged(it != HapticsIntensity.OFF) },
     val onAccessAction: (AccessKind) -> Unit,
     val onTelemetryChanged: (Boolean) -> Unit,
     val onExport: () -> Unit,
@@ -218,16 +229,70 @@ private fun LazyListScope.appearanceSection(state: SettingsUiState, actions: Set
                     icon = Icons.Rounded.Palette,
                 )
             }
-            item { shape ->
-                SwitchRow(
-                    title = stringResource(R.string.settings_haptics_title),
-                    checked = state.hapticsEnabled,
-                    onCheckedChange = actions.onHapticsChanged,
-                    shape = shape,
-                    supportingText = stringResource(R.string.settings_haptics_supporting),
-                    icon = Icons.Rounded.TouchApp,
+        }
+    }
+    item(key = "haptics_intensity") {
+        HapticsIntensitySelector(
+            selected = state.hapticsIntensity,
+            onSelect = actions.onHapticsIntensitySelected,
+        )
+    }
+}
+
+/**
+ * UX-003: Off / Light / Normal / Strong. After a change, a sample click plays at the new
+ * strength so the user feels the difference (the system touch-feedback setting still applies).
+ */
+@Composable
+private fun HapticsIntensitySelector(
+    selected: HapticsIntensity,
+    onSelect: (HapticsIntensity) -> Unit,
+) {
+    val haptics = rememberAbleHaptics()
+    var previous by remember { mutableStateOf(selected) }
+    LaunchedEffect(selected) {
+        if (selected != previous) {
+            previous = selected
+            haptics.click()
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(AbleSpacing.sm)) {
+        Row(
+            modifier = Modifier.padding(start = AbleSpacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(AbleSpacing.sm),
+        ) {
+            Icon(Icons.Rounded.TouchApp, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column {
+                Text(
+                    stringResource(R.string.settings_haptics_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    stringResource(R.string.settings_haptics_supporting),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        }
+        AbleSingleChoiceToggleGroup(
+            options = HapticsIntensity.entries,
+            selected = selected,
+            onSelect = onSelect,
+        ) { option ->
+            Text(
+                stringResource(
+                    when (option) {
+                        HapticsIntensity.OFF -> R.string.settings_haptics_intensity_off
+                        HapticsIntensity.LIGHT -> R.string.settings_haptics_intensity_light
+                        HapticsIntensity.NORMAL -> R.string.settings_haptics_intensity_normal
+                        HapticsIntensity.STRONG -> R.string.settings_haptics_intensity_strong
+                    },
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
