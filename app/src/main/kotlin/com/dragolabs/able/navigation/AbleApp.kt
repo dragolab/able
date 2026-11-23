@@ -15,7 +15,10 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
@@ -475,6 +478,9 @@ private inline fun <reified T : Any> NavGraphBuilder.ableComposable(
 }
 
 private const val SECTION_SCRIM_ALPHA = 0.22f
+
+/** Section slides move by 1/[SECTION_SLIDE_FRACTION] of the width (shared-axis X). */
+private const val SECTION_SLIDE_FRACTION = 5
 private val SectionScrimSpec = spring<Float>(dampingRatio = 1f, stiffness = 380f)
 
 /** Switches section, saving the current section's stack and restoring the target's. */
@@ -490,8 +496,8 @@ private fun NavHostController.navigateToSection(route: Any) {
 
 /**
  * Chooses the NavHost transition for a pair of destinations:
- * - section ↔ section: horizontal slide following the [TopLevelDestination] order, on a lightly
- *   underdamped spring (a very small, barely visible settle);
+ * - section ↔ section: shared-axis X — a short slide following the [TopLevelDestination] order
+ *   on a lightly underdamped spring, with a quick fade-out / delayed fade-in;
  * - section ↔ tool opened from one of its cards: the card's shared bounds do the app-open/close
  *   motion; the NavHost runs no competing slide/scale (the section is only dimmed);
  * - anything else: forward/back slide with fade.
@@ -502,10 +508,12 @@ private class AbleNavMotion(
     private val effects: FiniteAnimationSpec<Float>,
 ) {
     private val sectionSpring = spring(
-        dampingRatio = 0.82f,
-        stiffness = Spring.StiffnessMediumLow,
+        dampingRatio = 0.86f,
+        stiffness = Spring.StiffnessMedium,
         visibilityThreshold = IntOffset.VisibilityThreshold,
     )
+    private val sectionFadeIn = tween<Float>(durationMillis = 210, delayMillis = 60, easing = LinearOutSlowInEasing)
+    private val sectionFadeOut = tween<Float>(durationMillis = 90, easing = FastOutLinearInEasing)
 
     fun enter(initial: NavBackStackEntry, target: NavBackStackEntry, pop: Boolean): EnterTransition {
         if (!ValueAnimator.areAnimatorsEnabled()) return EnterTransition.None
@@ -513,8 +521,12 @@ private class AbleNavMotion(
         val to = target.sectionIndex()
         return when {
             from != null && to != null -> {
+                // Shared-axis X: a short directional slide with a cross-fade. Moving both whole
+                // screens across the display (and re-blurring the bar under them) every frame was
+                // the heaviest part of switching sections.
                 val direction = if (to > from) 1 else -1
-                slideInHorizontally(sectionSpring) { width -> direction * width }
+                slideInHorizontally(sectionSpring) { width -> direction * width / SECTION_SLIDE_FRACTION } +
+                    fadeIn(sectionFadeIn)
             }
             // Tool screen grows out of its card: everything is drawn by the shared bounds.
             isCardPair(section = initial, detail = target) -> EnterTransition.None
@@ -533,7 +545,8 @@ private class AbleNavMotion(
         return when {
             from != null && to != null -> {
                 val direction = if (to > from) 1 else -1
-                slideOutHorizontally(sectionSpring) { width -> -direction * width }
+                slideOutHorizontally(sectionSpring) { width -> -direction * width / SECTION_SLIDE_FRACTION } +
+                    fadeOut(sectionFadeOut)
             }
             // No NavHost animation on either end: both stay composed (and still) while the
             // transition's own animations run (shared bounds, corner morph, section scrim), so

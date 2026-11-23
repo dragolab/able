@@ -748,3 +748,18 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 
 **Alternatives:** Long label → wraps to two lines or ellipsizes; TalkBack reads the full name. Tool unavailable → same tile size with an unavailable badge and reason. Large font scale → all tiles grow together. TV → D-pad moves across the grid predictably.  
 **Postconditions:** Tile size never depends on label, badge, or availability.
+
+## UC-53 — Check for and install an Able update from GitHub
+
+**Primary actor:** End user; GitHub Releases API; Android PackageInstaller  
+**Preconditions:** Able is installed from a GitHub release APK; the device is online. Related: UPD-001, ADR-051 (added 2026-11-23).
+
+1. User opens Settings → Updates and taps "Check for updates" (or the automatic check runs at app start, at most once every 24 h, and shows a one-time snackbar whose "View" opens Settings).
+2. Able reads the public release list of `dragolab/able` from `api.github.com`, parses the version from each tag, and compares the newest with the installed `versionName`.
+3. Able shows "Able X is available" with publication date and size; "Release notes" opens the release body.
+4. User taps "Download and install". If "Install unknown apps" is off for Able, Able explains it and opens the Android page; the user allows it, returns, and taps again.
+5. Able downloads the APK into its cache with progress, checks the size and the package name, and commits a `PackageInstaller` session.
+6. Android shows its confirmation dialog; the user confirms; Android installs the update and restarts Able with the new version.
+
+**Alternatives:** Installed version is current → "Able is up to date" with the newest GitHub version. Offline, timeout, rate limit (403/429), other HTTP error, or unreadable response → specific message and "Try again"; nothing is stored except the last successful check. Newest release has no APK → message and "Open on GitHub". Download cancelled, incomplete, or not an Able APK → file deleted, nothing installed. User cancels the Android dialog → "Installation cancelled". Different signature or older build (`STATUS_FAILURE_CONFLICT` / `STATUS_FAILURE_INCOMPATIBLE`) → Able explains that the APK is signed with a different key and that a backup, uninstall, and reinstall are needed. Automatic check turned off → no network request at app start.  
+**Postconditions:** Only GitHub was contacted and no user data was sent; the installed app changes only after the Android confirmation; downloaded APKs are deleted after the result.

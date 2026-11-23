@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- In-app updater (UPD-001, ADR-051) -->
+    <string name="settings_section_updates">Updates</string>
+    <string name="settings_updates_current_title">Installed version</string>
+    <string name="settings_updates_check_title">Check for updates</string>
+    <string name="settings_updates_check_supporting">Reads the public release list of github.com/dragolab/able</string>
+    <string name="settings_updates_checking">Checking GitHub…</string>
+    <string name="settings_updates_last_check">Last check: %1$s</string>
+    <string name="settings_updates_never_checked">Not checked yet</string>
+    <string name="settings_updates_auto_title">Check automatically</string>
+    <string name="settings_updates_auto_supporting">When you open Able, at most once every 24 hours. It only checks: nothing is downloaded until you tap Download and install.</string>
+
+    <string name="settings_updates_up_to_date">Able is up to date</string>
+    <string name="settings_updates_up_to_date_latest">Latest release on GitHub: %1$s</string>
+    <string name="settings_updates_no_releases">No Able release found on GitHub.</string>
+    <string name="settings_updates_available_title">Able %1$s is available</string>
+    <string name="settings_updates_available_meta">Published %1$s · %2$s</string>
+    <string name="settings_updates_available_size">Size %1$s</string>
+    <string name="settings_updates_known_newer_body">A previous check found a newer release. Check again to see the release notes and download it.</string>
+    <string name="settings_updates_no_apk_title">Able %1$s has no APK to download</string>
+    <string name="settings_updates_no_apk_body">The newest release on GitHub does not include an .apk file. You can open the release page to see what it contains.</string>
+
+    <string name="settings_updates_action_check_now">Check now</string>
+    <string name="settings_updates_action_download">Download and install</string>
+    <string name="settings_updates_action_notes">Release notes</string>
+    <string name="settings_updates_action_open_page">Open on GitHub</string>
+    <string name="settings_updates_action_cancel_download">Cancel download</string>
+    <string name="settings_updates_action_continue">Continue installation</string>
+    <string name="settings_updates_action_retry">Try again</string>
+    <string name="settings_updates_action_allow">Open Android settings</string>
+
+    <string name="settings_updates_notes_title">What\'s new in %1$s</string>
+    <string name="settings_updates_notes_empty">This release has no notes.</string>
+
+    <string name="settings_updates_downloading">Downloading %1$s of %2$s</string>
+    <string name="settings_updates_installing">Waiting for Android to install the update…</string>
+    <string name="settings_updates_confirm">Confirm the installation in Android\'s dialog.</string>
+    <string name="settings_updates_installed">Update installed. Android restarts Able with the new version.</string>
+
+    <string name="settings_updates_permission_title">Allow Able to install updates</string>
+    <string name="settings_updates_permission_body">Android lets an app install APK files only after you allow it in “Install unknown apps”. Turn on “Allow from this source” for Able, then come back and tap Download and install again. You can turn it off again at any time; Android always asks you to confirm every installation.</string>
+
+    <!-- Check / download errors -->
+    <string name="settings_updates_error_title">Couldn\'t check for updates</string>
+    <string name="settings_updates_error_offline">No connection to GitHub. Check that you are online and try again.</string>
+    <string name="settings_updates_error_timeout">GitHub did not answer in time. Try again later.</string>
+    <string name="settings_updates_error_rate_limited">GitHub limits checks without an account to 60 per hour from the same network. Try again later.</string>
+    <string name="settings_updates_error_rate_limited_until">GitHub limits checks without an account to 60 per hour from the same network. Try again after %1$s.</string>
+    <string name="settings_updates_error_http">GitHub answered with error %1$d. Try again later.</string>
+    <string name="settings_updates_error_invalid">GitHub sent a response Able could not read.</string>
+    <string name="settings_updates_error_version_unknown">Able could not read its own version, so it cannot compare it with GitHub.</string>
+    <string name="settings_updates_error_storage">The update could not be saved. Free some storage and try again.</string>
+    <string name="settings_updates_error_size">The download is incomplete or different from the published file (%1$s expected, %2$s received). Nothing was installed. Try again.</string>
+    <string name="settings_updates_error_not_able">The downloaded file is not an Able APK. Nothing was installed.</string>
+
+    <!-- Install results (PackageInstaller status) -->
+    <string name="settings_updates_install_failed_title">Update not installed</string>
+    <string name="settings_updates_install_download_failed_title">Download failed</string>
+    <string name="settings_updates_install_signature">Android refused the update: its signature differs from the installed Able (or it is an older build). An update installs only if it is signed with the same key. To switch to this APK, export a backup, uninstall Able and install the APK from GitHub.</string>
+    <string name="settings_updates_install_aborted">Installation cancelled. Nothing was changed.</string>
+    <string name="settings_updates_install_blocked">Android or a device policy blocked the installation.</string>
+    <string name="settings_updates_install_invalid">Android reports that the APK is invalid or damaged. Nothing was installed.</string>
+    <string name="settings_updates_install_storage">Not enough storage to install the update.</string>
+    <string name="settings_updates_install_generic">Android could not install the update.</string>
+    <string name="settings_updates_install_detail">Android says: %1$s</string>
+
+    <string name="settings_help_updates">Able contacts only GitHub. A check reads the public release list of github.com/dragolab/able from api.github.com. Only when you tap Download and install, Able downloads the release APK from github.com, which redirects to GitHub\'s download server (githubusercontent.com). The requests carry only what any connection needs (your IP address and the generic name “Able-Updater”): no account, device identifier, settings, apps or usage data are sent, and GitHub\'s privacy policy applies to them. The APK is saved in Able\'s cache, checked against the size GitHub publishes and installed only after you confirm in Android\'s dialog; Android accepts it only if it is signed with the same key as the installed Able. The automatic check runs at most once every 24 hours when you open Able, never downloads anything and can be turned off here.</string>
+
+    <!-- App-start announcement -->
+    <string name="settings_updates_snackbar">Able %1$s is available</string>
+    <string name="settings_updates_snackbar_action">View</string>
+</resources>

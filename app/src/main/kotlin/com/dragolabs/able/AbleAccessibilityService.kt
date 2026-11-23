@@ -59,7 +59,7 @@ class AbleAccessibilityService : AccessibilityService() {
     private var baseInfo: Triple<Int, Int, Long>? = null
 
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (key == LockGestureSettings.KEY_RECOGNITION || key == LockGestureSettings.KEY_HOME_STATUS) return@OnSharedPreferenceChangeListener
+        if (key in SERVICE_WRITTEN_KEYS) return@OnSharedPreferenceChangeListener
         overlay?.refresh()
         home?.reload()
         updateServiceInfo()
@@ -226,6 +226,12 @@ class AbleAccessibilityService : AccessibilityService() {
     companion object {
         private const val HAPTIC_LEAD_MS = 80L
         private const val SCREEN_SETTLE_MS = 400L
+        private val SERVICE_WRITTEN_KEYS = setOf(
+            LockGestureSettings.KEY_RECOGNITION,
+            LockGestureSettings.KEY_HOME_STATUS,
+            LockGestureSettings.KEY_HOME_ATTEMPT,
+            LockGestureSettings.KEY_HOME_ATTEMPT_GAP,
+        )
 
         @Volatile
         private var activeService: AbleAccessibilityService? = null

@@ -23,6 +23,9 @@ import com.dragolabs.able.feature.settings.backup.ImportPreview
 import com.dragolabs.able.feature.settings.backup.ImportReadResult
 import com.dragolabs.able.feature.settings.backup.ImportReport
 import com.dragolabs.able.feature.settings.backup.ParsedBackup
+import com.dragolabs.able.feature.settings.update.AppUpdater
+import com.dragolabs.able.feature.settings.update.AvailableUpdate
+import com.dragolabs.able.feature.settings.update.UpdaterState
 import android.net.Uri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -93,6 +96,8 @@ data class SettingsUiState(
     val exporting: Boolean = false,
     val importStage: ImportStage? = null,
     val message: SettingsMessage? = null,
+    /** UPD-001: GitHub Releases check and install progress. */
+    val updater: UpdaterState = UpdaterState(),
 )
 
 private data class LocalState(
@@ -111,6 +116,7 @@ class SettingsViewModel(
     private val backup: BackupRepository,
     private val appVersion: String,
     private val appContext: Context,
+    private val updater: AppUpdater,
 ) : ViewModel() {
 
     private val local = MutableStateFlow(LocalState())
@@ -120,7 +126,8 @@ class SettingsViewModel(
         capabilityStatus.access,
         backup.rollbackAvailable,
         local,
-    ) { prefs, access, rollback, l ->
+        updater.state,
+    ) { prefs, access, rollback, l, update ->
         SettingsUiState(
             themeMode = prefs.themeMode,
             languageTag = prefs.languageOverride,
@@ -135,6 +142,7 @@ class SettingsViewModel(
             exporting = l.exporting,
             importStage = l.importStage,
             message = l.message,
+            updater = update,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState(appVersion = appVersion))
 
@@ -145,6 +153,7 @@ class SettingsViewModel(
     /** Called on resume: Android does not broadcast most grant changes. */
     fun refresh() {
         capabilityStatus.refresh()
+        updater.onResume()
         syncLanguageFromSystem()
     }
 
@@ -312,6 +321,18 @@ class SettingsViewModel(
         if (it.importStage is ImportStage.Applying || it.importStage is ImportStage.Reading) it else it.copy(importStage = null)
     }
 
+    // --- Updates (UPD-001) -------------------------------------------------------------------
+
+    fun checkForUpdates() = updater.check()
+
+    fun setUpdateAutoCheck(enabled: Boolean) = updater.setAutoCheck(enabled)
+
+    fun downloadUpdate(update: AvailableUpdate) = updater.downloadAndInstall(update)
+
+    fun cancelUpdateDownload() = updater.cancelDownload()
+
+    fun dismissUpdateInstall() = updater.dismissInstallResult()
+
     // --- Messages --------------------------------------------------------------------------
 
     fun message(message: SettingsMessage) = local.update { it.copy(message = message) }
@@ -341,6 +362,7 @@ class SettingsViewModel(
                 ),
                 appVersion = version,
                 appContext = context,
+                updater = AppUpdater.get(container),
             )
         }
     }

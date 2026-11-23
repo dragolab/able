@@ -1,6 +1,8 @@
 package com.dragolabs.able.feature.apps.data
 
+import android.app.LocaleManager
 import android.content.Context
+import android.os.LocaleList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -70,6 +72,25 @@ object UadParser {
         return result
     }
 
+    /** Parses a `{ "package": "translated description" }` object; bad entries are skipped. */
+    fun parseTranslations(text: String): Map<String, String> {
+        val root: JsonObject = json.parseToJsonElement(text).jsonObject
+        return buildMap {
+            for ((name, element) in root) {
+                val value = (element as? kotlinx.serialization.json.JsonPrimitive)?.takeIf { it.isString }?.content?.trim()
+                if (name.isNotBlank() && !value.isNullOrEmpty()) put(name.trim(), value)
+            }
+        }
+    }
+
+    /** Replaces descriptions with [translations] where one exists. */
+    fun applyTranslations(
+        base: Map<String, PackageKnowledge>,
+        translations: Map<String, String>,
+    ): Map<String, PackageKnowledge> = if (translations.isEmpty()) base else base.mapValues { (name, entry) ->
+        translations[name]?.let { entry.copy(description = it) } ?: entry
+    }
+
     fun parseList(value: String?): UadList? = when (value?.trim()?.lowercase()) {
         "oem" -> UadList.OEM
         "misc" -> UadList.MISC
@@ -105,26 +126,54 @@ object PackageKnowledgeAttribution {
 /**
  * Lazily parses `assets/uad/uad_lists.json` on the IO dispatcher the first time it is needed and
  * keeps it in memory for the process lifetime (it is read-only and refreshed per release).
+ *
+ * When Able runs in Italian, descriptions come from `assets/uad/uad_descriptions_it.json`
+ * (package name → Italian text, a translation of the same snapshot made for Able, GPL-3.0 like the
+ * source); packages without a translation keep the English text.
  */
 class PackageKnowledgeRepository(private val context: Context) {
 
     /** Returns all entries, or an empty map if the bundled snapshot cannot be read. */
     suspend fun all(): Map<String, PackageKnowledge> {
-        cache?.let { return it }
+        val language = currentLanguage()
+        cache?.takeIf { cacheLanguage == language }?.let { return it }
         return mutex.withLock {
-            cache ?: withContext(Dispatchers.IO) {
-                runCatching {
+            cache?.takeIf { cacheLanguage == language } ?: withContext(Dispatchers.IO) {
+                val base = runCatching {
                     context.assets.open(ASSET_PATH).bufferedReader(Charsets.UTF_8).use { UadParser.parse(it.readText()) }
                 }.getOrDefault(emptyMap())
-            }.also { cache = it }
+                if (language != "it") return@withContext base
+                val italian = runCatching {
+                    context.assets.open(ASSET_PATH_IT).bufferedReader(Charsets.UTF_8).use { UadParser.parseTranslations(it.readText()) }
+                }.getOrDefault(emptyMap())
+                UadParser.applyTranslations(base, italian)
+            }.also {
+                cache = it
+                cacheLanguage = language
+            }
         }
+    }
+
+    /**
+     * The language Able's UI is shown in: the per-app language chosen in Settings (Android 13+
+     * `LocaleManager`, which the application context's configuration does not always reflect),
+     * else the device language.
+     */
+    private fun currentLanguage(): String {
+        val appLocales = runCatching { context.getSystemService(LocaleManager::class.java)?.applicationLocales }.getOrNull()
+        val locales = appLocales?.takeIf { !it.isEmpty } ?: LocaleList.getDefault()
+        return locales.takeIf { !it.isEmpty }?.get(0)?.language.orEmpty()
     }
 
     private companion object {
         const val ASSET_PATH = "uad/uad_lists.json"
+        const val ASSET_PATH_IT = "uad/uad_descriptions_it.json"
         val mutex = Mutex()
 
         @Volatile
         var cache: Map<String, PackageKnowledge>? = null
+
+        @Volatile
+        var cacheLanguage: String? = null
     }
 }

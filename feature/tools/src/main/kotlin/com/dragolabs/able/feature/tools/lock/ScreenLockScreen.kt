@@ -450,7 +450,8 @@ private fun PlacesCard(state: ScreenLockUiState, actions: ScreenLockActions) {
             item { shape ->
                 GestureToggleRow(
                     title = stringResource(R.string.lock_option_home_tap_title),
-                    summary = stringResource(R.string.lock_option_home_tap_summary) + "\n" + homeStatusText(state.config),
+                    summary = stringResource(R.string.lock_option_home_tap_summary) + "\n" + homeStatusText(state.config) +
+                        homeAttemptText(state.config)?.let { "\n" + it }.orEmpty(),
                     icon = Icons.Rounded.Home,
                     checked = state.config.homeEnabled,
                     enabled = state.serviceEnabled,
@@ -488,6 +489,21 @@ private fun homeStatusText(config: LockGestureConfig): String {
             else -> R.string.lock_home_tap_status_unknown
         },
     )
+}
+
+/** Why the last home double tap did (not) lock, so the user can adjust the time or the spot. */
+@Composable
+private fun homeAttemptText(config: LockGestureConfig): String? {
+    if (!config.homeEnabled) return null
+    val attempt = config.homeLastAttempt ?: return null
+    val gap = config.homeLastGapMs
+    return when (attempt) {
+        HomeTapAttempt.LOCKED -> stringResource(R.string.lock_home_attempt_locked, gap)
+        HomeTapAttempt.TOO_SLOW -> stringResource(R.string.lock_home_attempt_too_slow, gap)
+        HomeTapAttempt.ICON_OR_SWIPE -> stringResource(R.string.lock_home_attempt_icon, gap)
+        HomeTapAttempt.NOT_HOME_PAGES -> stringResource(R.string.lock_home_attempt_not_home)
+        HomeTapAttempt.SHADE_OPEN -> stringResource(R.string.lock_home_attempt_shade)
+    }
 }
 
 @Composable

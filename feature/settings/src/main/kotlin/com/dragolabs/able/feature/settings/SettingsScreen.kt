@@ -112,6 +112,8 @@ class SettingsActions(
     val onReplayTour: (() -> Unit)? = null,
     val onOpenTilesWidgets: (() -> Unit)? = null,
     val onOpenLicenses: (() -> Unit)? = null,
+    /** UPD-001: in-app updater from GitHub Releases. */
+    val updates: UpdateActions = UpdateActions(),
 )
 
 private data class AccessGroup(val titleRes: Int, val kinds: List<AccessKind>)
@@ -144,19 +146,22 @@ fun SettingsScreen(
                 contentPadding = screenContentPadding(padding),
                 verticalArrangement = Arrangement.spacedBy(AbleSpacing.md),
             ) {
+                // UPD-001: a known update or a running installation is shown first.
+                updateTopCard(state.updater, actions.updates)
                 appearanceSection(state, actions)
                 accessSection(state.access, actions)
                 privacySection(state, actions)
                 backupSection(state, actions)
                 homeLayoutSection(actions)
                 helpSection(actions)
+                updatesSection(state.updater, state.appVersion, actions.updates)
                 aboutSection(state, actions)
             }
         }
     }
 }
 
-private fun LazyListScope.header(textRes: Int, help: Pair<Int, Int>? = null) {
+internal fun LazyListScope.header(textRes: Int, help: Pair<Int, Int>? = null) {
     item(key = "header_$textRes") {
         Row(
             Modifier.fillMaxWidth().padding(top = AbleSpacing.md, start = AbleSpacing.xs),

@@ -146,6 +146,22 @@ fun SettingsRoute(
         onReplayTour = onOpenTour?.let { open -> { viewModel.replayTour(open) } },
         onOpenTilesWidgets = onOpenTilesWidgets,
         onOpenLicenses = onOpenLicenses,
+        updates = UpdateActions(
+            onCheck = viewModel::checkForUpdates,
+            onAutoCheckChanged = viewModel::setUpdateAutoCheck,
+            onDownload = viewModel::downloadUpdate,
+            onCancelDownload = viewModel::cancelUpdateDownload,
+            // UPD-001: Android's own "Install unknown apps" page for Able.
+            onAllowInstalls = {
+                launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}")))
+            },
+            onContinueInstall = { confirm -> launch(Intent(confirm).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
+            onOpenPage = { url ->
+                val opened = runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }.isSuccess
+                if (!opened) copyFallback = url
+            },
+            onDismissInstall = viewModel::dismissUpdateInstall,
+        ),
     )
 
     val messageText = state.message?.let { messageText(context, it) }

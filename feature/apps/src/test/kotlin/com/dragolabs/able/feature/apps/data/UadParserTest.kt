@@ -65,4 +65,14 @@ class UadParserTest {
         assertTrue("most entries must have a known removal level", withRemoval > result.size * 0.95)
         assertEquals(RemovalLevel.UNSAFE, result["android.ext.shared"]?.removal)
     }
+
+    @Test
+    fun translations_replaceDescriptionsOnlyWhereAvailable() {
+        val base = UadParser.parse("""{"a.b":{"list":"Oem","description":"English A"},"c.d":{"list":"Misc","description":"English C"}}""")
+        val it = UadParser.parseTranslations("""{"a.b":"Italiano A","x.y":"ignorato","c.d":""}""")
+        val merged = UadParser.applyTranslations(base, it)
+        org.junit.Assert.assertEquals("Italiano A", merged.getValue("a.b").description)
+        org.junit.Assert.assertEquals("English C", merged.getValue("c.d").description)
+        org.junit.Assert.assertEquals(2, merged.size)
+    }
 }

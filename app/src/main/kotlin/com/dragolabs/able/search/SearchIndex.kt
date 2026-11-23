@@ -53,6 +53,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Sensors
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.SmartButton
 import androidx.compose.material.icons.rounded.Star
@@ -261,6 +262,7 @@ object SearchIndex {
         add(SearchEntry("settings.backup.restore", SettingsR.string.settings_backup_restore_title, settings, Icons.Rounded.Restore, keywordsRes = R.string.search_kw_settings_restore, areaRes = backup, anchor = "backup.restore"))
         add(SearchEntry("settings.home_reset", SettingsR.string.settings_home_reset_title, settings, Icons.Rounded.RestartAlt, keywordsRes = R.string.search_kw_settings_home_reset, areaRes = homeLayout, anchor = "home.reset"))
         add(SearchEntry("settings.tour", SettingsR.string.settings_help_tour_title, settings, Icons.Rounded.Tour, keywordsRes = R.string.search_kw_settings_tour, areaRes = help, anchor = "help.tour"))
+        add(SearchEntry("settings.updates", SettingsR.string.settings_section_updates, settings, Icons.Rounded.SystemUpdate, keywordsRes = R.string.search_kw_settings_updates, anchor = "updates"))
         add(SearchEntry("settings.licenses", SettingsR.string.settings_about_licenses, settings, Icons.Rounded.Gavel, keywordsRes = R.string.search_kw_settings_licenses, areaRes = about, anchor = "about.licenses"))
         add(SearchEntry("settings.about", SettingsR.string.settings_section_about, settings, Icons.Rounded.Info, keywordsRes = R.string.search_kw_settings_about, anchor = "about"))
 

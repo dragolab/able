@@ -25,6 +25,23 @@ enum class HomeDoubleTapStatus {
     FAILED,
 }
 
+/** Outcome of the last home-screen double-tap attempt seen by the service (LOCK-003 diagnostics). */
+enum class HomeTapAttempt {
+    LOCKED,
+
+    /** The second touch came, but later than the double-tap time allows. */
+    TOO_SLOW,
+
+    /** The launcher reported an icon/widget tap, a long press or a page swipe. */
+    ICON_OR_SWIPE,
+
+    /** The launcher was in front but showed the app list or another panel, not the home pages. */
+    NOT_HOME_PAGES,
+
+    /** The notification shade or quick settings were open. */
+    SHADE_OPEN,
+}
+
 @Immutable
 data class LockGestureConfig(
     val lockScreenEnabled: Boolean = false,
@@ -34,6 +51,8 @@ data class LockGestureConfig(
     val hapticOnLock: Boolean = true,
     val lockScreenRecognition: LockScreenRecognition = LockScreenRecognition.UNKNOWN,
     val homeStatus: HomeDoubleTapStatus = HomeDoubleTapStatus.UNKNOWN,
+    val homeLastAttempt: HomeTapAttempt? = null,
+    val homeLastGapMs: Int = 0,
 )
 
 /**
@@ -55,7 +74,9 @@ data class LockGestureConfig(
  *   keyguard was shown.
  * The home-screen widget has no setting: placing or removing the widget enables or disables it.
  * [KEY_HOME_STATUS] `home_double_tap_status` String ([HomeDoubleTapStatus] name), written by the
- * service only: whether it could start watching home-screen taps.
+ * service only: whether it could start watching home-screen taps. [KEY_HOME_ATTEMPT] /
+ * [KEY_HOME_ATTEMPT_GAP], service only: outcome ([HomeTapAttempt]) and touch-down gap of the last
+ * home double-tap attempt, shown in the tool so the user can see why a double tap did not lock.
  */
 class LockGestureSettings(context: Context) {
     private val prefs: SharedPreferences =
@@ -73,6 +94,9 @@ class LockGestureSettings(context: Context) {
         homeStatus = prefs.getString(KEY_HOME_STATUS, null)
             ?.let { stored -> HomeDoubleTapStatus.entries.firstOrNull { it.name == stored } }
             ?: HomeDoubleTapStatus.UNKNOWN,
+        homeLastAttempt = prefs.getString(KEY_HOME_ATTEMPT, null)
+            ?.let { stored -> HomeTapAttempt.entries.firstOrNull { it.name == stored } },
+        homeLastGapMs = prefs.getInt(KEY_HOME_ATTEMPT_GAP, 0),
     )
 
     fun setLockScreenEnabled(enabled: Boolean) = prefs.edit().putBoolean(KEY_LOCK_SCREEN, enabled).apply()
@@ -86,6 +110,11 @@ class LockGestureSettings(context: Context) {
         if (prefs.getString(KEY_HOME_STATUS, null) != value.name) {
             prefs.edit().putString(KEY_HOME_STATUS, value.name).apply()
         }
+    }
+
+    /** Written by the Accessibility service: the last home double-tap attempt and its gap. */
+    fun reportHomeAttempt(attempt: HomeTapAttempt, gapMs: Int) {
+        prefs.edit().putString(KEY_HOME_ATTEMPT, attempt.name).putInt(KEY_HOME_ATTEMPT_GAP, gapMs).apply()
     }
 
     fun setTimeoutMs(value: Int) =
@@ -121,6 +150,8 @@ class LockGestureSettings(context: Context) {
         const val KEY_STATUS_BAR = "status_bar_enabled"
         const val KEY_HOME = "home_double_tap_enabled"
         const val KEY_HOME_STATUS = "home_double_tap_status"
+        const val KEY_HOME_ATTEMPT = "home_double_tap_last_attempt"
+        const val KEY_HOME_ATTEMPT_GAP = "home_double_tap_last_gap_ms"
         const val KEY_TIMEOUT_MS = "double_tap_timeout_ms"
         const val KEY_HAPTIC = "haptic_on_lock"
         const val KEY_RECOGNITION = "lock_screen_recognition"

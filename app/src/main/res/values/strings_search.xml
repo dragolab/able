@@ -94,6 +94,7 @@
     <string name="search_kw_settings_home_reset">reset home, default layout, cards order, ripristina home, disposizione predefinita</string>
     <string name="search_kw_settings_tour">tour, guide, tutorial, introduction, help, guida, introduzione, aiuto</string>
     <string name="search_kw_settings_licenses">open source, licenses, third party, attribution, licenze, terze parti, attribuzioni</string>
+    <string name="search_kw_settings_updates">update, updates, new version, check for updates, GitHub, release, download, install, APK, aggiornamenti, aggiorna, nuova versione, scarica, installa</string>
     <string name="search_kw_settings_about">about, version, Drago Labs, contact, email, website, informazioni, versione, contatti, sito</string>
 
     <string name="search_kw_tiles">tiles, widgets, Quick Settings, launcher, riquadri, impostazioni rapide, widget</string>

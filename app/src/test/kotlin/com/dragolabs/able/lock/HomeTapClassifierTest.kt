@@ -21,7 +21,8 @@ class HomeTapClassifierTest {
     fun slowTouches_areNotADoubleTap() {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
-        assertNull(c.onTouchDown(1_400, timeout))
+        assertNull(c.onTouchDown(1_500, timeout))
+        assertEquals(500L, c.lastSlowGapMs)
         assertFalse(c.decide())
     }
 
@@ -100,5 +101,32 @@ class HomeTapClassifierTest {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
         assertEquals(1_200L + HomeTapClassifier.DEFAULT_SETTLE_MS, c.onTouchDown(1_200, timeout))
+    }
+
+    @Test
+    fun firstTapDuration_isAllowedOnTopOfTheTimeout() {
+        val c = HomeTapClassifier()
+        c.onTouchDown(1_000, timeout)
+        // 380 ms down-to-down = ~100 ms tap + 280 ms gap: within a 300 ms double-tap time.
+        assertEquals(1_380L + HomeTapClassifier.DEFAULT_SETTLE_MS, c.onTouchDown(1_380, timeout))
+        assertTrue(c.decide())
+    }
+
+    @Test
+    fun scrollAfterTheSecondTouch_doesNotCancel() {
+        val c = HomeTapClassifier()
+        c.onTouchDown(1_000, timeout)
+        c.onTouchDown(1_200, timeout)
+        c.onLauncherScroll(1_300)
+        assertTrue(c.decide())
+    }
+
+    @Test
+    fun scrollBetweenTheTouches_cancels() {
+        val c = HomeTapClassifier()
+        c.onTouchDown(1_000, timeout)
+        c.onLauncherScroll(1_100)
+        c.onTouchDown(1_200, timeout)
+        assertEquals(HomeTapClassifier.Decision.LAUNCHER_INTERACTION, c.decideDetailed())
     }
 }

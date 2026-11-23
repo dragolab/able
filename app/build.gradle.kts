@@ -16,8 +16,8 @@ android {
         applicationId = "com.dragolabs.able"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 8
-        versionName = "0.8.0-beta"
+        versionCode = 9
+        versionName = "0.9.0-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,8 +28,15 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 shrinking and optimisation (ADR-052): debug builds are several times larger and
+            // run Compose without optimisations, which made screen transitions stutter.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Beta builds stay signed with the same key as 0.6-0.8 so the in-app updater can install
+            // over them (ADR-052). A dedicated release key is a separate owner decision: switching
+            // to it requires users to uninstall once.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

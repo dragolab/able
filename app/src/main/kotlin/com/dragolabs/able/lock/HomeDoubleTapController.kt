@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -17,6 +18,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 import com.dragolabs.able.applock.ForegroundPackages
 import com.dragolabs.able.feature.tools.lock.HomeDoubleTapStatus
+import com.dragolabs.able.feature.tools.lock.HomeTapAttempt
 import com.dragolabs.able.feature.tools.lock.LockGestureSettings
 
 /**
@@ -74,14 +76,12 @@ internal class HomeDoubleTapController(
         update()
     }
 
-    private var foreground: String? = null
-
-    /** The foreground app changed: a pair never spans two apps. */
-    fun onForeground(pkg: String) {
-        if (pkg == foreground) return
-        foreground = pkg
-        classifier.reset()
-    }
+    /**
+     * The foreground app changed. Nothing to do: the launcher is checked live at decision time,
+     * and resetting here cancelled real double taps when SystemUI briefly reported a window.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun onForeground(pkg: String) = Unit
 
     /** Launcher click, long click or scroll: the touches were not on empty space. */
     fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -90,8 +90,8 @@ internal class HomeDoubleTapController(
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_CLICKED,
             AccessibilityEvent.TYPE_VIEW_LONG_CLICKED,
-            AccessibilityEvent.TYPE_VIEW_SCROLLED,
-            -> classifier.onLauncherInteraction(event.eventTime)
+            -> classifier.onLauncherClick(event.eventTime)
+            AccessibilityEvent.TYPE_VIEW_SCROLLED -> classifier.onLauncherScroll(event.eventTime)
         }
     }
 
@@ -150,36 +150,76 @@ internal class HomeDoubleTapController(
     }
 
     private fun onOutsideTouch(eventTimeMs: Long) {
-        val decideAt = classifier.onTouchDown(eventTimeMs, timeoutMs) ?: return
+        val decideAt = classifier.onTouchDown(eventTimeMs, timeoutMs)
+        if (decideAt == null) {
+            val slow = classifier.lastSlowGapMs
+            if (slow > 0 && launcherInFrontQuick()) report(HomeTapAttempt.TOO_SLOW, slow)
+            return
+        }
         handler.removeCallbacks(decideRunnable)
         handler.postAtTime(decideRunnable, decideAt.coerceAtLeast(SystemClock.uptimeMillis()))
     }
 
     private fun decide() {
         if (!enabled || !screenUsable()) return
-        if (!classifier.decide()) return
+        val gap = classifier.lastPairGapMs
+        val decision = classifier.decideDetailed()
+        if (decision == HomeTapClassifier.Decision.NONE) return
         val windows = runCatching { service.windows }.getOrNull().orEmpty()
-        if (!launcherHomeVisible(windows)) return
-        val scene = runCatching { SystemUiLockState.read(windows, keyguardLocked = false) }
-            .getOrDefault(SystemUiLockState.Scene.UNKNOWN)
-        if (scene == SystemUiLockState.Scene.PANEL_OR_BOUNCER) return
-        onDoubleTap(view)
+        val home = launcherHomeVisible(windows)
+        // Pairs outside the launcher are none of Able's business: not reported.
+        if (home == HomeCheck.OTHER_APP) return
+        when {
+            decision == HomeTapClassifier.Decision.LAUNCHER_INTERACTION -> report(HomeTapAttempt.ICON_OR_SWIPE, gap)
+            home == HomeCheck.NOT_HOME_PAGES -> report(HomeTapAttempt.NOT_HOME_PAGES, gap)
+            runCatching { SystemUiLockState.read(windows, keyguardLocked = false) }
+                .getOrDefault(SystemUiLockState.Scene.UNKNOWN) == SystemUiLockState.Scene.PANEL_OR_BOUNCER ->
+                report(HomeTapAttempt.SHADE_OPEN, gap)
+            else -> {
+                report(HomeTapAttempt.LOCKED, gap)
+                onDoubleTap(view)
+            }
+        }
     }
+
+    private fun report(attempt: HomeTapAttempt, gapMs: Long) {
+        Log.i(TAG, "home double tap: $attempt gap=${gapMs}ms timeout=${timeoutMs}ms")
+        settings.reportHomeAttempt(attempt, gapMs.toInt())
+    }
+
+    /** Cheap check used only to decide whether a slow pair is worth reporting. */
+    private fun launcherInFrontQuick(): Boolean {
+        val launcher = packages.launcherPackage ?: return false
+        return runCatching { service.rootInActiveWindow?.packageName?.toString() == launcher }.getOrDefault(false)
+    }
+
+    private enum class HomeCheck { HOME_PAGES, NOT_HOME_PAGES, OTHER_APP }
 
     /**
      * True when the default launcher is the active application window and shows its home pages.
      * Launchers without the Launcher3 view IDs are accepted on the package check alone.
      */
-    private fun launcherHomeVisible(windows: List<AccessibilityWindowInfo>): Boolean {
-        val launcher = packages.launcherPackage ?: return false
-        val app = windows.firstOrNull { it.type == AccessibilityWindowInfo.TYPE_APPLICATION && (it.isActive || it.isFocused) }
-        val root = app?.root ?: runCatching { service.rootInActiveWindow }.getOrNull() ?: return false
-        if (root.packageName?.toString() != launcher) return false
-        if (anyVisible(root, "$launcher:id/apps_view")) return false
+    private fun launcherHomeVisible(windows: List<AccessibilityWindowInfo>): HomeCheck {
+        val launcher = packages.launcherPackage ?: return HomeCheck.OTHER_APP
+        val candidates = windows.filter { it.type == AccessibilityWindowInfo.TYPE_APPLICATION }
+        val app = candidates.firstOrNull { it.isActive || it.isFocused } ?: candidates.firstOrNull()
+        val root = runCatching { app?.root }.getOrNull()
+            ?: runCatching { service.rootInActiveWindow }.getOrNull()
+            ?: return HomeCheck.OTHER_APP
+        if (root.packageName?.toString() != launcher) return HomeCheck.OTHER_APP
+        if (anyVisible(root, "$launcher:id/apps_view")) return HomeCheck.NOT_HOME_PAGES
         val workspace = root.findAccessibilityNodeInfosByViewId("$launcher:id/workspace").orEmpty()
-        return workspace.isEmpty() || workspace.any(AccessibilityNodeInfo::isVisibleToUser)
+        return if (workspace.isEmpty() || workspace.any(AccessibilityNodeInfo::isVisibleToUser)) {
+            HomeCheck.HOME_PAGES
+        } else {
+            HomeCheck.NOT_HOME_PAGES
+        }
     }
 
     private fun anyVisible(root: AccessibilityNodeInfo, id: String): Boolean =
         root.findAccessibilityNodeInfosByViewId(id).orEmpty().any(AccessibilityNodeInfo::isVisibleToUser)
+
+    private companion object {
+        const val TAG = "AbleHomeTap"
+    }
 }

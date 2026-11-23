@@ -8,10 +8,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -19,8 +29,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dragolabs.able.core.data.ableContainer
 import com.dragolabs.able.core.designsystem.theme.AbleTheme
 import com.dragolabs.able.core.model.ThemeMode
+import com.dragolabs.able.feature.settings.R as SettingsR
+import com.dragolabs.able.feature.settings.update.AppUpdater
 import com.dragolabs.able.navigation.AbleApp
 import com.dragolabs.able.navigation.EXTRA_ROUTE
+import com.dragolabs.able.navigation.SettingsRoute
 import com.dragolabs.able.navigation.routeFromDeepLink
 import com.dragolabs.able.widget.BatteryWidget
 import com.dragolabs.able.widget.CustomActionsWidget
@@ -77,13 +90,35 @@ class MainActivity : ComponentActivity() {
                     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface))
                 } else {
                     val deepLink by pendingDeepLink
-                    AbleApp(
-                        isTv = isTv,
-                        showOnboarding = !loaded.onboardingCompleted && deepLink == null,
-                        showTour = loaded.onboardingCompleted && !loaded.tourCompleted && deepLink == null,
-                        deepLink = deepLink,
-                        onDeepLinkConsumed = { pendingDeepLink.value = null },
-                    )
+                    val updateSnackbar = remember { SnackbarHostState() }
+                    Box(Modifier.fillMaxSize()) {
+                        AbleApp(
+                            isTv = isTv,
+                            showOnboarding = !loaded.onboardingCompleted && deepLink == null,
+                            showTour = loaded.onboardingCompleted && !loaded.tourCompleted && deepLink == null,
+                            deepLink = deepLink,
+                            onDeepLinkConsumed = { pendingDeepLink.value = null },
+                        )
+                        // UPD-001: non-intrusive, one-time notice after the app-start check.
+                        SnackbarHost(
+                            updateSnackbar,
+                            Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.statusBars),
+                        )
+                    }
+                    if (savedInstanceState == null) {
+                        LaunchedEffect(Unit) {
+                            val updater = AppUpdater.get(container)
+                            val update = updater.autoCheckIfDue() ?: return@LaunchedEffect
+                            updater.markNotified(update)
+                            val result = updateSnackbar.showSnackbar(
+                                message = getString(SettingsR.string.settings_updates_snackbar, update.version.toString()),
+                                actionLabel = getString(SettingsR.string.settings_updates_snackbar_action),
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Long,
+                            )
+                            if (result == SnackbarResult.ActionPerformed) pendingDeepLink.value = SettingsRoute
+                        }
+                    }
                 }
             }
         }

@@ -17,6 +17,7 @@ This matrix connects functional requirements (FR) to use cases (UC), stories (US
 | SEARCH-001 (entry point next to the floating bar, revised 2026-11-23) | UC-42 | US-SEARCH-01, US-UI-03 | T-SEARCH-01, T-UI-03, T-TV-01 |
 | BRAND-001 (concept "Pulse" decided 2026-11-23, ADR-027 revised) | UC-37 | US-BRAND-01, US-CUST-01 | T-BRAND-01 |
 | ABOUT-001 (repository `https://github.com/dragolab/able`, 2026-11-22) | UC-19 | US-ABOUT-01, US-APP-03 | T-ABOUT-01, T-REPO-01 |
+| UPD-001 (added 2026-11-23, ADR-051) | UC-53 | US-UPD-01 | T-UPD-01 |
 | BAT-001–BAT-004 (BAT-001–BAT-003 revised 2026-11-22: custom profiles, concurrent activation, most restrictive wins; ADR-005) | UC-04, UC-05, UC-43 | US-BAT-01, US-BAT-07, US-BAT-08 | T-PROFILE-01, T-PROFILE-02, T-PROFILE-04, T-PROFILE-05 |
 | BAT-005–BAT-008 (BAT-007 revised 2026-11-22: manual RAM tool allowed, automatic RAM cleaning excluded) | UC-05, UC-45 | US-BAT-02, US-BAT-08, US-MEM-01 | T-PROFILE-03, T-PROFILE-05, T-STATE-01, T-MEM-02 |
 | MON-001–MON-008 | UC-06 | US-MON-01 | T-MON-01, T-MON-02, T-POWER-01 |

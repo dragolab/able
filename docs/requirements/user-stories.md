@@ -209,6 +209,19 @@ As a user, I want to search all of Able's options from any main screen, so that 
 
 **Links:** UC-42; SEARCH-001; NFR-ACC-001, NFR-ACC-002, NFR-TV-001, NFR-I18N-001.
 
+### US-UPD-01 — Update Able from GitHub without leaving the app
+
+As a beta user, I want Able to tell me when a newer release is on GitHub and install it after I confirm, so that I stay current without searching for APKs.
+
+- Given I tap "Check for updates", when GitHub lists a newer release, then I see its version, date, size, and release notes, and a "Download and install" button.
+- Given the installed version is the newest, when the check completes, then Able says it is up to date and names the newest GitHub version.
+- Given "Check automatically" is on (default), when I open Able and the last check is older than 24 hours, then Able checks once, never downloads, and tells me once with a snackbar and a card at the top of Settings if a newer version exists; when it is off, Able makes no request at start.
+- Given I tap "Download and install", when Able may not install apps yet, then it explains "Install unknown apps" and opens the Android page for Able; otherwise it downloads with progress, verifies the file, and Android asks me to confirm.
+- Given the APK is signed with a different key, when Android refuses it, then Able tells me the signature differs and that I must uninstall first (after exporting a backup).
+- Unsupported/error states: offline, timeout, GitHub rate limit, unexpected response, newest release without APK, incomplete download, not an Able APK, cancelled or blocked installation, and storage full each show their own message and leave the installed app unchanged; the "?" help says only GitHub is contacted and nothing about me is sent.
+
+**Links:** UC-53; UPD-001; ADR-051; NFR-PRIV-002, NFR-I18N-001.
+
 ## Battery
 
 ### US-BAT-01 — Set a profile without surprise restrictions

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -79,7 +80,15 @@ data class UserPreferences(
     /** Use Android wallpaper (dynamic) colors; false uses the Able brand palette (BRAND-001). */
     val useDynamicColor: Boolean = true,
     /** Guided tour after onboarding completed or skipped (UX-001). */
-    val tourCompleted: Boolean = false
+    val tourCompleted: Boolean = false,
+    /** UPD-001: check GitHub Releases at app start, at most once every 24 h (ADR-051). Checks only. */
+    val updateAutoCheck: Boolean = true,
+    /** UPD-001: wall-clock time of the last completed update check; 0 = never. */
+    val updateLastCheckEpochMs: Long = 0L,
+    /** UPD-001: newest release version seen by the last successful check (e.g. `0.9.0-beta`). */
+    val updateLatestSeenVersion: String? = null,
+    /** UPD-001: newest version already announced with the app-start snackbar, so it is shown once. */
+    val updateNotifiedVersion: String? = null
 )
 
 class UserPreferencesRepository(private val context: Context) {
@@ -126,6 +135,10 @@ class UserPreferencesRepository(private val context: Context) {
         val BASELINE_ALERT_OFFER_DISMISSED = booleanPreferencesKey("baseline_alert_offer_dismissed")
         val BASELINE_ALERT_MIN_DIFFERENCE = floatPreferencesKey("baseline_alert_min_difference")
         val BATTERY_AUTOMATION_PAUSED = booleanPreferencesKey("battery_automation_paused")
+        val UPDATE_AUTO_CHECK = booleanPreferencesKey("update_auto_check")
+        val UPDATE_LAST_CHECK = longPreferencesKey("update_last_check_epoch_ms")
+        val UPDATE_LATEST_SEEN = stringPreferencesKey("update_latest_seen_version")
+        val UPDATE_NOTIFIED = stringPreferencesKey("update_notified_version")
     }
 
     val userPreferencesFlow: Flow<UserPreferences> = context.dataStore.data.map { preferences ->
@@ -186,7 +199,11 @@ class UserPreferencesRepository(private val context: Context) {
             idleDrainAlertThresholdPercentPerHour = preferences[PreferencesKeys.IDLE_DRAIN_ALERT_THRESHOLD] ?: 2.0f,
             baselineAlertOfferDismissed = preferences[PreferencesKeys.BASELINE_ALERT_OFFER_DISMISSED] ?: false,
             baselineAlertMinDifferencePercentPerHour = preferences[PreferencesKeys.BASELINE_ALERT_MIN_DIFFERENCE] ?: 0.5f,
-            batteryAutomationPaused = preferences[PreferencesKeys.BATTERY_AUTOMATION_PAUSED] ?: false
+            batteryAutomationPaused = preferences[PreferencesKeys.BATTERY_AUTOMATION_PAUSED] ?: false,
+            updateAutoCheck = preferences[PreferencesKeys.UPDATE_AUTO_CHECK] ?: true,
+            updateLastCheckEpochMs = preferences[PreferencesKeys.UPDATE_LAST_CHECK] ?: 0L,
+            updateLatestSeenVersion = preferences[PreferencesKeys.UPDATE_LATEST_SEEN],
+            updateNotifiedVersion = preferences[PreferencesKeys.UPDATE_NOTIFIED]
         )
     }
 
@@ -397,5 +414,23 @@ class UserPreferencesRepository(private val context: Context) {
 
     suspend fun setTourCompleted(completed: Boolean) {
         context.dataStore.edit { it[PreferencesKeys.TOUR_COMPLETED] = completed }
+    }
+
+    // --- In-app updater (UPD-001, ADR-051) -------------------------------------------------
+
+    suspend fun setUpdateAutoCheck(enabled: Boolean) {
+        context.dataStore.edit { it[PreferencesKeys.UPDATE_AUTO_CHECK] = enabled }
+    }
+
+    /** Records a completed check; [latestVersion] is kept when null (failed parse or no release). */
+    suspend fun recordUpdateCheck(epochMs: Long, latestVersion: String?) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.UPDATE_LAST_CHECK] = epochMs
+            if (latestVersion != null) preferences[PreferencesKeys.UPDATE_LATEST_SEEN] = latestVersion
+        }
+    }
+
+    suspend fun setUpdateNotifiedVersion(version: String) {
+        context.dataStore.edit { it[PreferencesKeys.UPDATE_NOTIFIED] = version }
     }
 }
