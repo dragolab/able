@@ -18,7 +18,7 @@ Primary destinations are Home, Battery, Apps, and Tools. Settings and Help are s
 
 ### Floating navigation bar (SHELL-001, revised 2026-11-23, ADR-042)
 
-- **Shape and position:** a pill-shaped bar floating above the bottom edge and the system navigation inset, with side and bottom margins; it holds Home, Batteria, App, Strumenti with icon and label; the selected item uses the Material 3 Expressive active indicator.
+- **Shape and position:** a pill-shaped bar floating above the bottom edge and the system navigation inset, with side and bottom margins; it holds Home, Batteria, App, Strumenti as icons only (revised 2026-11-23: each destination name is its TalkBack content description); the container uses a surfaceContainerHigh tint over the blur, a 1dp outlineVariant border and a soft shadow so it stands out in light, dark and dynamic-color themes; the selected item uses the Material 3 Expressive active indicator.
 - **Search button:** a separate small circular button to the right of the pill, same height family, search icon, TalkBack label "Cerca opzioni" / "Search options"; it opens the options search on every primary destination.
 - **Blur:** a light blur of the content behind the bar and the button (Haze, Apache-2.0) with a tonal tint; contrast of labels and icons meets WCAG AA over any content. Where blur is unavailable, too costly, or turned off, an opaque tonal surface with the same contrast is used.
 - **Content padding:** every scrollable screen adds bottom padding equal to the bar height, its margin, and the navigation inset, so the last row and primary actions scroll fully above the bar; snackbars and FABs sit above the bar; dialogs and bottom sheets are drawn above it.

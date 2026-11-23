@@ -123,8 +123,9 @@ internal fun buildToolEntries(
         ToolEntry(ToolId.MEMORY, ToolSection.FILES_AND_APPS, hintRes = R.string.tools_hint_memory),
         ToolEntry(ToolId.SHORTCUT_MAKER, ToolSection.FILES_AND_APPS, hintRes = R.string.tools_hint_shortcuts),
         ToolEntry(ToolId.ACTIVITY_LAUNCHER, ToolSection.FILES_AND_APPS, hintRes = R.string.tools_hint_activities),
-        ToolEntry(ToolId.FAKE_GPS, ToolSection.ADVANCED, hintRes = R.string.tools_hint_fakegps),
         ToolEntry(ToolId.GPS, ToolSection.MEASURE, if (hasLocation) null else R.string.tools_reason_no_location, R.string.tools_hint_gps),
+        // Fake GPS sits next to the coordinate catalog: both are GPS tools (owner request 2026-11-23).
+        ToolEntry(ToolId.FAKE_GPS, ToolSection.MEASURE, hintRes = R.string.tools_hint_fakegps),
         ToolEntry(ToolId.LEVEL, ToolSection.MEASURE, if (device.hasAccelerometer) null else R.string.tools_reason_no_accelerometer, R.string.tools_hint_level),
         ToolEntry(ToolId.RULER, ToolSection.MEASURE, if (device.hasTouchscreen) null else R.string.tools_reason_no_touchscreen, R.string.tools_hint_ruler),
         ToolEntry(

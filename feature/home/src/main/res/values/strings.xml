@@ -111,7 +111,6 @@
     <string name="home_customize_reset">Reset to default</string>
 
     <!-- Favorite shortcuts (Shortcut Maker) and brand header -->
-    <string name="home_tagline">Battery, apps and tools in one place</string>
     <string name="home_shortcuts_subtitle">Pinned shortcuts first</string>
     <string name="home_shortcuts_create">Create a shortcut</string>
     <string name="home_shortcuts_open_maker">Open Shortcut Maker</string>

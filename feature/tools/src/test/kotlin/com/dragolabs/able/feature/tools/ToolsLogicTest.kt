@@ -77,4 +77,16 @@ class ToolsLogicTest {
         assertNull(entries.getValue(ToolId.LEVEL).unavailableReason)
         assertNull(entries.getValue(ToolId.STORAGE).unavailableReason)
     }
+
+    @Test
+    fun fakeGpsSitsNextToGpsInTheSameSection() {
+        val device = DeviceCapabilities(
+            hasFlashTorch = true, hasNfc = false, hasAccelerometer = true, hasMagnetometer = true,
+            hasTelephony = false, hasTouchscreen = true, hasBattery = true,
+        )
+        val entries = buildToolEntries(device, hasLocation = true, shizuku = ShizukuConnectionState.NOT_AVAILABLE)
+        val gps = entries.indexOfFirst { it.id == ToolId.GPS }
+        assertEquals(ToolId.FAKE_GPS, entries[gps + 1].id)
+        assertEquals(entries[gps].section, entries[gps + 1].section)
+    }
 }

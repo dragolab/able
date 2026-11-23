@@ -550,12 +550,12 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Preconditions:** Able Accessibility service enabled (UC-07). Related: LOCK-003, LOCK-001.
 
 1. User opens Screen lock → Home screen double tap.
-2. Able checks whether a non-consuming touch-observation route is supported on this device/Android version and offers the modes: Light (timing-only watcher, may miss taps) and Precise (launcher-only overlay with touch replay, UC-47).
+2. Able checks whether a non-consuming touch-observation route is supported on this device/Android version and explains that Able only learns when touches start, never holds them, and checks that the home pages are in front (ADR-050).
 3. If supported, user enables it and runs the test: a double tap on empty space turns the screen off; a double tap on an icon or widget does not.
 4. With the feature active, the user double-taps empty home-screen space; Able turns the screen off through the supported lock route, while every touch still reaches the launcher.
 
 **Alternatives:** Non-consuming route unsupported → Able says so and offers the transparent widget: user places and resizes it over empty space; a double tap on the widget turns the screen off, single taps do nothing. Tap lands on an icon, widget, folder, dock, or search bar → ignored. Launcher not in the foreground → no detection. Accessibility service disabled or blocked (Advanced Protection) → feature inactive with a route to re-enable or an explanation. Launcher update breaks detection → the self-test fails and Able marks the context unsupported.  
-**Postconditions:** In Light mode and the widget fallback Able never consumes launcher touches; in Precise mode (UC-47) touches are intercepted only on the launcher home and replayed; the screen turns off only after a user double tap.
+**Postconditions:** Able never consumes or delays launcher touches; the screen turns off only after a user double tap.
 
 ## UC-40 — Protect an app with app lock
 
@@ -666,6 +666,8 @@ Use case IDs are stable. Android, the launcher, and Shizuku are external actors:
 **Postconditions:** The shown state equals the read-back state; the password is never logged, sent in crash reports, or included in the standard backup.
 
 ## UC-47 — Use the Precise home double-tap mode
+
+**Status:** Withdrawn 2026-11-23 (ADR-050); kept for ID stability.
 
 **Primary actor:** End user; launcher; Android OS  
 **Preconditions:** Able Accessibility service enabled with gesture dispatch capability; user opens Screen lock → Home screen double tap. Related: LOCK-003, ADR-039.

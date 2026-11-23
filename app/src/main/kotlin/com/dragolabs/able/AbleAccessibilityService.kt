@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Handler
 import android.os.Looper
 import android.os.VibrationEffect
@@ -27,7 +26,6 @@ import com.dragolabs.able.buttons.ButtonShortcutController
 import com.dragolabs.able.core.data.ScreenLockController
 import com.dragolabs.able.feature.tools.lock.LockGestureSettings
 import com.dragolabs.able.lock.HomeDoubleTapController
-import com.dragolabs.able.lock.HomePreciseController
 import com.dragolabs.able.lock.LockGestureOverlay
 import com.dragolabs.able.lock.LockTapWidgetProvider
 import com.dragolabs.able.lock.SystemUiLockState
@@ -38,15 +36,14 @@ import com.dragolabs.able.lock.SystemUiLockState
  *
  * - screen lock (LOCK-001, LOCK-002): `GLOBAL_ACTION_LOCK_SCREEN` for the tool, tile and widgets;
  *   double tap on the lock screen / status bar ([LockGestureOverlay]) and on empty home-screen
- *   space: Precise mode ([HomePreciseController], a touch overlay over the launcher's home pages
- *   that hands every other touch back) or Light mode ([HomeDoubleTapController]);
+ *   space ([HomeDoubleTapController], a 1×1 px watcher that never holds a touch);
  * - app lock (APPLOCK-001): foreground app changes from window events ([AppLockController]);
  * - button shortcuts (BTN-001): volume key gestures from `onKeyEvent` ([ButtonShortcutController]).
  *
  * Event types and flags beyond the XML baseline (key filtering, launcher click/scroll events) are
  * requested at runtime only while a feature needs them ([updateServiceInfo]); the launcher's
- * click/scroll events are used by both home-screen double tap modes (in Precise mode to keep
- * swipes native while the user is browsing pages). Window content is
+ * click/scroll events tell the home-screen double tap that a touch was not on empty space, and
+ * are then delivered without notification delay. Window content is
  * read only to classify SystemUI scenes and launcher package names; nothing typed is read, and
  * nothing is stored or sent apart from the feature status flags in the settings files.
  */
@@ -56,17 +53,15 @@ class AbleAccessibilityService : AccessibilityService() {
     private lateinit var packages: ForegroundPackages
     private var overlay: LockGestureOverlay? = null
     private var home: HomeDoubleTapController? = null
-    private var homePrecise: HomePreciseController? = null
     private var appLock: AppLockController? = null
     private var buttons: ButtonShortcutController? = null
     private var screenReceiverRegistered = false
-    private var baseInfo: Pair<Int, Int>? = null
+    private var baseInfo: Triple<Int, Int, Long>? = null
 
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if (key == LockGestureSettings.KEY_RECOGNITION || key == LockGestureSettings.KEY_HOME_STATUS) return@OnSharedPreferenceChangeListener
         overlay?.refresh()
         home?.reload()
-        homePrecise?.reload()
         updateServiceInfo()
     }
 
@@ -83,7 +78,6 @@ class AbleAccessibilityService : AccessibilityService() {
                 Intent.ACTION_USER_PRESENT -> appLock?.onUserPresent()
             }
             home?.onScreenStateChanged()
-            homePrecise?.onScreenStateChanged()
         }
     }
 
@@ -93,7 +87,6 @@ class AbleAccessibilityService : AccessibilityService() {
         packages = ForegroundPackages(this).also { it.refresh() }
         overlay = LockGestureOverlay(this, settings, ::onGestureDoubleTap)
         home = HomeDoubleTapController(this, settings, packages, ::onGestureDoubleTap)
-        homePrecise = HomePreciseController(this, settings, packages, ::onGestureDoubleTap)
         appLock = AppLockController(this, packages).also { it.start() }
         buttons = ButtonShortcutController(this, onActiveChanged = ::updateServiceInfo, haptic = { performHaptic(null) })
             .also { it.start() }
@@ -112,7 +105,6 @@ class AbleAccessibilityService : AccessibilityService() {
         screenReceiverRegistered = true
         overlay?.refresh()
         home?.reload()
-        homePrecise?.reload()
         updateServiceInfo()
         LockTapWidgetProvider.refreshAll(this)
     }
@@ -123,17 +115,21 @@ class AbleAccessibilityService : AccessibilityService() {
      */
     private fun updateServiceInfo() {
         val info = serviceInfo ?: return
-        val base = baseInfo ?: (info.flags to info.eventTypes).also { baseInfo = it }
+        val base = baseInfo ?: Triple(info.flags, info.eventTypes, info.notificationTimeout).also { baseInfo = it }
         var flags = base.first
         var types = base.second
+        var timeout = base.third
         if (buttons?.wantsKeyEvents == true) flags = flags or AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
-        if (home?.wantsInteractionEvents == true || homePrecise?.wantsInteractionEvents == true) {
+        if (home?.wantsInteractionEvents == true) {
             types = types or AccessibilityEvent.TYPE_VIEW_CLICKED or
                 AccessibilityEvent.TYPE_VIEW_LONG_CLICKED or AccessibilityEvent.TYPE_VIEW_SCROLLED
+            // The double tap waits for the first tap's click event: deliver events without delay.
+            timeout = 0L
         }
-        if (info.flags == flags && info.eventTypes == types) return
+        if (info.flags == flags && info.eventTypes == types && info.notificationTimeout == timeout) return
         info.flags = flags
         info.eventTypes = types
+        info.notificationTimeout = timeout
         serviceInfo = info
     }
 
@@ -143,41 +139,25 @@ class AbleAccessibilityService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
                 // Scene animations produce many events; inspect the settled tree only.
                 val pkg = event.packageName?.toString()
-                if (pkg == SystemUiLockState.SYSTEM_UI_PACKAGE) {
-                    overlay?.scheduleRefresh()
-                    homePrecise?.onWindowsMaybeChanged()
-                } else if (pkg != null && pkg == packages.launcherPackage) {
-                    homePrecise?.onWindowsMaybeChanged()
-                    homePrecise?.onLauncherEvent(event)
-                }
+                if (pkg == SystemUiLockState.SYSTEM_UI_PACKAGE) overlay?.scheduleRefresh()
             }
             AccessibilityEvent.TYPE_WINDOWS_CHANGED -> {
                 overlay?.refresh()
                 overlay?.scheduleRefresh()
-                homePrecise?.onWindowListChanged()
             }
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 overlay?.refresh()
                 overlay?.scheduleRefresh()
                 home?.onAccessibilityEvent(event)
-                homePrecise?.onLauncherEvent(event)
                 packages.foregroundPackage(event)?.let { pkg ->
                     home?.onForeground(pkg)
-                    homePrecise?.onForeground(pkg)
                     appLock?.onForeground(pkg)
                 }
-                homePrecise?.onWindowListChanged()
             }
             else -> {
                 home?.onAccessibilityEvent(event)
-                homePrecise?.onLauncherEvent(event)
             }
         }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        homePrecise?.onConfigurationChanged()
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean = buttons?.onKeyEvent(event) ?: false
@@ -201,8 +181,6 @@ class AbleAccessibilityService : AccessibilityService() {
         overlay = null
         home?.stop()
         home = null
-        homePrecise?.stop()
-        homePrecise = null
         appLock?.stop()
         appLock = null
         buttons?.stop()
@@ -221,7 +199,7 @@ class AbleAccessibilityService : AccessibilityService() {
     /** Lock after an optional short haptic so the user feels the gesture was recognised. */
     private fun lockWithFeedback(source: View?) {
         val haptic = ::settings.isInitialized && settings.read().hapticOnLock
-        if (haptic && performHaptic(source ?: overlay?.attachedView ?: homePrecise?.attachedView ?: home?.attachedView)) {
+        if (haptic && performHaptic(source ?: overlay?.attachedView ?: home?.attachedView)) {
             handler.postDelayed({ performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN) }, HAPTIC_LEAD_MS)
         } else {
             performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)

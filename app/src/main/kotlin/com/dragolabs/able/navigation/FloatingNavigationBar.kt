@@ -8,10 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -41,7 +39,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dragolabs.able.core.designsystem.R
@@ -55,7 +54,8 @@ import dev.chrisbanes.haze.blur.hazeBlur
 
 /** Geometry of the floating navigation bar used on compact windows (SHELL-001). */
 internal object FloatingNavigationBarDefaults {
-    val Height = 64.dp
+    /** Icon-only items (labels are TalkBack content descriptions), so the bar is compact. */
+    val Height = 56.dp
     val HorizontalMargin = 16.dp
     val BottomMargin = 12.dp
     val SearchGap = 10.dp
@@ -68,13 +68,14 @@ internal object FloatingNavigationBarDefaults {
 }
 
 /**
- * Floating navigation bar for compact windows: a translucent pill hovering above the content
- * (which keeps scrolling underneath, lightly blurred), with the four top-level destinations,
- * and a separate circular Search button on the trailing side. Haptics for destination taps are
+ * Floating navigation bar for compact windows: a tinted, blurred pill hovering above the content
+ * (which keeps scrolling underneath), with the four top-level destinations shown as icons only
+ * (each destination name is its TalkBack label), and a separate circular Search button on the
+ * trailing side. Haptics for destination taps are
  * played by the caller's navigation handler; Search plays a click.
  *
  * The blur uses Haze on [hazeState] (the NavHost is the source). Where blur is not available
- * Haze draws [fallback] tint only, so the container becomes an almost opaque surface and labels
+ * Haze draws the fallback tint only, so the container becomes an almost opaque surface and icons
  * stay legible.
  */
 @Composable
@@ -161,14 +162,9 @@ private fun RowScope.FloatingBarItem(
         animationSpec = motion.defaultEffectsSpec(),
         label = "navContentColor",
     )
-    val labelColor by animateColorAsState(
-        targetValue = if (selected) colors.onSurface else colors.onSurfaceVariant,
-        animationSpec = motion.defaultEffectsSpec(),
-        label = "navLabelColor",
-    )
     val indicatorColor = colors.secondaryContainer
     val interaction = remember { MutableInteractionSource() }
-    Column(
+    Box(
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()
@@ -181,13 +177,14 @@ private fun RowScope.FloatingBarItem(
                 indication = ripple(),
                 role = Role.Tab,
                 onClick = onClick,
-            ),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+            )
+            // Icon-only item: the destination name stays available to TalkBack.
+            .semantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
     ) {
         Box(
             modifier = Modifier
-                .height(30.dp)
+                .height(32.dp)
                 .width(56.dp)
                 .drawBehind {
                     if (indicatorAlpha > 0f) {
@@ -203,41 +200,34 @@ private fun RowScope.FloatingBarItem(
                 },
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(22.dp))
+            Icon(icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(24.dp))
         }
-        Spacer(Modifier.height(2.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = labelColor,
-            maxLines = 1,
-            softWrap = false,
-            overflow = TextOverflow.Ellipsis,
-        )
     }
 }
 
 /**
- * Translucent, lightly blurred container: Haze blur of the content behind plus a tint of the
- * surface-container color, and a hairline outline so the pill reads on any content.
+ * Tinted, lightly blurred container: Haze blur of the content behind under a fairly opaque
+ * surfaceContainerHigh tint (so the bar stands out from the surface-colored background in light,
+ * dark and dynamic-color themes), a 1dp outlineVariant border, and a soft shadow.
  */
 @Composable
 private fun Modifier.floatingGlass(hazeState: HazeState, shape: Shape): Modifier {
     val colors = MaterialTheme.colorScheme
-    val tint = colors.surfaceContainer
+    val tint = colors.surfaceContainerHigh
     val background = colors.surface
     val style = remember(tint, background) {
         HazeBlurStyle {
             blurRadius(20.dp)
             backgroundColor(background)
-            colorEffects(listOf(HazeColorEffect.tint(tint.copy(alpha = 0.74f))))
-            // No blur available: an almost opaque container keeps labels legible.
-            fallbackColorEffect(HazeColorEffect.tint(tint.copy(alpha = 0.96f)))
+            colorEffects(listOf(HazeColorEffect.tint(tint.copy(alpha = 0.86f))))
+            // No blur available: an opaque tonal container keeps icons legible.
+            fallbackColorEffect(HazeColorEffect.tint(tint.copy(alpha = 0.98f)))
             noiseFactor(0f)
         }
     }
     return this
+        .shadow(elevation = 4.dp, shape = shape, clip = false)
         .clip(shape)
         .hazeBlur(HazeInput.Sources(hazeState), style)
-        .border(1.dp, colors.outlineVariant.copy(alpha = 0.5f), shape)
+        .border(1.dp, colors.outlineVariant, shape)
 }

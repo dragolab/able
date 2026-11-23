@@ -28,7 +28,7 @@ This matrix connects functional requirements (FR) to use cases (UC), stories (US
 | BAT-HLT-001–BAT-HLT-002 | UC-25 | US-BAT-06 | T-BAT-HLT-01, T-CAP-01 |
 | BAT-UI-001 (added 2026-11-23, ADR-048) | UC-50 | US-BAT-09 | T-BAT-UI-01, T-TV-01 |
 | LOCK-001–LOCK-002 | UC-07 | US-LOCK-01 | T-LOCK-01 |
-| LOCK-003 (platform-dependent; Precise mode added 2026-11-22, ADR-039; swipe mitigation revised 2026-11-23) | UC-39, UC-47, UC-07 | US-LOCK-02, US-LOCK-03 | T-LOCK-02, T-LOCK-03, T-LOCK-04, T-LOCK-05 |
+| LOCK-003 (platform-dependent; single non-intercepting watcher, ADR-050, 2026-11-23; Precise mode of ADR-039 withdrawn) | UC-39, UC-07 (UC-47 withdrawn) | US-LOCK-02 (US-LOCK-03 withdrawn) | T-LOCK-02, T-LOCK-03, T-LOCK-06 (T-LOCK-04/05 withdrawn) |
 | CMD-001 | UC-38 | US-CMD-01 | T-CMD-01, T-CMD-02, T-SHIZUKU-01 |
 | APPLOCK-001 | UC-40 | US-APPLOCK-01 | T-APPLOCK-01, T-APPLOCK-02 |
 | KEY-001 | UC-41 | US-KEY-01 | T-KEY-01 |
@@ -67,9 +67,9 @@ This matrix connects functional requirements (FR) to use cases (UC), stories (US
 | NFR-I18N-001 | ABOUT-001 | T-LOCALE-01, T-ABOUT-01 |
 | NFR-ACC-001, NFR-I18N-001 | SHELL-001, HOME-001, SET-001, UX-001, UX-002, SEARCH-001 | T-LOCALE-01, T-ACCESS-01, T-HELP-01, T-SEARCH-01 |
 | NFR-ACC-002 (revised 2026-11-22: card headers, human-formatted values) | SET-002, SHELL-001 (contrast over blur), UX-001–UX-004, BRAND-001, TOOLS-001, STO-003, BAT-HLT-001–BAT-HLT-002, BAT-UI-001, APP-006 | T-ACCESS-02, T-ACCESS-03, T-PERM-02, T-MOTION-01, T-BRAND-01, T-UI-03, T-TOOLS-01 |
-| NFR-COMPAT-001 | TORCH-001, HOT-001–HOT-002, APP-007, MEM-001, LOCK-001, LOCK-003 (Light/Precise), APPLOCK-001, KEY-001, CMD-001, PIX-001–PIX-006, BAT-HLT-001–BAT-HLT-002, SENS-001–SENS-003, SYS-001–SYS-004, UX-003 (vibration primitives), GPS-003 (mock locations) | T-CAP-01, T-TORCH-01, T-HOT-01, T-PIXEL-01, T-BAT-HLT-01, T-SENS-01, T-SYS-01, T-SYS-02, T-SYS-03, T-SYS-04, T-LOCK-02, T-LOCK-03, T-LOCK-04, T-LOCK-05, T-APPLOCK-02, T-KEY-01, T-HOT-02, T-APP-07, T-MEM-01, T-HAPTIC-02, T-GPS-02 |
+| NFR-COMPAT-001 | TORCH-001, HOT-001–HOT-002, APP-007, MEM-001, LOCK-001, LOCK-003, APPLOCK-001, KEY-001, CMD-001, PIX-001–PIX-006, BAT-HLT-001–BAT-HLT-002, SENS-001–SENS-003, SYS-001–SYS-004, UX-003 (vibration primitives), GPS-003 (mock locations) | T-CAP-01, T-TORCH-01, T-HOT-01, T-PIXEL-01, T-BAT-HLT-01, T-SENS-01, T-SYS-01, T-SYS-02, T-SYS-03, T-SYS-04, T-LOCK-02, T-LOCK-03, T-LOCK-04, T-LOCK-05, T-APPLOCK-02, T-KEY-01, T-HOT-02, T-APP-07, T-MEM-01, T-HAPTIC-02, T-GPS-02 |
 | NFR-MAINT-001 | All FRs; public repository hygiene (ADR-011 revised; commit authorship, ADR-047) | Traceability review for each requirement change; T-REPO-01 |
-| NFR-PERF-001 | APP-001, APP-006, STO-001 (finder filters), STO-003, CFG-004, CMD-001 (streaming output), SEARCH-001, SHELL-001 (blur cost), LOCK-003 (Precise swipe latency), GPS-003 (map rendering) | T-PERF-01, T-STORAGE-03, T-STORAGE-05, T-APP-04, T-CMD-01, T-SEARCH-01, T-UI-03, T-LOCK-05, T-GPS-02 |
+| NFR-PERF-001 | APP-001, APP-006, STO-001 (finder filters), STO-003, CFG-004, CMD-001 (streaming output), SEARCH-001, SHELL-001 (blur cost), LOCK-003 (no touch delay), GPS-003 (map rendering) | T-PERF-01, T-STORAGE-03, T-STORAGE-05, T-APP-04, T-CMD-01, T-SEARCH-01, T-UI-03, T-LOCK-05, T-GPS-02 |
 
 ## ID notes
 

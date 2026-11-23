@@ -76,7 +76,6 @@ import com.dragolabs.able.core.designsystem.component.AbleDetailScaffold
 import com.dragolabs.able.core.designsystem.component.ExpressiveIcon
 import com.dragolabs.able.core.designsystem.component.HelpButton
 import com.dragolabs.able.core.designsystem.component.ListGroup
-import com.dragolabs.able.core.designsystem.component.RadioRow
 import com.dragolabs.able.core.designsystem.component.ReadableWidth
 import com.dragolabs.able.core.designsystem.component.StatusBanner
 import com.dragolabs.able.core.designsystem.component.StatusLevel
@@ -151,10 +150,6 @@ class ScreenLockViewModel(
 
     fun setHomeEnabled(enabled: Boolean) = settings.setHomeEnabled(enabled)
 
-    fun setHomeMode(mode: HomeDoubleTapMode) = settings.setHomeMode(mode)
-
-    fun setHomeArea(area: HomeDoubleTapArea) = settings.setHomeArea(area)
-
     fun setTimeoutMs(value: Int) = settings.setTimeoutMs(value)
 
     fun setHapticOnLock(enabled: Boolean) = settings.setHapticOnLock(enabled)
@@ -227,8 +222,6 @@ fun ScreenLockRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             onLockScreenChange = viewModel::setLockScreenEnabled,
             onStatusBarChange = viewModel::setStatusBarEnabled,
             onHomeChange = viewModel::setHomeEnabled,
-            onHomeModeChange = viewModel::setHomeMode,
-            onHomeAreaChange = viewModel::setHomeArea,
             onTimeoutChange = viewModel::setTimeoutMs,
             onHapticChange = viewModel::setHapticOnLock,
             onAddWidget = viewModel::requestWidget,
@@ -246,8 +239,6 @@ class ScreenLockActions(
     val onLockScreenChange: (Boolean) -> Unit,
     val onStatusBarChange: (Boolean) -> Unit,
     val onHomeChange: (Boolean) -> Unit,
-    val onHomeModeChange: (HomeDoubleTapMode) -> Unit,
-    val onHomeAreaChange: (HomeDoubleTapArea) -> Unit,
     val onTimeoutChange: (Int) -> Unit,
     val onHapticChange: (Boolean) -> Unit,
     val onAddWidget: () -> Unit,
@@ -469,59 +460,6 @@ private fun PlacesCard(state: ScreenLockUiState, actions: ScreenLockActions) {
                     shape = shape,
                 )
             }
-            if (state.config.homeEnabled) {
-                item { shape ->
-                    RadioRow(
-                        title = stringResource(R.string.lock_home_mode_precise_title),
-                        supportingText = stringResource(R.string.lock_home_mode_precise_summary),
-                        selected = state.config.homeMode == HomeDoubleTapMode.PRECISE,
-                        onSelect = { actions.onHomeModeChange(HomeDoubleTapMode.PRECISE) },
-                        shape = shape,
-                    )
-                }
-                item { shape ->
-                    RadioRow(
-                        title = stringResource(R.string.lock_home_mode_light_title),
-                        supportingText = stringResource(R.string.lock_home_mode_light_summary),
-                        selected = state.config.homeMode == HomeDoubleTapMode.LIGHT,
-                        onSelect = { actions.onHomeModeChange(HomeDoubleTapMode.LIGHT) },
-                        shape = shape,
-                    )
-                }
-                if (state.config.homeMode == HomeDoubleTapMode.PRECISE) {
-                    item { shape ->
-                        ListItem(
-                            modifier = Modifier.fillMaxWidth().clip(shape),
-                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-                            headlineContent = { Text(stringResource(R.string.lock_home_area_title)) },
-                            trailingContent = {
-                                HelpButton(
-                                    title = stringResource(R.string.lock_help_swipe_title),
-                                    text = stringResource(R.string.lock_help_swipe_text),
-                                )
-                            },
-                        )
-                    }
-                    item { shape ->
-                        RadioRow(
-                            title = stringResource(R.string.lock_home_area_above_dock_title),
-                            supportingText = stringResource(R.string.lock_home_area_above_dock_summary),
-                            selected = state.config.homeArea == HomeDoubleTapArea.ABOVE_DOCK,
-                            onSelect = { actions.onHomeAreaChange(HomeDoubleTapArea.ABOVE_DOCK) },
-                            shape = shape,
-                        )
-                    }
-                    item { shape ->
-                        RadioRow(
-                            title = stringResource(R.string.lock_home_area_whole_title),
-                            supportingText = stringResource(R.string.lock_home_area_whole_summary),
-                            selected = state.config.homeArea == HomeDoubleTapArea.WHOLE_SCREEN,
-                            onSelect = { actions.onHomeAreaChange(HomeDoubleTapArea.WHOLE_SCREEN) },
-                            shape = shape,
-                        )
-                    }
-                }
-            }
             item { shape ->
                 GestureToggleRow(
                     title = stringResource(R.string.lock_option_status_bar_title),
@@ -541,15 +479,11 @@ private fun PlacesCard(state: ScreenLockUiState, actions: ScreenLockActions) {
 
 @Composable
 private fun homeStatusText(config: LockGestureConfig): String {
-    val precise = config.homeMode == HomeDoubleTapMode.PRECISE
     return stringResource(
         when {
             !config.homeEnabled -> R.string.lock_home_tap_status_off
             config.homeStatus == HomeDoubleTapStatus.NO_LAUNCHER -> R.string.lock_home_tap_status_no_launcher
             config.homeStatus == HomeDoubleTapStatus.FAILED -> R.string.lock_home_tap_status_failed
-            precise && config.homeStatus == HomeDoubleTapStatus.PRECISE_READY -> R.string.lock_home_tap_status_precise_ok
-            precise && config.homeStatus == HomeDoubleTapStatus.LAUNCHER_NOT_RECOGNIZED -> R.string.lock_home_tap_status_not_recognized
-            precise -> R.string.lock_home_tap_status_precise_unknown
             config.homeStatus == HomeDoubleTapStatus.WATCHING -> R.string.lock_home_tap_status_ok
             else -> R.string.lock_home_tap_status_unknown
         },

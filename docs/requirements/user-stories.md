@@ -389,6 +389,8 @@ As a user, I want to double tap an empty part of my home screen to turn the scre
 
 ### US-LOCK-03 — Use a precise home double tap that still lets my launcher work
 
+**Status:** Withdrawn 2026-11-23 (ADR-050): the Precise mode was removed; US-LOCK-02 covers the home double tap. Kept for ID stability.
+
 As a Pixel user for whom the light mode misses taps, I want a precise mode that reliably detects a double tap on empty home space while my icons, long presses, and swipes keep working.
 
 - Given I select Precise, when setup opens, then Able explains that single taps are slightly delayed, some gestures may not replay perfectly, and launcher updates can affect it.

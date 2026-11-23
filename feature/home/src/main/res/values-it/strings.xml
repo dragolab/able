@@ -102,7 +102,6 @@
     <string name="home_customize_reset">Ripristina predefinito</string>
 
     <!-- Favorite shortcuts (Shortcut Maker) and brand header -->
-    <string name="home_tagline">Batteria, app e strumenti in un unico posto</string>
     <string name="home_shortcuts_subtitle">Prima quelle aggiunte alla schermata Home</string>
     <string name="home_shortcuts_create">Crea una scorciatoia</string>
     <string name="home_shortcuts_open_maker">Apri Shortcut Maker</string>

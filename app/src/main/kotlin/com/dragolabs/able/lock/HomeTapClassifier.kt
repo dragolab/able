@@ -3,17 +3,19 @@ package com.dragolabs.able.lock
 /**
  * Pure double-tap classifier for the home screen (LOCK-001), separated for unit tests.
  *
- * The service only learns *when* a touch starts on the launcher (an `ACTION_OUTSIDE` event;
- * Android does not give the position of touches on other apps' windows), never where. So "empty space" is
- * inferred from what the launcher reports through accessibility events instead: a tap on an icon
- * or widget produces `TYPE_VIEW_CLICKED`, a long press `TYPE_VIEW_LONG_CLICKED`, a page swipe
- * `TYPE_VIEW_SCROLLED`, opening the app drawer or an app a window change. If any such
- * interaction is reported between the first touch and the end of the settle window after the
- * second touch, the pair is not a double tap on empty space.
+ * The service only learns *when* a touch starts (an `ACTION_OUTSIDE` event; Android does not
+ * give the position of touches on other apps' windows), never where. Two touch-downs closer than
+ * the user's timeout (and farther apart than [MIN_GAP_MS], so a bounce or a two-finger touch is
+ * ignored) form a candidate pair. "Empty space" is inferred from what the launcher reports: a tap
+ * on an icon or widget produces `TYPE_VIEW_CLICKED`, a long press `TYPE_VIEW_LONG_CLICKED`, a
+ * page swipe `TYPE_VIEW_SCROLLED`. If any of those is reported from shortly before the first
+ * touch until the decision, the pair is rejected.
  *
- * The settle delay is 450 ms. On the API 36 emulator with Pixel Launcher (2026-11-22) a 300 ms
- * settle let one icon double tap lock the screen because the click event came late; with
- * 450 ms icon double taps were rejected and empty-space double taps still locked.
+ * The decision waits [DEFAULT_SETTLE_MS] after the second touch, so the click event of the first
+ * tap (sent when the finger lifts) has arrived; the service asks for these events with no
+ * notification delay while the feature is on. Window-level checks (launcher still in front, home
+ * pages visible, no shade) are done live by [HomeDoubleTapController] at decision time, as the
+ * reference app "Double Tap Screen Off" does at the second touch.
  *
  * All times are `SystemClock.uptimeMillis()` (the time base of `MotionEvent.getEventTime()` and
  * `AccessibilityEvent.getEventTime()`).
@@ -26,16 +28,17 @@ class HomeTapClassifier(
     private var candidateDownMs = 0L
     private var pairFirstMs = 0L
     private var lastInteractionMs = 0L
+    private var lastTriggerMs = 0L
 
     /**
-     * A touch started on the launcher. Returns the uptime at which [decide] should be called, or
-     * null when this touch is (for now) only the first of a possible pair.
+     * A touch started. Returns the uptime at which [decide] should be called, or null when this
+     * touch is (for now) only the first of a possible pair.
      */
     @Synchronized
     fun onTouchDown(timeMs: Long, timeoutMs: Int): Long? {
         val first = firstDownMs
         val gap = timeMs - first
-        if (first != 0L && gap in MIN_GAP_MS until timeoutMs.toLong()) {
+        if (first != 0L && gap in MIN_GAP_MS until timeoutMs.toLong() && timeMs - lastTriggerMs > REARM_MS) {
             firstDownMs = 0L
             pairFirstMs = first
             candidateDownMs = timeMs
@@ -47,7 +50,7 @@ class HomeTapClassifier(
         return null
     }
 
-    /** The launcher reported a click, long click, scroll or window change at [timeMs]. */
+    /** The launcher reported a click, long click or scroll at [timeMs]. */
     @Synchronized
     fun onLauncherInteraction(timeMs: Long) {
         if (timeMs > lastInteractionMs) lastInteractionMs = timeMs
@@ -62,19 +65,9 @@ class HomeTapClassifier(
         val second = candidateDownMs
         candidateDownMs = 0L
         if (second == 0L) return false
-        return lastInteractionMs < pairFirstMs - INTERACTION_MARGIN_MS
-    }
-
-    /**
-     * True when a touch at [timeMs] would complete a pair with the pending first touch, with no
-     * launcher interaction reported since shortly before it. Does not change the state; used
-     * when the second tap of the pair was seen with coordinates elsewhere (Precise mode).
-     */
-    @Synchronized
-    fun pairsWith(timeMs: Long, timeoutMs: Int): Boolean {
-        val first = firstDownMs
-        if (first == 0L) return false
-        return timeMs - first in MIN_GAP_MS until timeoutMs.toLong() && lastInteractionMs < first - INTERACTION_MARGIN_MS
+        val ok = lastInteractionMs < pairFirstMs - INTERACTION_MARGIN_MS
+        if (ok) lastTriggerMs = second
+        return ok
     }
 
     @Synchronized
@@ -84,12 +77,15 @@ class HomeTapClassifier(
     }
 
     companion object {
-        const val DEFAULT_SETTLE_MS = 450L
+        const val DEFAULT_SETTLE_MS = 150L
 
         /** Touches closer than this are treated as a bounce or a multi-finger touch. */
-        const val MIN_GAP_MS = 40L
+        const val MIN_GAP_MS = 60L
 
         /** Events stamped slightly before the first touch still belong to the same interaction. */
         const val INTERACTION_MARGIN_MS = 50L
+
+        /** After a recognised double tap, ignore further pairs for this long. */
+        const val REARM_MS = 300L
     }
 }

@@ -101,8 +101,8 @@ Implementation note (19 Nov 2026): TSK-0501 and TSK-0502 have partial source imp
 | TSK-0605 | Feasibility spike: non-consuming touchscreen observation for empty home-space double tap on Pixel 8 Pro (Android 15/16+); record API availability and date; never ship a consuming route (R-027). | LOCK-003 | UC-39, US-LOCK-02 | T-LOCK-02 |
 | TSK-0606 | Implement empty home-space detection (launcher foreground check, node hit-test for icons/widgets/dock/search) where TSK-0605 confirms a route. | LOCK-003, ADR-034 | UC-39, US-LOCK-02 | T-LOCK-02 |
 | TSK-0607 | Build the transparent resizable double-tap home widget fallback. | LOCK-003 | UC-39, US-LOCK-02 | T-LOCK-03 |
-| TSK-0609 | Precise home double-tap mode: launcher-only accessibility overlay excluding system gesture insets, tap/double-tap/swipe/long-press classifier, replay via `dispatchGesture`/node actions, overlay removal on focus loss, Light/Precise selector, self-test with measured replay delay, disclosures. | LOCK-003, ADR-039, ADR-041 | UC-47, US-LOCK-03 | T-LOCK-04 |
-| TSK-0610 | Precise mode swipe mitigation: pass-through browsing window after swipes, velocity-preserving first-swipe replay, reduced intercept area (dock/hotseat, search bar, gesture insets), self-test metrics (first-swipe delay, page-change rate), updated disclosures. | LOCK-003, ADR-039, ADR-049 | UC-47, US-LOCK-03 | T-LOCK-05 |
+| TSK-0609 | *Withdrawn (ADR-050).* Precise home double-tap mode: launcher-only accessibility overlay excluding system gesture insets, tap/double-tap/swipe/long-press classifier, replay via `dispatchGesture`/node actions, overlay removal on focus loss, Light/Precise selector, self-test with measured replay delay, disclosures. | LOCK-003, ADR-039, ADR-041 | UC-47, US-LOCK-03 | T-LOCK-04 |
+| TSK-0610 | *Withdrawn (ADR-050).* Precise mode swipe mitigation: pass-through browsing window after swipes, velocity-preserving first-swipe replay, reduced intercept area (dock/hotseat, search bar, gesture insets), self-test metrics (first-swipe delay, page-change rate), updated disclosures. | LOCK-003, ADR-039, ADR-049 | UC-47, US-LOCK-03 | T-LOCK-05 |
 
 ---
 
@@ -276,7 +276,7 @@ Implementation note (19 Nov 2026): TSK-0701 and part of TSK-0702 have source imp
 | TSK-1704 | Implement app lock: protected-app picker, grace period, screen-lock check, foreground detection via the Accessibility service, Able lock activity with system `BiometricPrompt`, cancel → Home, re-lock on screen off; no overlays. | APPLOCK-001, ADR-030 | UC-40, US-APPLOCK-01 | T-APPLOCK-01 |
 | TSK-1705 | Add app-lock limit disclosures, inactive/unavailable states (Accessibility off, Advanced Protection), and Home safety warning. | APPLOCK-001, HOME-003 | UC-40, US-APPLOCK-01 | T-APPLOCK-02 |
 | TSK-1706 | Implement button shortcuts: key-event filtering, gesture recognizer (together, double, long press), target binding to Action Catalog/camera/app/activity, test action, unsupported power-key row. | KEY-001, ADR-031, CUST-001 | UC-41, US-KEY-01 | T-KEY-01 |
-| TSK-1707 | Prepare the Play Accessibility prominent disclosure and Permissions Declaration content covering LOCK-001/LOCK-003 (including the Precise overlay), APPLOCK-001, and KEY-001 (release-time decision). | APPLOCK-001, KEY-001, LOCK-003, NFR-SEC-002 | UC-39, UC-40, UC-41 | Release review (R-022) |
+| TSK-1707 | Prepare the Play Accessibility prominent disclosure and Permissions Declaration content covering LOCK-001/LOCK-003 , APPLOCK-001, and KEY-001 (release-time decision). | APPLOCK-001, KEY-001, LOCK-003, NFR-SEC-002 | UC-39, UC-40, UC-41 | Release review (R-022) |
 
 ---
 

@@ -2,8 +2,6 @@ package com.dragolabs.able.feature.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -12,21 +10,17 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DashboardCustomize
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dragolabs.able.core.designsystem.component.AbleIconButton
-import com.dragolabs.able.core.designsystem.component.AbleLogo
+import com.dragolabs.able.core.designsystem.component.AbleWordmark
 import com.dragolabs.able.core.designsystem.component.AbleTopLevelScaffold
 import com.dragolabs.able.core.designsystem.component.AbleSharedKeys
 import com.dragolabs.able.core.designsystem.component.EmptyState
@@ -87,6 +81,8 @@ fun HomeScreen(
         modifier = modifier,
         onOpenSettings = actions.onOpenSettings,
         snackbarHostState = snackbarHostState,
+        // Expanded header: the "Able" title only; collapsed bar: the brand lockup (BRAND-001).
+        collapsedTitle = { AbleWordmark(height = 28.dp, contentDescription = null) },
         actions = {
             AbleIconButton(onClick = { showCustomize = true }) {
                 Icon(Icons.Rounded.DashboardCustomize, contentDescription = stringResource(R.string.home_customize))
@@ -105,11 +101,6 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(AbleSpacing.md),
             verticalItemSpacing = AbleSpacing.md,
         ) {
-            // Brand header (BRAND-001): small Able mark next to a one-line tagline.
-            item(key = "brand", span = StaggeredGridItemSpan.FullLine) {
-                HomeBrandHeader()
-            }
-
             // Safety banners first, full width, independent of card order (HOME-003).
             state.alerts.forEach { alert ->
                 item(key = alert.key(), span = StaggeredGridItemSpan.FullLine) {
@@ -220,24 +211,5 @@ private fun HomeCard(type: HomeCardType, state: HomeUiState, actions: HomeAction
             onOpenTool = { actions.onOpenToolFrom(it, HomeOrigins.SENSORS) },
         )
         HomeCardType.GEO_POINT_QUICK -> GeoPointCard(onOpenGps = { actions.onOpenToolFrom(ToolId.GPS, HomeOrigins.GEO) })
-    }
-}
-
-@Composable
-private fun HomeBrandHeader() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AbleSpacing.md),
-    ) {
-        // Decorative: the top bar title already says "Able".
-        AbleLogo(size = 32.dp, contentDescription = null)
-        Text(
-            stringResource(R.string.home_tagline),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
     }
 }

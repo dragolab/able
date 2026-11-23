@@ -86,22 +86,19 @@ class HomeTapClassifierTest {
     }
 
     @Test
-    fun pairsWith_matchesAQuickSecondTouchWithoutChangingState() {
+    fun afterADoubleTap_aQuickThirdPairIsIgnored() {
         val c = HomeTapClassifier()
-        assertFalse(c.pairsWith(1_200, timeout))
         c.onTouchDown(1_000, timeout)
-        assertTrue(c.pairsWith(1_200, timeout))
-        assertFalse(c.pairsWith(1_020, timeout)) // bounce
-        assertFalse(c.pairsWith(1_400, timeout)) // too slow
-        // Still pending: a real second touch completes the pair.
-        assertEquals(1_650L, c.onTouchDown(1_200, timeout))
+        c.onTouchDown(1_200, timeout)
+        assertTrue(c.decide())
+        assertNull(c.onTouchDown(1_300, timeout))
+        assertNull(c.onTouchDown(1_400, timeout))
     }
 
     @Test
-    fun pairsWith_rejectsWhenTheLauncherReacted() {
+    fun settleDefault_isShortAfterSecondTouch() {
         val c = HomeTapClassifier()
         c.onTouchDown(1_000, timeout)
-        c.onLauncherInteraction(1_080) // e.g. the first touch was a page swipe or an icon tap
-        assertFalse(c.pairsWith(1_200, timeout))
+        assertEquals(1_200L + HomeTapClassifier.DEFAULT_SETTLE_MS, c.onTouchDown(1_200, timeout))
     }
 }
